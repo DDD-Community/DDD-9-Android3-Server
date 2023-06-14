@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:mysql://${rds.hostname}:${rds.port}/${rds.db.name}?serverTimezone=UTC&characterEncoding=UTF-8
+    username: ${rds.username}
+    password: ${rds.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL57Dialect
