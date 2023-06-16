@@ -71,4 +71,4 @@ jobs:
           environment_name: ${{ secrets.EB_ENVIRONMENT }}
           version_label: deploy-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
-          deployment_package: buyornot/docker-compose.yml
+          deployment_package: docker-compose.yml
