@@ -12,8 +12,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: create yml files
-        working-directory: src/main/resources
+      - name: Create yml files
+        working-directory: ./src/main/resources
         run: |
           touch application.yml
           touch application-dev.yml
