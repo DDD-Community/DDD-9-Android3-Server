@@ -72,3 +72,4 @@ jobs:
           version_label: deploy-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
           deployment_package: docker-compose.yml
+          wait_for_environment_recovery: 180
