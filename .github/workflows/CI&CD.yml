@@ -18,7 +18,8 @@ jobs:
           mkdir ./src/main/resources
           cd ./src/main/resources
           touch application.yml
-          touch application-dev.yml
+          touch application-aws.yml
+          touch application-oauth.yml
           echo "${{ secrets.APPLICATION_YML }}" >> application.yml
           echo "${{ secrets.APPLICATION_AWS_YML }}" >> application-aws.yml
           echo "${{ secrets.APPLICATION_OAUTH_YML }}" >> application-oauth.yml
