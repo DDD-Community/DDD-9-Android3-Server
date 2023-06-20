@@ -1,4 +1,4 @@
-package com.nexters.buyornot.config;
+package com.nexters.buyornot.global.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
