@@ -1,4 +1,4 @@
-package com.nexters.buyornot.config.swagger;
+package com.nexters.buyornot.global.config.swagger;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
