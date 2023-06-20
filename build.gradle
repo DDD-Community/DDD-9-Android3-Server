@@ -21,6 +21,20 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'com.google.firebase:firebase-admin:9.1.1'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	implementation group: 'org.hibernate', name: 'hibernate-validator', version: '8.0.0.Final'
+
+	//security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	//jwt
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation group: "io.jsonwebtoken", name: "jjwt-api", version: "0.11.2"
+	implementation group: "io.jsonwebtoken", name: "jjwt-impl", version: "0.11.2"
+	implementation group: "io.jsonwebtoken", name: "jjwt-jackson", version: "0.11.2"
 }
 
 tasks.named('test') {
