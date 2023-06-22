@@ -85,9 +85,8 @@ DDD 9기 안드로이드 3팀 서버
     │   │               │   └── util
     │   │               └── infra
     │   └── resources
-    │       ├── application-dev.yml
-    │       ├── application-local.yml
-    │       ├── application-prod.yml
+    │       ├── application-aws.yml
+    │       ├── application-oauth.yml
     │       └── application.yml
 
 ```
@@ -99,4 +98,5 @@ DDD 9기 안드로이드 3팀 서버
 
 ## ERD
 
-<img src = "https://github.com/DDD-Community/DDD-9-Android3-Server/assets/70634740/75d1620f-a75d-4795-a0dc-23bbb727a07e" height = 300/>
+<img src = "https://github.com/DDD-Community/DDD-9-Android3-Server/assets/70634740/7b1a991b-1ea6-4c58-82df-802e69afe80d" height = 300/>
+
