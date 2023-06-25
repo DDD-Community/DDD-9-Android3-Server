@@ -1,7 +1,8 @@
-package com.nexters.buyornot.domain.user;
+package com.nexters.buyornot.domain.user.model;
 
 import com.nexters.buyornot.domain.model.Gender;
 import com.nexters.buyornot.domain.model.Role;
+import com.nexters.buyornot.domain.model.SocialInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
