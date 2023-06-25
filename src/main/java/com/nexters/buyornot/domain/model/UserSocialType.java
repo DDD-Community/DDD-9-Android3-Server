@@ -1,4 +1,4 @@
-package com.nexters.buyornot.domain.user;
+package com.nexters.buyornot.domain.model;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
