@@ -1,4 +1,4 @@
-package com.nexters.buyornot.domain.model;
+package com.nexters.buyornot.module.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

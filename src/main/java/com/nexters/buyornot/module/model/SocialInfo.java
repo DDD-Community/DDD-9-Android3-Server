@@ -1,4 +1,4 @@
-package com.nexters.buyornot.domain.model;
+package com.nexters.buyornot.module.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
