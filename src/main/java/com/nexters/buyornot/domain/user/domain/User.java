@@ -1,4 +1,4 @@
-package com.nexters.buyornot.domain.user.model;
+package com.nexters.buyornot.domain.user.domain;
 
 import com.nexters.buyornot.domain.model.Gender;
 import com.nexters.buyornot.domain.model.Role;
