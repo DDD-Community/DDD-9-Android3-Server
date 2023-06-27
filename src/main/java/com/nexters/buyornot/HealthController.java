@@ -22,6 +22,7 @@ public class HealthController {
         return ApiResponse.success(SuccessCode.SELECT_SUCCESS, "health check OK");
     }
 
+    @GetMapping("/test")
     public ResponseEntity<ApiResponse<String>> test() {
         User user = new User("mina");
         User newUser = userRepository.save(user);
