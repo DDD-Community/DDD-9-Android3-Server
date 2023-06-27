@@ -20,6 +20,7 @@ public enum ErrorCode {
      * 401 : Unauthorized
      * 403 : Forbidden
      * 404 : Not Found
+     * 409 : Conflict
      * 500 : Internal Server Error
      * *********************************************************************************************
      */
@@ -66,8 +67,8 @@ public enum ErrorCode {
     /**
      * ******************************* Business Error CodeList ***************************************
      */
-    // Transaction Insert Error
-    INSERT_ERROR(200, "B001", "Insert Transaction Error Exception"),
+    // 유저가 존재하지 않음
+    NOT_FOUND_USER_EXCEPTION(404, "B001", "존재하지 않는 유저입니다."),
 
     // Transaction Update Error
     UPDATE_ERROR(200, "B002", "Update Transaction Error Exception"),
