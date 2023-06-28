@@ -1,18 +1,15 @@
 version: "3.8"
 
-networks:
-  corp:
-    driver: bridge
-
 services:
+  nginx:
+    image: "buyornot/docker-nginx"
+    ports:
+      - "80:80"
+    restart: "always"
+
   springboot:
     image: "buyornot/docker-springboot"
     ports:
       - "8080:8080"
     restart: "always"
 
-  nginx:
-    image: "buyornot/docker-nginx"
-    ports:
-      - "80:80"
-    restart: "always"
