@@ -3,8 +3,6 @@ version: "3.8"
   services:
     springboot:
       image: "buyornot/docker-springboot"
-      ports:
-        - "8080:8080"
       restart: "always"
 
     nginx:
