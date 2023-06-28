@@ -1,4 +1,9 @@
 version: "3.8"
+
+networks:
+  corp:
+    driver: bridge
+
 services:
   springboot:
     image: "buyornot/docker-springboot"
