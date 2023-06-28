@@ -6,22 +6,16 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - backbone
+      - buyornot_net
     restart: "always"
-
   nginx:
     image: buyornot/docker-nginx
     container_name: nginx
     ports:
       - "80:80"
     networks:
-      - default
-      - buyornot_net
-    depends_on:
-      - default
       - buyornot_net
     restart: "always"
-
 networks:
   buyornot_net:
     driver: bridge
