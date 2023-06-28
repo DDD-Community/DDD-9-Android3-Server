@@ -1,13 +1,13 @@
 version: "3.8"
 
-services:
-  nginx:
-    image: "buyornot/docker-nginx"
-    ports:
-      - "80:80"
-    restart: "always"
-
   springboot:
     image: "buyornot/docker-springboot"
     restart: "always"
+
+  services:
+    nginx:
+      image: "buyornot/docker-nginx"
+      ports:
+        - "80:80"
+      restart: "always"
 
