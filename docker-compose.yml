@@ -3,8 +3,6 @@ services:
   springboot:
     image: buyornot/docker-springboot
     container_name: springboot
-    ports:
-      - "8080:8080"
     networks:
       - buyornot_net
     restart: "always"
