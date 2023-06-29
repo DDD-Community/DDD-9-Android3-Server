@@ -1,6 +1,7 @@
 package com.nexters.buyornot.module.auth.model;
 
 import com.nexters.buyornot.global.jwt.JwtTokenProvider;
+import com.nexters.buyornot.module.auth.api.dto.response.AuthTokens;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

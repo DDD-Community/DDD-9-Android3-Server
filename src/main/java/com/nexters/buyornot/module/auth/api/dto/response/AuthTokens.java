@@ -1,4 +1,4 @@
-package com.nexters.buyornot.module.auth.model;
+package com.nexters.buyornot.module.auth.api.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

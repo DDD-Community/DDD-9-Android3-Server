@@ -1,4 +1,4 @@
-package com.nexters.buyornot.module.auth.infra;
+package com.nexters.buyornot.module.auth.api.dto.request;
 
 import com.nexters.buyornot.module.auth.model.oauth.OAuthLoginParams;
 import com.nexters.buyornot.module.auth.model.oauth.OAuthProvider;
