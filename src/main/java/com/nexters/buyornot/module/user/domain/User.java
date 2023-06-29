@@ -43,6 +43,7 @@ public class User extends BaseEntity {
 
     private String ageRange;
 
+    @Enumerated(EnumType.STRING)
     private OAuthProvider oAuthProvider;
 
     @Builder
