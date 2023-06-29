@@ -1,6 +1,6 @@
 package com.nexters.buyornot.module.auth.application;
 
-import com.nexters.buyornot.module.auth.model.AuthTokens;
+import com.nexters.buyornot.module.auth.api.dto.response.AuthTokens;
 import com.nexters.buyornot.module.auth.model.AuthTokensGenerator;
 import com.nexters.buyornot.module.auth.model.oauth.OAuthInfoResponse;
 import com.nexters.buyornot.module.auth.model.oauth.OAuthLoginParams;
