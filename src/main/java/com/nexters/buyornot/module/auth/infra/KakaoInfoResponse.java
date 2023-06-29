@@ -36,9 +36,7 @@ public class KakaoInfoResponse implements OAuthInfoResponse {
     }
 
     @Override
-    public String getGender() {
-        System.out.println(kakaoAccount.gender);
-        return kakaoAccount.gender; }
+    public String getGender() { return kakaoAccount.gender; }
 
     @Override
     public String getAgeRange() { return kakaoAccount.age_range; }

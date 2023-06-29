@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.util.Date;
 import java.util.UUID;
 
 @Entity
