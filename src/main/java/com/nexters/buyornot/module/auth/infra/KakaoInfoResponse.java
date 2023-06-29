@@ -25,7 +25,6 @@ public class KakaoInfoResponse implements OAuthInfoResponse {
         private KakaoProfile profile;
         private String email;
         private String gender;
-        private String birthday;
         private String age_range;
 
     }
@@ -41,19 +40,6 @@ public class KakaoInfoResponse implements OAuthInfoResponse {
 
     @Override
     public String getAgeRange() { return kakaoAccount.age_range; }
-
-    @Override
-    public Date getBirthday() {
-        SimpleDateFormat formatter = new SimpleDateFormat("MM월 dd일");
-        Date date;
-        try {
-            date = formatter.parse(kakaoAccount.getBirthday());
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-
-        return date;
-    }
 
     @Override
     public String getEmail() {

@@ -35,7 +35,6 @@ public class OAuthLoginService {
     private UUID newMember(OAuthInfoResponse oAuthInfoResponse) {
         User user = User.builder()
                 .gender(oAuthInfoResponse.getGender())
-                .birthday(oAuthInfoResponse.getBirthday())
                 .email(oAuthInfoResponse.getEmail())
                 .nickname(oAuthInfoResponse.getNickname())
                 .ageRange(oAuthInfoResponse.getAgeRange())
