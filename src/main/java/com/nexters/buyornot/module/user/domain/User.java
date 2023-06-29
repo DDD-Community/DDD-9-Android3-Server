@@ -39,8 +39,6 @@ public class User extends BaseEntity {
     @Unique
     private String nickname;
 
-    private Date birth;
-
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
@@ -49,10 +47,9 @@ public class User extends BaseEntity {
     private OAuthProvider oAuthProvider;
 
     @Builder
-    public User(Date birthday, String gender, String email, String nickname, OAuthProvider oAuthProvider, String ageRange, Role role) {
+    public User(String gender, String email, String nickname, OAuthProvider oAuthProvider, String ageRange, Role role) {
         this.name = nickname;
         this.gender = Gender.valueOf(gender);
-        this.birth = birthday;
         this.email = email;
         this.nickname = nickname;
         this.ageRange = ageRange;
