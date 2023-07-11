@@ -1,11 +1,23 @@
 version: "3.8"
 services:
   springboot:
-    image: "buyornot/docker-springboot"
+    image: buyornot/docker-springboot
+    container_name: springboot
+    ports:
+      - "8080:8080"
+    networks:
+      - buyornot_net
     restart: "always"
-
   nginx:
-    image: "buyornot/docker-nginx"
+    image: buyornot/docker-nginx
+    container_name: nginx
     ports:
       - "80:80"
+    depends_on:
+      - springboot
+    networks:
+      - buyornot_net
     restart: "always"
+networks:
+  buyornot_net:
+    driver: bridge
