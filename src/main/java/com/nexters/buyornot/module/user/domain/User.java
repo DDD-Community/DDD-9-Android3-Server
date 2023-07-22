@@ -4,6 +4,7 @@ import com.nexters.buyornot.module.auth.model.oauth.OAuthProvider;
 import com.nexters.buyornot.module.model.BaseEntity;
 import com.nexters.buyornot.module.model.Gender;
 import com.nexters.buyornot.module.model.Role;
+import com.nexters.buyornot.module.user.dto.JwtUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
@@ -55,6 +56,10 @@ public class User extends BaseEntity {
         this.ageRange = ageRange;
         this.oAuthProvider = oAuthProvider;
         this.role = role;
+    }
+
+    public JwtUser toJwtUser() {
+        return JwtUser.fromUser(id, name, nickname, email, role.getValue());
     }
 
     public User(String name) {
