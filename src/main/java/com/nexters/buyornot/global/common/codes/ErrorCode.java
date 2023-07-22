@@ -69,6 +69,7 @@ public enum ErrorCode {
      */
     // 유저가 존재하지 않음
     NOT_FOUND_USER_EXCEPTION(404, "B001", "존재하지 않는 유저입니다."),
+    NOT_FOUND_ITEM_EXCEPTION(404, "B002", "존재하지 않는 아이템입니다."),
 
     // Transaction Update Error
     UPDATE_ERROR(200, "B002", "Update Transaction Error Exception"),
