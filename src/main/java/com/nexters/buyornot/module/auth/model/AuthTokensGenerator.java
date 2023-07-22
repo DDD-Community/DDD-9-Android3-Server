@@ -2,6 +2,7 @@ package com.nexters.buyornot.module.auth.model;
 
 import com.nexters.buyornot.global.jwt.JwtTokenProvider;
 import com.nexters.buyornot.module.auth.api.dto.response.AuthTokens;
+import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,19 +18,18 @@ public class AuthTokensGenerator {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    public AuthTokens generate(UUID memberId) {
+    public AuthTokens generate(JwtUser jwtUser) {
         long now = (new Date()).getTime();
         Date accessTokenExpiredAt = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
         Date refreshTokenExpiredAt = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
 
-        String subject = memberId.toString();
-        String accessToken = jwtTokenProvider.generate(subject, accessTokenExpiredAt);
-        String refreshToken = jwtTokenProvider.generate(subject, refreshTokenExpiredAt);
+        String accessToken = jwtTokenProvider.generate(jwtUser, accessTokenExpiredAt);
+        String refreshToken = jwtTokenProvider.generate(jwtUser, refreshTokenExpiredAt);
 
         return AuthTokens.of(accessToken, refreshToken, BEARER_TYPE, ACCESS_TOKEN_EXPIRE_TIME / 1000L);
     }
 
-    public Long extractMemberId(String accessToken) {
-        return Long.valueOf(jwtTokenProvider.extractSubject(accessToken));
+    public UUID extractMemberId(String accessToken) {
+        return UUID.fromString(jwtTokenProvider.extractSubject(accessToken));
     }
 }
