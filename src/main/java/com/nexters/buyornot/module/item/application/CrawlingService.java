@@ -19,6 +19,9 @@ public class CrawlingService {
         if(url.contains("musinsa")) return getMusinsa(url);
         if(url.contains("zigzag")) return getZigzag(url);
         if(url.contains("29cm")) return get29cm(url);
+        if(url.contains("wconcept")) return getWConcept(url);
+
+        //w컨셉, 에이블리
 
         return ItemDto.defaultConfig();
     }
@@ -88,8 +91,6 @@ public class CrawlingService {
             discountedPrice = discountedPrice.replace("원", "");
         }
 
-
-
         return ItemDto.newItemDto(ItemProvider.ZIGZAG, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
 
     }
@@ -120,6 +121,26 @@ public class CrawlingService {
         discountedPrice = discountedPrice.replace("원", "");
 
         return ItemDto.newItemDto(ItemProvider.APLUSB, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
+    }
+
+    public ItemDto getWConcept(String url) throws IOException {
+        String brand, itemName, imgUrl, originPrice, discountRate, discountedPrice;
+
+        Document document = Jsoup.connect(url)
+                .header("userAgent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15")
+                .get();
+
+        brand = document.getElementsByClass("brand").first().text();
+        itemName = document.getElementsByClass("product cottonusa").text();
+        originPrice = document.getElementsByClass("normal").select("em").text();
+        originPrice = originPrice.replace(",", "");
+        discountRate = document.getElementsByClass("discount_percent").text();
+        discountRate = discountRate.replace("%", "");
+        discountedPrice = document.getElementsByClass("sale").select("em").text();
+        discountedPrice = discountedPrice.replace(",", "");
+        imgUrl = "https:" + document.getElementsByClass("img_area").select("img").attr("src");
+
+        return ItemDto.newItemDto(ItemProvider.WCONCEPT, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
     }
 
     private double calculatePrice(String originPrice, String discountRate) {
