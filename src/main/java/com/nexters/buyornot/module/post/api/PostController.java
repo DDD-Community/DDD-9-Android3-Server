@@ -48,4 +48,10 @@ public class PostController {
     public ResponseEntity<ApiResponse<List<PostResponse>>> getTemporaries(@LoginUser JwtUser user) {
         return ApiResponse.success(SuccessCode.SELECT_SUCCESS, postService.getTemporaries(user));
     }
+
+    @Operation(summary = "글 수정")
+    @PatchMapping("/{postId}/post")
+    public ResponseEntity<ApiResponse<PostResponse>> modifyPost(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId, @RequestBody CreatePostReq dto) {
+        return ApiResponse.success(SuccessCode.UPDATE_SUCCESS, postService.updatePost(user, postId, dto));
+    }
 }

@@ -75,11 +75,22 @@ public class Post extends BaseEntity {
             PollItemResponse response = pollItem.newPollItemResponse();
             pollItemResponseList.add(response);
         }
-        return new PostResponse(id, nickname, title, content, publicStatus.name(), pollStatus.name(), pollItemResponseList);
+        return new PostResponse(id, userId.toString(), nickname, title, content, publicStatus.name(), pollStatus.name(), pollItemResponseList);
     }
 
     public Long getId() {
         return id;
     }
 
+    public boolean checkValidity(UUID userId) {
+        if(this.userId.equals(userId)) return true;
+        return false;
+    }
+
+    public void update(CreatePostReq dto, List<PollItem> pollItems) {
+        this.title = dto.getTitle();
+        this.content = dto.getContent();
+        this.publicStatus = dto.getPublicStatus();
+        this.pollItems = pollItems;
+    }
 }

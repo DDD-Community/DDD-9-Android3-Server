@@ -31,7 +31,7 @@ class PostServiceTest {
 
     @Test
     @Transactional
-    void create_post(JwtUser jwtUser) {
+    Long create_post(JwtUser jwtUser) {
 
         log.info("===========================================");
 
@@ -56,6 +56,7 @@ class PostServiceTest {
         assertThat(response.getId()).isEqualTo(postRepository.findByTitle(createPostReq.getTitle()).getId());
         log.info("response ->{}", response.getPollItemResponseList().get(0).getItemUrl());
         log.info("===========================================");
+        return response.getId();
     }
     @Test
     @Transactional
@@ -74,6 +75,29 @@ class PostServiceTest {
         //then
         log.info(temporaries.get(0).getTitle());
         assertThat(temporaries.get(0).getTitle()).isEqualTo("temporary1");
+    }
+
+    @Test
+    @Transactional
+    void update_post() {
+
+        //given
+        User user = new User("mina");
+        User savedUser = userRepository.save(user);
+        JwtUser jwtUser = savedUser.toJwtUser();
+        Long postId = create_post(jwtUser);
+
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+
+        CreatePostReq createPostReq = CreatePostReq.of("update1", "test", PublicStatus.PUBLIC, urls);
+
+        //when
+        postService.updatePost(jwtUser, postId, createPostReq);
+
+        //then
+        assertThat(postRepository.findById(postId).get().newPostResponse().getTitle()).isEqualTo("update1");
     }
 
 }

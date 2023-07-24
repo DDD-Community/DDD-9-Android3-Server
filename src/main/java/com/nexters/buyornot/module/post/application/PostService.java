@@ -19,10 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_FOUND_ITEM_EXCEPTION;
-import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_FOUND_POST_EXCEPTION;
+import static com.nexters.buyornot.global.common.codes.ErrorCode.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -64,11 +64,11 @@ public class PostService {
 
     //글 작성자, 미참여자, 참여자 구분 필요
     public PostResponse getPost(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
+        PostResponse response = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION))
+                .newPostResponse();
 
-        PostResponse postResponse = post.newPostResponse();
-        return postResponse;
+        return response;
     }
 
     //전체 공개 포스트만
@@ -90,5 +90,24 @@ public class PostService {
                 .collect(Collectors.toList());
 
         return responseList;
+    }
+
+
+    public PostResponse updatePost(JwtUser user, Long postId, CreatePostReq dto) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
+
+        if (!post.checkValidity(user.getId())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        eventPublisher.publishEvent(
+                SavedItemEvent.of(dto.getItemUrls())
+        );
+
+        List<PollItem> pollItems = addPollItem(dto.getItemUrls());
+
+        post.update(dto, pollItems);
+
+        return post.newPostResponse();
     }
 }
