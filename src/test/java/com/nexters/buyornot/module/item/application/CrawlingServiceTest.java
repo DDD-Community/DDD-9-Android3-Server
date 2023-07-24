@@ -54,4 +54,17 @@ class CrawlingServiceTest {
         System.out.println("=========================================");
     }
 
+    @Test
+    @Transactional
+    void wconcept() throws IOException {
+
+        //할인 O
+        ItemDto w = crawlingService.of("https://www.wconcept.co.kr/Product/303147448");
+
+        System.out.println("brand: " + w.getBrand() + " name: " + w.getName());
+        System.out.println("originalPrice: " + w.getOriginalPrice() + " discountRate: " + w.getDiscountRate() + " discountedPrice: " + w.getDiscountedPrice());
+        System.out.println("imgUrl: " + w.getImageUrl());
+        System.out.println("from: " + w.getItemProvider().getValue());
+    }
+
 }
