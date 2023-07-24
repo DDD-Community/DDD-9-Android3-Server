@@ -11,6 +11,7 @@ import java.util.List;
 @Getter
 public class PostResponse {
     private Long id;
+    private String userId;
     private String userNickname;
     private String title;
     private String content;
@@ -18,8 +19,9 @@ public class PostResponse {
     private String pollStatus;
     private List<PollItemResponse> pollItemResponseList;
 
-    public PostResponse(Long id, String userNickname, String title, String content, String publicStatus, String pollStatus, List<PollItemResponse> pollItems) {
+    public PostResponse(Long id, String userId, String userNickname, String title, String content, String publicStatus, String pollStatus, List<PollItemResponse> pollItems) {
         this.id = id;
+        this.userId = userId;
         this.userNickname = userNickname;
         this.title = title;
         this.content = content;
