@@ -62,4 +62,5 @@ class PostServiceTest {
         log.info("response ->{}", response.getPollItemResponseList().get(0).getItemUrl());
         log.info("===========================================");
     }
+
 }
