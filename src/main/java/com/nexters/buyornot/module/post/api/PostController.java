@@ -36,6 +36,12 @@ public class PostController {
         return ApiResponse.success(SuccessCode.SELECT_SUCCESS, postService.getPost(postId));
     }
 
+    @Operation(summary = "작성 글 조회")
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> getMyPosts(@LoginUser JwtUser user, @RequestParam("page") final Integer page, @RequestParam("count") final int count) {
+        return ApiResponse.success(SuccessCode.SELECT_SUCCESS, postService.getMine(user, page, count));
+    }
+
     @Operation(summary = "전체 게시글 리스트")
     @GetMapping("/received")
     public ResponseEntity<ApiResponse<List<PostResponse>>> findPage(@RequestParam("page") final Integer page, @RequestParam("count") final int count) {

@@ -81,6 +81,16 @@ public class PostService {
         return responseList;
     }
 
+    public List<PostResponse> getMine(JwtUser user, final int page, final int count) {
+
+        List<PostResponse> responseList = postRepository.findPageByUser(user.getId(), PublicStatus.PUBLIC.getValue(), PageRequest.of(page, count))
+                .stream()
+                .map(Post::newPostResponse)
+                .collect(Collectors.toList());
+
+        return responseList;
+    }
+
     public List<PostResponse> getTemporaries(JwtUser user) {
 
         List<PostResponse> responseList = postRepository.findTemporaries(user.getId(), PublicStatus.TEMPORARY_STORAGE)
