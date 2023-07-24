@@ -30,8 +30,4 @@ public class Archive extends BaseEntity {
 
     @Lob
     private String imgUrl;
-
-    private String imgName;
-
-    private String imgType;
 }

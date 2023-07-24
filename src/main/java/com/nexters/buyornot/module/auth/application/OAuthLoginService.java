@@ -8,6 +8,7 @@ import com.nexters.buyornot.module.auth.model.oauth.RequestOAuthInfoService;
 import com.nexters.buyornot.module.model.Role;
 import com.nexters.buyornot.module.user.dao.UserRepository;
 import com.nexters.buyornot.module.user.domain.User;
+import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,17 +23,17 @@ public class OAuthLoginService {
 
     public AuthTokens login(OAuthLoginParams params) {
         OAuthInfoResponse oAuthInfoResponse = requestOAuthInfoService.request(params);
-        UUID memberId = findOrCreateMember(oAuthInfoResponse);
-        return authTokensGenerator.generate(memberId);
+        JwtUser user = findOrCreateMember(oAuthInfoResponse);
+        return authTokensGenerator.generate(user);
     }
 
-    private UUID findOrCreateMember(OAuthInfoResponse oAuthInfoResponse) {
+    private JwtUser findOrCreateMember(OAuthInfoResponse oAuthInfoResponse) {
         return userRepository.findByEmail(oAuthInfoResponse.getEmail())
-                .map(User::getId)
+                .map(User::toJwtUser)
                 .orElseGet(() -> newMember(oAuthInfoResponse));
     }
 
-    private UUID newMember(OAuthInfoResponse oAuthInfoResponse) {
+    private JwtUser newMember(OAuthInfoResponse oAuthInfoResponse) {
         User user = User.builder()
                 .gender(oAuthInfoResponse.getGender())
                 .email(oAuthInfoResponse.getEmail())
@@ -42,6 +43,7 @@ public class OAuthLoginService {
                 .role(Role.USER)
                 .build();
 
-        return userRepository.save(user).getId();
+        User savedUser = userRepository.save(user);
+        return savedUser.toJwtUser();
     }
 }

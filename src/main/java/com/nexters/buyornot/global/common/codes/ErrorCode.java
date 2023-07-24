@@ -67,14 +67,18 @@ public enum ErrorCode {
     /**
      * ******************************* Business Error CodeList ***************************************
      */
+
+    UNAUTHORIZED_USER_EXCEPTION(403, "B100", "권한이 없는 사용자입니다."),
     // 유저가 존재하지 않음
-    NOT_FOUND_USER_EXCEPTION(404, "B001", "존재하지 않는 유저입니다."),
+    NOT_FOUND_USER_EXCEPTION(404, "B200", "존재하지 않는 유저입니다."),
+    NOT_FOUND_ITEM_EXCEPTION(404, "B201", "존재하지 않는 아이템입니다."),
+    NOT_FOUND_POST_EXCEPTION(404, "B202", "존재하지 않는 글입니다."),
 
     // Transaction Update Error
-    UPDATE_ERROR(200, "B002", "Update Transaction Error Exception"),
+    UPDATE_ERROR(200, "B300", "Update Transaction Error Exception"),
 
     // Transaction Delete Error
-    DELETE_ERROR(200, "B003", "Delete Transaction Error Exception"),
+    DELETE_ERROR(200, "B400", "Delete Transaction Error Exception"),
 
     ; // End
 

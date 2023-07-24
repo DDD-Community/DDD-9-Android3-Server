@@ -2,12 +2,20 @@ package com.nexters.buyornot.module.post.domain;
 
 import com.nexters.buyornot.module.model.BaseEntity;
 import com.nexters.buyornot.module.model.Price;
+import com.nexters.buyornot.module.post.dto.response.PollItemResponse;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
+
 
 @Entity
+@Builder(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "entity_status='ACTIVE'")
 public class PollItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,6 +26,8 @@ public class PollItem extends BaseEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
+    private String itemUrl;
+
     private String itemName;
 
     @Embedded
@@ -26,7 +36,20 @@ public class PollItem extends BaseEntity {
     @Lob
     private String imgUrl;
 
-    private String imgName;
+    public static PollItem newPollItem(String itemName, Price itemPrice, String itemUrl, String imgUrl) {
+        return builder()
+                .itemName(itemName)
+                .itemPrice(itemPrice)
+                .itemUrl(itemUrl)
+                .imgUrl(imgUrl)
+                .build();
+    }
 
-    private String imgType;
+    public void belong(Post post) {
+        this.post = post;
+    }
+
+    public PollItemResponse newPollItemResponse() {
+        return new PollItemResponse(this.id, this.itemUrl, this.itemName, this.imgUrl, this.itemPrice.getValue(), this.itemPrice.getDiscountRate(), this.itemPrice.getDiscountedPrice());
+    }
 }
