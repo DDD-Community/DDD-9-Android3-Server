@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -36,4 +37,9 @@ public class PostController {
         return ApiResponse.success(SuccessCode.SELECT_SUCCESS, postService.getPost(postId));
     }
 
+    @Operation(summary = "게시물 리스트")
+    @GetMapping("/received")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> findPage(@RequestParam("page") final Integer page, @RequestParam("count") final int count) {
+        return ApiResponse.success(SuccessCode.SELECT_SUCCESS, postService.getPage(page, count));
+    }
 }

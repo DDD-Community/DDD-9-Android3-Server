@@ -75,10 +75,11 @@ public class Post extends BaseEntity {
             PollItemResponse response = pollItem.newPollItemResponse();
             pollItemResponseList.add(response);
         }
-        return new PostResponse(this.id, this.nickname, this.title, this.content, this.publicStatus.name(), this.pollStatus.name(), pollItemResponseList);
+        return new PostResponse(id, nickname, title, content, publicStatus.name(), pollStatus.name(), pollItemResponseList);
     }
 
     public Long getId() {
         return id;
     }
+
 }

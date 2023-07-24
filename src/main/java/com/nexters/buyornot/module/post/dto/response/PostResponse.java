@@ -1,5 +1,6 @@
 package com.nexters.buyornot.module.post.dto.response;
 
+import com.nexters.buyornot.module.post.domain.Post;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,5 +26,9 @@ public class PostResponse {
         this.publicStatus = publicStatus;
         this.pollStatus = pollStatus;
         this.pollItemResponseList = pollItems;
+    }
+
+    public PostResponse(Post post) {
+        this.id = post.getId();
     }
 }

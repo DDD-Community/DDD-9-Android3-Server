@@ -1,5 +1,6 @@
 package com.nexters.buyornot.module.post.application;
 
+import com.nexters.buyornot.global.common.codes.ErrorCode;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.item.dao.ItemRepository;
 import com.nexters.buyornot.module.item.domain.Item;
@@ -7,16 +8,20 @@ import com.nexters.buyornot.module.item.event.SavedItemEvent;
 import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.domain.PollItem;
 import com.nexters.buyornot.module.post.domain.Post;
+import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.dto.response.PostResponse;
 import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_FOUND_ITEM_EXCEPTION;
 import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_FOUND_POST_EXCEPTION;
@@ -66,5 +71,16 @@ public class PostService {
 
         PostResponse postResponse = post.newPostResponse();
         return postResponse;
+    }
+
+    //전체 공개 포스트만
+    public List<PostResponse> getPage(final int page, final int count) {
+
+        List<PostResponse> responseList = postRepository.findPageByPublicStatus(PublicStatus.PUBLIC, PageRequest.of(page, count))
+                .stream()
+                .map(Post::newPostResponse)
+                .collect(Collectors.toList());
+
+        return responseList;
     }
 }

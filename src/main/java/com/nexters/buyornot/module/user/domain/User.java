@@ -28,7 +28,7 @@ public class User extends BaseEntity {
     private UUID id;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role = Role.USER;
 
     private String name;
 
