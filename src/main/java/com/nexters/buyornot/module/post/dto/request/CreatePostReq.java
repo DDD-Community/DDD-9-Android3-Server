@@ -13,7 +13,7 @@ public class CreatePostReq {
 
     private String title;
     private String content;
-    private PublicStatus publicStatus = PublicStatus.PUBLIC;
+    private PublicStatus publicStatus;
     private List<String> itemUrls;
 
     public static CreatePostReq of(String title, String content, PublicStatus publicStatus, List<String> itemUrls) {
@@ -24,16 +24,4 @@ public class CreatePostReq {
                 .itemUrls(itemUrls)
                 .build();
     }
-
-//    public String getTitle() {
-//        return title;
-//    }
-//
-//    public void setTitle(String title) {
-//        this.title = title;
-//    }
-//
-//    public String getContent() {
-//        return this.content;
-//    }
 }
