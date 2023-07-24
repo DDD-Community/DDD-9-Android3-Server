@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.nexters.buyornot.global.common.codes.ErrorCode.*;
@@ -109,5 +108,16 @@ public class PostService {
         post.update(dto, pollItems);
 
         return post.newPostResponse();
+    }
+
+    public Long deletePost(JwtUser user, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
+
+        if (!post.checkValidity(user.getId())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        post.delete();
+
+        return post.getId();
     }
 }

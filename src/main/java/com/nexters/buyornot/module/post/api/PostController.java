@@ -15,7 +15,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @Tag(name = "post", description = "게시물 API")
@@ -50,8 +49,14 @@ public class PostController {
     }
 
     @Operation(summary = "글 수정")
-    @PatchMapping("/{postId}/post")
+    @PatchMapping("/{postId}/modification")
     public ResponseEntity<ApiResponse<PostResponse>> modifyPost(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId, @RequestBody CreatePostReq dto) {
         return ApiResponse.success(SuccessCode.UPDATE_SUCCESS, postService.updatePost(user, postId, dto));
+    }
+
+    @Operation(summary = "글 삭제")
+    @PatchMapping("/{postId}/deletion")
+    public ResponseEntity<ApiResponse<Long>> deletePost(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId) {
+        return ApiResponse.success(SuccessCode.DELETE_SUCCESS, postService.deletePost(user, postId));
     }
 }

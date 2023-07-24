@@ -2,7 +2,9 @@ package com.nexters.buyornot.module.post.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.nexters.buyornot.module.model.EntityStatus;
 import com.nexters.buyornot.module.post.dao.PostRepository;
+import com.nexters.buyornot.module.post.domain.Post;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.dto.response.PostResponse;
@@ -98,6 +100,24 @@ class PostServiceTest {
 
         //then
         assertThat(postRepository.findById(postId).get().newPostResponse().getTitle()).isEqualTo("update1");
+    }
+
+    @Test
+    @Transactional
+    public void delete() {
+        //given
+        User user = new User("mina");
+        User savedUser = userRepository.save(user);
+        JwtUser jwtUser = savedUser.toJwtUser();
+        Long postId = create_post(jwtUser);
+
+
+        //when
+        Post post = postRepository.findById(postId).get();
+        postService.deletePost(jwtUser, postId);
+
+        //then
+        assertThat(post.getEntityStatus()).isEqualTo(EntityStatus.DELETED);
     }
 
 }
