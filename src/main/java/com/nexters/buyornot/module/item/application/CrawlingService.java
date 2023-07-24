@@ -132,12 +132,22 @@ public class CrawlingService {
 
         brand = document.getElementsByClass("brand").first().text();
         itemName = document.getElementsByClass("product cottonusa").text();
+
         originPrice = document.getElementsByClass("normal").select("em").text();
         originPrice = originPrice.replace(",", "");
-        discountRate = document.getElementsByClass("discount_percent").text();
-        discountRate = discountRate.replace("%", "");
-        discountedPrice = document.getElementsByClass("sale").select("em").text();
-        discountedPrice = discountedPrice.replace(",", "");
+
+        if(originPrice.isEmpty()) {
+            discountRate = "0";
+            originPrice = document.getElementsByClass("sale").select("em").text();
+            originPrice = originPrice.replace(",", "");
+            discountedPrice = originPrice;
+        } else {
+            discountRate = document.getElementsByClass("discount_percent").text();
+            discountRate = discountRate.replace("%", "");
+            discountedPrice = document.getElementsByClass("sale").select("em").text();
+            discountedPrice = discountedPrice.replace(",", "");
+        }
+
         imgUrl = "https:" + document.getElementsByClass("img_area").select("img").attr("src");
 
         return ItemDto.newItemDto(ItemProvider.WCONCEPT, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
