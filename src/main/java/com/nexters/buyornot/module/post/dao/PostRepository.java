@@ -19,4 +19,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("select p from Post p where p.userId = (:user_id) and p.publicStatus IN (:public_status) order by p.updatedAt DESC")
     List<Post> findTemporaries(UUID user_id, PublicStatus public_status);
+
+
+    @Query(
+            value = "select * from post where user_id = (:user_id) and public_status IN (:public_status) order by created_at DESC",
+            countQuery = "select * from post",
+            nativeQuery = true
+    )
+    Page<Post> findPageByUser(UUID user_id, String public_status, Pageable pageable);
 }
