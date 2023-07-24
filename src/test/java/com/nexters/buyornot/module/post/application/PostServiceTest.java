@@ -31,16 +31,11 @@ class PostServiceTest {
 
     @Test
     @Transactional
-    void create_post() {
+    void create_post(JwtUser jwtUser) {
 
         log.info("===========================================");
 
         log.info("유저 저장");
-
-        //given
-        User user = new User("mina");
-
-        JwtUser jwtUser = user.toJwtUser();
 
         log.info("create post dto");
 
@@ -48,7 +43,7 @@ class PostServiceTest {
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
 
-        CreatePostReq createPostReq = CreatePostReq.of("test", "test", PublicStatus.PUBLIC, urls);
+        CreatePostReq createPostReq = CreatePostReq.of("temporary1", "test", PublicStatus.TEMPORARY_STORAGE, urls);
 
         log.info("service.create");
 
@@ -61,6 +56,24 @@ class PostServiceTest {
         assertThat(response.getId()).isEqualTo(postRepository.findByTitle(createPostReq.getTitle()).getId());
         log.info("response ->{}", response.getPollItemResponseList().get(0).getItemUrl());
         log.info("===========================================");
+    }
+    @Test
+    @Transactional
+    void get_temporaries() {
+
+        //given
+        User user = new User("mina");
+        User savedUser = userRepository.save(user);
+        JwtUser jwtUser = savedUser.toJwtUser();
+
+        //when
+        create_post(jwtUser);
+
+        List<PostResponse> temporaries = postService.getTemporaries(jwtUser);
+
+        //then
+        log.info(temporaries.get(0).getTitle());
+        assertThat(temporaries.get(0).getTitle()).isEqualTo("temporary1");
     }
 
 }

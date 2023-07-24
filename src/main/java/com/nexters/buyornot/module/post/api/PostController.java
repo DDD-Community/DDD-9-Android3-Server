@@ -37,9 +37,15 @@ public class PostController {
         return ApiResponse.success(SuccessCode.SELECT_SUCCESS, postService.getPost(postId));
     }
 
-    @Operation(summary = "게시물 리스트")
+    @Operation(summary = "전체 게시글 리스트")
     @GetMapping("/received")
     public ResponseEntity<ApiResponse<List<PostResponse>>> findPage(@RequestParam("page") final Integer page, @RequestParam("count") final int count) {
         return ApiResponse.success(SuccessCode.SELECT_SUCCESS, postService.getPage(page, count));
+    }
+
+    @Operation(summary = "임시 저장 글 리스트")
+    @GetMapping("/temporary")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> getTemporaries(@LoginUser JwtUser user) {
+        return ApiResponse.success(SuccessCode.SELECT_SUCCESS, postService.getTemporaries(user));
     }
 }

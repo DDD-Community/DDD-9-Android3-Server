@@ -1,6 +1,5 @@
 package com.nexters.buyornot.module.post.application;
 
-import com.nexters.buyornot.global.common.codes.ErrorCode;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.item.dao.ItemRepository;
 import com.nexters.buyornot.module.item.domain.Item;
@@ -15,7 +14,6 @@ import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,7 +74,17 @@ public class PostService {
     //전체 공개 포스트만
     public List<PostResponse> getPage(final int page, final int count) {
 
-        List<PostResponse> responseList = postRepository.findPageByPublicStatus(PublicStatus.PUBLIC, PageRequest.of(page, count))
+        List<PostResponse> responseList = postRepository.findPageByPublicStatusOrderByIdDesc(PublicStatus.PUBLIC, PageRequest.of(page, count))
+                .stream()
+                .map(Post::newPostResponse)
+                .collect(Collectors.toList());
+
+        return responseList;
+    }
+
+    public List<PostResponse> getTemporaries(JwtUser user) {
+
+        List<PostResponse> responseList = postRepository.findTemporaries(user.getId(), PublicStatus.TEMPORARY_STORAGE)
                 .stream()
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
