@@ -12,10 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -31,6 +28,12 @@ public class PostController {
     @PostMapping("/new")
     public ResponseEntity<ApiResponse<PostResponse>> writePoll(@LoginUser JwtUser user, @Validated @RequestBody CreatePostReq dto) {
         return ApiResponse.success(SuccessCode.INSERT_SUCCESS, postService.create(user, dto));
+    }
+
+    @Operation(summary = "게시물 상세 조회")
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResponse<PostResponse>> getPost(@PathVariable(name = "postId") Long postId) {
+        return ApiResponse.success(SuccessCode.SELECT_SUCCESS, postService.getPost(postId));
     }
 
 }

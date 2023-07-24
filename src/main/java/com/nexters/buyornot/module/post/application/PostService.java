@@ -17,9 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_FOUND_ITEM_EXCEPTION;
+import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_FOUND_POST_EXCEPTION;
 
 @Service
 @Transactional(readOnly = true)
@@ -39,10 +39,9 @@ public class PostService {
 
         List<PollItem> pollItems = addPollItem(dto.getItemUrls());
 
-        Post post = Post.newPost(jwtUser.getId(), dto, pollItems);
+        Post post = Post.newPost(jwtUser, dto, pollItems);
         Post savedPost = postRepository.save(post);
         PostResponse postResponse = savedPost.newPostResponse();
-        postResponse.addWriter(jwtUser.getNickname());
         return postResponse;
 
     }
@@ -60,6 +59,12 @@ public class PostService {
         return pollItems;
     }
 
+    //글 작성자, 미참여자, 참여자 구분 필요
+    public PostResponse getPost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
 
-
+        PostResponse postResponse = post.newPostResponse();
+        return postResponse;
+    }
 }
