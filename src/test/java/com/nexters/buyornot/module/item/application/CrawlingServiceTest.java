@@ -79,4 +79,14 @@ class CrawlingServiceTest {
 
     }
 
+    @Test
+    @Transactional
+    void ably() throws IOException {
+        ItemDto item = crawlingService.of("https://m.a-bly.com/goods/8167148");
+
+        System.out.println("brand: " + item.getBrand() + " name: " + item.getName());
+        System.out.println("originalPrice: " + item.getOriginalPrice() + " discountRate: " + item.getDiscountRate() + " discountedPrice: " + item.getDiscountedPrice());
+        System.out.println("imgUrl: " + item.getImageUrl());
+        System.out.println("from: " + item.getItemProvider().getValue());
+    }
 }

@@ -20,8 +20,7 @@ public class CrawlingService {
         if(url.contains("zigzag")) return getZigzag(url);
         if(url.contains("29cm")) return get29cm(url);
         if(url.contains("wconcept")) return getWConcept(url);
-
-        //w컨셉, 에이블리
+        if(url.contains("a-bly")) return getAbly(url);
 
         return ItemDto.defaultConfig();
     }
@@ -151,6 +150,25 @@ public class CrawlingService {
         imgUrl = "https:" + document.getElementsByClass("img_area").select("img").attr("src");
 
         return ItemDto.newItemDto(ItemProvider.WCONCEPT, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
+    }
+
+    //가격 정보 추가 필요
+    public ItemDto getAbly(String url) throws IOException {
+        String brand, itemName, imgUrl, originPrice = "0", discountRate, discountedPrice;
+
+        Document document = Jsoup.connect(url)
+                .header("userAgent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15")
+                .get();
+
+        brand = document.getElementsByClass("AblyText_text___0rpe AblyText_text--gray70__OFZAj AblyText_text--subtitle2__RGq0D AblyText_text--subtitle2__fixed__XhWOS").text();
+        itemName = document.getElementsByClass("AblyText_text___0rpe AblyText_text--gray70__OFZAj AblyText_text--body1__1bctZ AblyText_text--body1__fixed__lcImN sc-143650ee-0 czMDZc").text();
+        imgUrl = document.getElementsByClass("sc-faa7651c-1 dghJsf").select("picture").get(0).select("img").attr("src");
+//        originPrice = document.getElementsByClass("AblyText_text___0rpe AblyText_text--gray70__OFZAj AblyText_text--button__Q0TmE AblyText_text--button__fixed__QFv9Y").html();
+//        originPrice = originPrice.replace(",", "");
+        discountRate = "0";
+        discountedPrice = "0";
+
+        return ItemDto.newItemDto(ItemProvider.ABLY, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
     }
 
     private double calculatePrice(String originPrice, String discountRate) {
