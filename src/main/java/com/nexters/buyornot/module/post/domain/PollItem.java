@@ -3,19 +3,19 @@ package com.nexters.buyornot.module.post.domain;
 import com.nexters.buyornot.module.model.BaseEntity;
 import com.nexters.buyornot.module.model.Price;
 import com.nexters.buyornot.module.post.dto.response.PollItemResponse;
-import com.nexters.buyornot.module.post.dto.response.PostResponse;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
-import java.util.UUID;
 
 @Entity
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "entity_status='ACTIVE'")
 public class PollItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

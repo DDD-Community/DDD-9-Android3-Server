@@ -6,12 +6,14 @@ import com.nexters.buyornot.module.post.domain.model.PollStatus;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.dto.response.PollItemResponse;
 import com.nexters.buyornot.module.post.dto.response.PostResponse;
+import com.nexters.buyornot.module.user.dto.JwtUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.UUID;
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause = "entity_status='ACTIVE'")
 public class Post extends BaseEntity {
 
     @Id
@@ -31,6 +34,8 @@ public class Post extends BaseEntity {
 
     @NotNull(message = "로그인해주세요.")
     private UUID userId;
+
+    private String nickname;
 
     @NotNull(message = "제목을 입력해주세요.")
     private String title;
@@ -47,8 +52,9 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PollItem> pollItems = new ArrayList<>();
 
-    public Post(UUID userId, CreatePostReq dto, List<PollItem> pollItems) {
-        this.userId = userId;
+    public Post(JwtUser user, CreatePostReq dto, List<PollItem> pollItems) {
+        this.userId = user.getId();
+        this.nickname = user.getNickname();
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.publicStatus = dto.getPublicStatus();
@@ -59,8 +65,8 @@ public class Post extends BaseEntity {
         }
     }
 
-    public static Post newPost(UUID userId, CreatePostReq dto, List<PollItem> pollItems) {
-        return new Post(userId, dto, pollItems);
+    public static Post newPost(JwtUser jwtUser, CreatePostReq dto, List<PollItem> pollItems) {
+        return new Post(jwtUser, dto, pollItems);
     }
 
     public PostResponse newPostResponse() {
@@ -69,7 +75,7 @@ public class Post extends BaseEntity {
             PollItemResponse response = pollItem.newPollItemResponse();
             pollItemResponseList.add(response);
         }
-        return new PostResponse(this.id, this.title, this.content, this.publicStatus.name(), this.pollStatus.name(), pollItemResponseList);
+        return new PostResponse(this.id, this.nickname, this.title, this.content, this.publicStatus.name(), this.pollStatus.name(), pollItemResponseList);
     }
 
     public Long getId() {
