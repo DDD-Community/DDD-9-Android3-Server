@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class HealthController {
 
-    @RequestMapping("/health")
+    @GetMapping("/health")
     public ResponseEntity<ApiResponse<String>> healthCheck() throws Exception {
         return ApiResponse.success(SuccessCode.SELECT_SUCCESS, "health check OK");
     }
