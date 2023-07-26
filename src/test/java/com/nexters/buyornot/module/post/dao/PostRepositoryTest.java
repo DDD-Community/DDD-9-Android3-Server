@@ -29,9 +29,19 @@ class PostRepositoryTest {
 
     @Test
     @Transactional
-    public void paging() {
+    public void fetch_join_test() {
+        List<Post> posts = postRepository.findAllFetchJoin();
 
-        log.info("===========================================");
+        log.info("=================N+1==========================");
+        List<PostResponse> responseList = posts
+                .stream()
+                .map(Post::newPostResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Test
+    @Transactional
+    public void paging() {
 
         Page<Post> all = postRepository.findAll(PageRequest.of(0, 5));
 
@@ -41,8 +51,6 @@ class PostRepositoryTest {
                 .stream()
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
-
-        log.info("===========================================");
 
         int idx = 0;
         for(PostResponse response : responseList) {
@@ -63,12 +71,13 @@ class PostRepositoryTest {
         log.info("user id: " + user.getId());
 
         //when
-        List<Post> postList = postRepository.findPageByUser(user.getId(), PublicStatus.PUBLIC.toString(), PageRequest.of(0, 6))
+        List<PostResponse> responseList = postRepository.findPageByUser(user.getId(), PublicStatus.PUBLIC, PageRequest.of(0, 6))
                 .stream()
+                .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
         //then
-        assertThat(postList.size()).isEqualTo(6);
+        assertThat(responseList.size()).isEqualTo(6);
     }
 
 }
