@@ -15,6 +15,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Page<Post> findAll(Pageable pageable);
 
+    @Query("select p from Post p join fetch p.pollItems")
+    List<Post> findAllFetchJoin();
+
     Page<Post> findPageByPublicStatusOrderByIdDesc(PublicStatus status, Pageable pageable);
 
     @Query("select p from Post p where p.userId = (:user_id) and p.publicStatus IN (:public_status) order by p.updatedAt DESC")
@@ -22,9 +25,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 
     @Query(
-            value = "select * from post where user_id = (:user_id) and public_status IN (:public_status) order by created_at DESC",
-            countQuery = "select * from post",
-            nativeQuery = true
+            value = "select p from Post p where p.userId = (:user_id) and p.publicStatus IN (:public_status) order by p.createdAt DESC",
+            countQuery = "select count(p) from Post p where p.userId = (:user_id) and p.publicStatus IN (:public_status) order by p.createdAt DESC"
     )
-    Page<Post> findPageByUser(UUID user_id, String public_status, Pageable pageable);
+    Page<Post> findPageByUser(UUID user_id, PublicStatus public_status, Pageable pageable);
 }
