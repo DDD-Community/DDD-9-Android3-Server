@@ -101,7 +101,7 @@ public class PostService {
         return responseList;
     }
 
-
+    @Transactional
     public PostResponse updatePost(JwtUser user, Long postId, CreatePostReq dto) {
 
         Post post = postRepository.findById(postId)
@@ -120,6 +120,7 @@ public class PostService {
         return post.newPostResponse();
     }
 
+    @Transactional
     public Long deletePost(JwtUser user, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
