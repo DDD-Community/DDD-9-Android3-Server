@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.nexters.buyornot.module.model.EntityStatus;
 import com.nexters.buyornot.module.post.dao.PostRepository;
-import com.nexters.buyornot.module.post.domain.Post;
+import com.nexters.buyornot.module.post.domain.post.Post;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
-import com.nexters.buyornot.module.post.dto.request.CreatePostReq;
-import com.nexters.buyornot.module.post.dto.response.PostResponse;
+import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
+import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
 import com.nexters.buyornot.module.user.dao.UserRepository;
 import com.nexters.buyornot.module.user.domain.User;
 import com.nexters.buyornot.module.user.dto.JwtUser;
