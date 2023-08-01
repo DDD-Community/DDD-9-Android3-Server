@@ -3,7 +3,7 @@ package com.nexters.buyornot.module.item.domain;
 import com.nexters.buyornot.module.item.dto.ItemDto;
 import com.nexters.buyornot.module.model.BaseEntity;
 import com.nexters.buyornot.module.model.Price;
-import com.nexters.buyornot.module.post.domain.PollItem;
+import com.nexters.buyornot.module.post.domain.post.PollItem;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-import static com.nexters.buyornot.module.post.domain.PollItem.newPollItem;
+import static com.nexters.buyornot.module.post.domain.post.PollItem.newPollItem;
 
 @Entity
 @Builder(access = AccessLevel.PRIVATE)
