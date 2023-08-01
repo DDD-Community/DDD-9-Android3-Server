@@ -30,8 +30,14 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-        JwtUser jwtUser = jwtTokenProvider.getJwtUser(Objects.requireNonNull(request).getHeader("Authorization"));
-        UUID userId = jwtTokenProvider.getUserId(Objects.requireNonNull(request).getHeader("Authorization"));
+        JwtUser jwtUser;
+
+        try {
+            jwtUser = jwtTokenProvider.getJwtUser(Objects.requireNonNull(request).getHeader("Authorization"));
+        } catch (Exception e) {
+            jwtUser = new JwtUser();
+        }
+
         Objects.requireNonNull(mavContainer).getModel().addAttribute("user", jwtUser);
         return jwtUser;
     }
