@@ -1,11 +1,11 @@
-package com.nexters.buyornot.module.post.domain;
+package com.nexters.buyornot.module.post.domain.post;
 
 import com.nexters.buyornot.module.model.BaseEntity;
-import com.nexters.buyornot.module.post.dto.request.CreatePostReq;
+import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.domain.model.PollStatus;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
-import com.nexters.buyornot.module.post.dto.response.PollItemResponse;
-import com.nexters.buyornot.module.post.dto.response.PostResponse;
+import com.nexters.buyornot.module.post.api.dto.response.PollItemResponse;
+import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
 import com.nexters.buyornot.module.user.dto.JwtUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -52,7 +52,7 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PollItem> pollItems = new ArrayList<>();
 
-    public Post(JwtUser user, CreatePostReq dto, List<PollItem> pollItems) {
+    private Post(JwtUser user, CreatePostReq dto, List<PollItem> pollItems) {
         this.userId = user.getId();
         this.nickname = user.getNickname();
         this.title = dto.getTitle();
@@ -92,5 +92,20 @@ public class Post extends BaseEntity {
         this.content = dto.getContent();
         this.publicStatus = dto.getPublicStatus();
         this.pollItems = pollItems;
+    }
+
+    public List<Long> getItemList() {
+        List<Long> itemList = new ArrayList<>();
+        for(PollItem pollItem : pollItems) itemList.add(pollItem.getId());
+        return itemList;
+    }
+
+    public PollItem getPollItem(Long itemId) {
+        PollItem pollItem = null;
+        for(PollItem item : pollItems) {
+            if(item.getId().equals(itemId)) pollItem = item;
+        }
+
+        return pollItem;
     }
 }

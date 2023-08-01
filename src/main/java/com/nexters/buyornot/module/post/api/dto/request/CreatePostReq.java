@@ -1,4 +1,4 @@
-package com.nexters.buyornot.module.post.dto.request;
+package com.nexters.buyornot.module.post.api.dto.request;
 
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import lombok.*;

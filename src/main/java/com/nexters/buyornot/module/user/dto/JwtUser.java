@@ -13,7 +13,7 @@ import java.util.UUID;
 public class JwtUser implements Serializable {
 
     private UUID id;
-    private String name;
+    private String name = "non-member";
     private String nickname;
     private String email;
     private String role;
