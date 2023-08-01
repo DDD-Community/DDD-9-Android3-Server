@@ -24,7 +24,7 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 	implementation 'com.google.firebase:firebase-admin:9.1.1'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
 
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 
@@ -41,8 +41,15 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-	implementation 'org.jsoup:jsoup:1.15.3'
+	implementation 'org.jsoup:jsoup:1.15.4'
 	implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+
+	//redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.redisson:redisson-spring-boot-starter:3.21.1'
+
+	//scheduler test
+	testImplementation 'org.awaitility:awaitility:4.2.0'
 }
 
 tasks.named('test') {
