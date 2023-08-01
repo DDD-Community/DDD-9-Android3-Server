@@ -8,6 +8,10 @@ import com.nexters.buyornot.module.item.event.SavedItemEvent;
 import com.nexters.buyornot.module.post.api.dto.response.PollItemResponse;
 import com.nexters.buyornot.module.post.api.dto.response.PollResponse;
 import com.nexters.buyornot.module.post.dao.PostRepository;
+import com.nexters.buyornot.module.post.dao.poll.ParticipantRepository;
+import com.nexters.buyornot.module.post.dao.poll.UnrecommendedRepository;
+import com.nexters.buyornot.module.post.domain.poll.Participant;
+import com.nexters.buyornot.module.post.domain.poll.Unrecommended;
 import com.nexters.buyornot.module.post.domain.post.PollItem;
 import com.nexters.buyornot.module.post.domain.post.Post;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
@@ -34,6 +38,8 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final ItemRepository itemRepository;
+    private final ParticipantRepository participantRepository;
+    private final UnrecommendedRepository unrecommendedRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final RedisUtil redis;
 
@@ -71,7 +77,6 @@ public class PostService {
     }
 
     public PostResponse getPost(JwtUser user, Long postId) {
-
         String userId;
         //비회원
         if(user.getName().equals(nonMember)) userId = postId + nonMember + LocalDateTime.now();
@@ -83,6 +88,8 @@ public class PostService {
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION))
                 .newPostResponse();
 
+        if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
+
         List<String> polls = redis.getPollsByPost(key);
 
         if(redis.alreadyPolled(key, userId)) {
@@ -93,21 +100,43 @@ public class PostService {
                 status.put(item.getId().toString(), count);
             }
             status.put(unRecommend, Collections.frequency(polls, unRecommend));
-
             response.addPollResponse(new PollResponse(status));
         }
-
         return response;
     }
 
     //전체 공개 포스트만
     public List<PostResponse> getPage(JwtUser user, final int page, final int count) {
+        String userId;
+        //비회원
+        if(user.getName().equals(nonMember)) userId = nonMember + LocalDateTime.now();
+        else userId = user.getId().toString();
 
         List<PostResponse> responseList = postRepository.findPageByPublicStatusOrderByIdDesc(PublicStatus.PUBLIC, PageRequest.of(page, count))
                 .stream()
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
+        for(PostResponse response : responseList) {
+            Long postId = response.getId();
+            String key = String.format(keyPrefix + "%s", postId);
+
+            if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
+
+            List<String> polls = redis.getPollsByPost(key);
+
+            if(redis.alreadyPolled(key, userId)) {
+                Map<String, Integer> status = new HashMap<>();
+
+                for(PollItemResponse item : response.getPollItemResponseList()) {
+                    int pollCount = Collections.frequency(polls, item.getId().toString());
+                    status.put(item.getId().toString(), pollCount);
+                }
+
+                status.put(unRecommend, Collections.frequency(polls, unRecommend));
+                response.addPollResponse(new PollResponse(status));
+            }
+        }
         return responseList;
     }
 
@@ -160,5 +189,23 @@ public class PostService {
         post.delete();
 
         return post.getId();
+    }
+
+    public void DBtoCache(Long postId, List<Long> pollItemList) {
+        String key = String.format(keyPrefix + "%s", postId);
+
+        for(Long itemId : pollItemList) {
+            List<Participant> participants = participantRepository.findByPollItemId(itemId);
+            for(Participant participant : participants) {
+                redis.getPoll(key, participant.getUserId(), itemId.toString());
+            }
+        }
+
+        List<Unrecommended> unrecommendedList = unrecommendedRepository.findByPostId(postId);
+
+        for(Unrecommended unrecommended : unrecommendedList)
+            redis.getPoll(key, unrecommended.getUserId(), unRecommend);
+
+        redis.expire(key, duration);
     }
 }
