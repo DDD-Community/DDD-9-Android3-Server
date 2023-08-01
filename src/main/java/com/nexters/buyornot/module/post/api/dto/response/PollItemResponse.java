@@ -1,4 +1,4 @@
-package com.nexters.buyornot.module.post.dto.response;
+package com.nexters.buyornot.module.post.api.dto.response;
 
 import lombok.Getter;
 

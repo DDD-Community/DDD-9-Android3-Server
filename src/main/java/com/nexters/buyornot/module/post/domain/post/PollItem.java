@@ -1,8 +1,8 @@
-package com.nexters.buyornot.module.post.domain;
+package com.nexters.buyornot.module.post.domain.post;
 
 import com.nexters.buyornot.module.model.BaseEntity;
 import com.nexters.buyornot.module.model.Price;
-import com.nexters.buyornot.module.post.dto.response.PollItemResponse;
+import com.nexters.buyornot.module.post.api.dto.response.PollItemResponse;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -51,5 +51,13 @@ public class PollItem extends BaseEntity {
 
     public PollItemResponse newPollItemResponse() {
         return new PollItemResponse(this.id, this.itemUrl, this.itemName, this.imgUrl, this.itemPrice.getValue(), this.itemPrice.getDiscountRate(), this.itemPrice.getDiscountedPrice());
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Long getPostId() {
+        return post.getId();
     }
 }
