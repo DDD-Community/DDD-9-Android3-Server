@@ -5,6 +5,7 @@ import com.nexters.buyornot.global.utils.RedisUtil;
 import com.nexters.buyornot.module.item.dao.ItemRepository;
 import com.nexters.buyornot.module.item.domain.Item;
 import com.nexters.buyornot.module.item.event.SavedItemEvent;
+import com.nexters.buyornot.module.model.Role;
 import com.nexters.buyornot.module.post.api.dto.response.PollItemResponse;
 import com.nexters.buyornot.module.post.api.dto.response.PollResponse;
 import com.nexters.buyornot.module.post.dao.PostRepository;
@@ -46,10 +47,7 @@ public class PostService {
     @Transactional
     public PostResponse create(JwtUser jwtUser, CreatePostReq dto) {
 
-        if(jwtUser.equals(new JwtUser())) {
-            new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
-        }
-
+        if(jwtUser.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
         eventPublisher.publishEvent(
                 SavedItemEvent.of(dto.getItemUrls())
         );
@@ -79,7 +77,7 @@ public class PostService {
     public PostResponse getPost(JwtUser user, Long postId) {
         String userId;
         //비회원
-        if(user.getName().equals(nonMember)) userId = postId + nonMember + LocalDateTime.now();
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = postId + nonMember + LocalDateTime.now();
         else userId = user.getId().toString();
 
         String key = String.format(keyPrefix + "%s", postId);
@@ -109,7 +107,7 @@ public class PostService {
     public List<PostResponse> getPage(JwtUser user, final int page, final int count) {
         String userId;
         //비회원
-        if(user.getName().equals(nonMember)) userId = nonMember + LocalDateTime.now();
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = nonMember + LocalDateTime.now();
         else userId = user.getId().toString();
 
         List<PostResponse> responseList = postRepository.findPageByPublicStatusOrderByIdDesc(PublicStatus.PUBLIC, PageRequest.of(page, count))

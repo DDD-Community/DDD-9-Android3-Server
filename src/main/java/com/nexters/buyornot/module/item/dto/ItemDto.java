@@ -47,4 +47,15 @@ public class ItemDto {
                 .build();
     }
 
+    public static ItemDto updatedInfo(String brand, String name,String imgUrl, String originalPrice, String discountRate, double discountedPrice) {
+        return builder()
+                .brand(brand)
+                .name(name)
+                .imageUrl(imgUrl)
+                .originalPrice(originalPrice)
+                .discountRate(discountRate)
+                .discountedPrice(discountedPrice)
+                .build();
+    }
+
 }
