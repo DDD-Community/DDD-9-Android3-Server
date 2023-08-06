@@ -23,6 +23,7 @@ public class SavedItemEvent {
         return new SavedItemEvent(itemUrls);
     }
     public static SavedItemEvent of(String itemUrl) {
-        return new SavedItemEvent(itemUrl); }
+        return new SavedItemEvent(itemUrl);
+    }
 
 }

@@ -12,4 +12,7 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
 
     @Query("select a from Archive a where a.userId = (:userId) and a.itemUrl = (:url)")
     Optional<Archive> findByUserAndUrl(String userId, String url);
+
+    @Query("select a from Archive a where a.userId = (:userId) and a.itemId = (:itemId)")
+    Optional<Archive>findByUserAndItem(String userId, Long itemId);
 }
