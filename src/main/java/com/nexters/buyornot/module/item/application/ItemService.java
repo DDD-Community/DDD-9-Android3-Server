@@ -25,6 +25,8 @@ public class ItemService {
     public void create(List<String> itemUrls) throws IOException {
 
         for(String url: itemUrls) {
+            if(url == null) continue;
+
             Optional<Item> item = itemRepository.findByItemUrl(url);
 
             if(item.isEmpty()) {

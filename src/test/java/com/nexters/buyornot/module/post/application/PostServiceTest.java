@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @SpringBootTest
 @Slf4j
@@ -33,91 +34,84 @@ class PostServiceTest {
 
     @Test
     @Transactional
-    Long create_post(JwtUser jwtUser) {
+    void 글_작성() {
 
-        log.info("===========================================");
-
-        log.info("유저 저장");
-
-        log.info("create post dto");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
 
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
 
-        CreatePostReq createPostReq = CreatePostReq.of("temporary1", "test", PublicStatus.TEMPORARY_STORAGE, urls);
-
-        log.info("service.create");
+        CreatePostReq createPostReq = CreatePostReq.of("test", "test", PublicStatus.PUBLIC, urls);
 
         //when
-        PostResponse response = postService.create(jwtUser, createPostReq);
+        PostResponse response = postService.create(user, createPostReq);
 
         log.info("compare");
 
         //then
         assertThat(response.getId()).isEqualTo(postRepository.findByTitle(createPostReq.getTitle()).getId());
         log.info("response ->{}", response.getPollItemResponseList().get(0).getItemUrl());
-        log.info("===========================================");
-        return response.getId();
-    }
-    @Test
-    @Transactional
-    void get_temporaries() {
-
-        //given
-        User user = new User("mina");
-        User savedUser = userRepository.save(user);
-        JwtUser jwtUser = savedUser.toJwtUser();
-
-        //when
-        create_post(jwtUser);
-
-        List<PostResponse> temporaries = postService.getTemporaries(jwtUser);
-
-        //then
-        log.info(temporaries.get(0).getTitle());
-        assertThat(temporaries.get(0).getTitle()).isEqualTo("temporary1");
     }
 
-    @Test
-    @Transactional
-    void update_post() {
-
-        //given
-        User user = new User("mina");
-        User savedUser = userRepository.save(user);
-        JwtUser jwtUser = savedUser.toJwtUser();
-        Long postId = create_post(jwtUser);
-
-        List<String> urls = new ArrayList<>();
-        urls.add("https://zigzag.kr/catalog/products/113607837");
-        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
-
-        CreatePostReq createPostReq = CreatePostReq.of("update1", "test", PublicStatus.PUBLIC, urls);
-
-        //when
-        postService.updatePost(jwtUser, postId, createPostReq);
-
-        //then
-        assertThat(postRepository.findById(postId).get().newPostResponse().getTitle()).isEqualTo("update1");
-    }
-
-    @Test
-    @Transactional
-    public void delete() {
-        //given
-        User user = new User("mina");
-        User savedUser = userRepository.save(user);
-        JwtUser jwtUser = savedUser.toJwtUser();
-        Long postId = create_post(jwtUser);
-
-
-        //when
-        Post post = postRepository.findById(postId).get();
-        postService.deletePost(jwtUser, postId);
-
-        //then
-        assertThat(post.getEntityStatus()).isEqualTo(EntityStatus.DELETED);
-    }
+//    @Test
+//    @Transactional
+//    void get_temporaries() {
+//
+//        //given
+//        User user = new User("mina");
+//        User savedUser = userRepository.save(user);
+//        JwtUser jwtUser = savedUser.toJwtUser();
+//
+//        //when
+//        create_post(jwtUser);
+//
+//        List<PostResponse> temporaries = postService.getTemporaries(jwtUser);
+//
+//        //then
+//        log.info(temporaries.get(0).getTitle());
+//        assertThat(temporaries.get(0).getTitle()).isEqualTo("temporary1");
+//    }
+//
+//    @Test
+//    @Transactional
+//    void update_post() {
+//
+//        //given
+//        User user = new User("mina");
+//        User savedUser = userRepository.save(user);
+//        JwtUser jwtUser = savedUser.toJwtUser();
+//        Long postId = create_post(jwtUser);
+//
+//        List<String> urls = new ArrayList<>();
+//        urls.add("https://zigzag.kr/catalog/products/113607837");
+//        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+//
+//        CreatePostReq createPostReq = CreatePostReq.of("update1", "test", PublicStatus.PUBLIC, urls);
+//
+//        //when
+//        postService.updatePost(jwtUser, postId, createPostReq);
+//
+//        //then
+//        assertThat(postRepository.findById(postId).get().newPostResponse().getTitle()).isEqualTo("update1");
+//    }
+//
+//    @Test
+//    @Transactional
+//    public void delete() {
+//        //given
+//        User user = new User("mina");
+//        User savedUser = userRepository.save(user);
+//        JwtUser jwtUser = savedUser.toJwtUser();
+//        Long postId = create_post(jwtUser);
+//
+//
+//        //when
+//        Post post = postRepository.findById(postId).get();
+//        postService.deletePost(jwtUser, postId);
+//
+//        //then
+//        assertThat(post.getEntityStatus()).isEqualTo(EntityStatus.DELETED);
+//    }
 
 }

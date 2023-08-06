@@ -61,7 +61,7 @@ public class Item extends BaseEntity {
     }
 
     public PollItem createPollItem() {
-        return newPollItem(this.brand, this.name, this.price, this.itemUrl, this.imgUrl);
+        return newPollItem(this.id, this.brand, this.name, this.price, this.itemUrl, this.imgUrl);
     }
 
     public Archive newArchive(String userId) {
