@@ -31,4 +31,10 @@ public class ArchiveController {
     public ResponseEntity<ApiResponse<ArchiveResponse>> fromPost(@LoginUser JwtUser user, @PathVariable(name = "itemId") Long itemId) {
         return ApiResponse.success(SuccessCode.INSERT_SUCCESS, archiveService.saveFromPost(user, itemId));
     }
+
+    @Operation(summary = "아카이브 좋아요")
+    @PatchMapping("/pick/{archiveId}")
+    public ResponseEntity<ApiResponse<ArchiveResponse>> likeArchive(@LoginUser JwtUser user, @PathVariable(name = "archiveId") Long archiveId) {
+        return ApiResponse.success(SuccessCode.INSERT_SUCCESS, archiveService.likeArchive(user, archiveId));
+    }
 }

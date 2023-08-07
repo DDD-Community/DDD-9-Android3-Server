@@ -55,6 +55,7 @@ class ArchiveServiceTest {
     }
 
     @Test
+    @Transactional
     void 게시물에서_저장() {
         //given
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
@@ -71,5 +72,19 @@ class ArchiveServiceTest {
 
         //then
         assertThat(response.getItemUrl()).isEqualTo(postResponse.getPollItemResponseList().get(0).getItemUrl());
+    }
+
+    @Test
+    @Transactional
+    void 좋아요() {
+        //given
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        ArchiveResponse archive = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
+
+        //when
+        ArchiveResponse response = archiveService.likeArchive(user, archive.getId());
+
+        //then
+        assertThat(response.isLiked()).isEqualTo(true);
     }
 }

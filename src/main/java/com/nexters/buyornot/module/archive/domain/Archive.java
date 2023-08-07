@@ -61,7 +61,7 @@ public class Archive extends BaseEntity {
         return new Archive(userId, itemUrl, itemId, brand, itemName, img, price);}
 
     public ArchiveResponse newResponse() {
-        return new ArchiveResponse(this.id, this.userId, this.brand, this.itemUrl, this.itemName, this.imgUrl, this.price.getValue(), this.price.getDiscountRate(), this.price.getDiscountedPrice(), this.getUpdatedAt());
+        return new ArchiveResponse(this.id, this.userId, this.brand, this.itemUrl, this.itemName, this.imgUrl, this.price.getValue(), this.price.getDiscountRate(), this.price.getDiscountedPrice(), this.isLiked, this.getUpdatedAt());
     }
 
     public void update(UpdatedInfo dto) {
@@ -73,5 +73,9 @@ public class Archive extends BaseEntity {
         this.itemName = dto.getName();
         this.imgUrl = dto.getImageUrl();
         this.price = price;
+    }
+
+    public void like() {
+        this.isLiked = true;
     }
 }
