@@ -6,6 +6,7 @@ import com.nexters.buyornot.module.item.dao.ItemRepository;
 import com.nexters.buyornot.module.item.domain.Item;
 import com.nexters.buyornot.module.item.event.SavedItemEvent;
 import com.nexters.buyornot.module.model.Role;
+import com.nexters.buyornot.module.post.api.dto.request.FromArchive;
 import com.nexters.buyornot.module.post.api.dto.response.PollItemResponse;
 import com.nexters.buyornot.module.post.api.dto.response.PollResponse;
 import com.nexters.buyornot.module.post.dao.PostRepository;
@@ -207,5 +208,22 @@ public class PostService {
             redis.getPoll(key, unrecommended.getUserId(), unRecommend);
 
         redis.expire(key, duration);
+    }
+
+    @Transactional
+    public PostResponse createFromArchive(JwtUser user, Long itemId1, Long itemId2, FromArchive dto) {
+        Item item1 = itemRepository.findById(itemId1)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ITEM_EXCEPTION));
+        Item item2 = itemRepository.findById(itemId2)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ITEM_EXCEPTION));
+
+        List<PollItem> pollItems = new ArrayList<>();
+        pollItems.add(item1.createPollItem());
+        pollItems.add(item2.createPollItem());
+
+        Post post = Post.newPostFromArchive(user, dto, pollItems);
+        Post savedPost = postRepository.save(post);
+        PostResponse postResponse = savedPost.newPostResponse();
+        return postResponse;
     }
 }
