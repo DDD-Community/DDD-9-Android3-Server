@@ -7,6 +7,7 @@ import com.nexters.buyornot.module.archive.application.ArchiveService;
 import com.nexters.buyornot.module.model.EntityStatus;
 import com.nexters.buyornot.module.post.api.dto.request.FromArchive;
 import com.nexters.buyornot.module.post.dao.PostRepository;
+import com.nexters.buyornot.module.post.domain.model.PollStatus;
 import com.nexters.buyornot.module.post.domain.post.Post;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
@@ -141,4 +142,22 @@ class PostServiceTest {
         assertThat(response.getTitle()).isEqualTo("아카이브 글 작성 테스트");
     }
 
+    @Test
+    @Transactional
+    public void 투표_종료() {
+        //given
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+        CreatePostReq createPostReq = CreatePostReq.of("투표 종료 테스트", "테스트", PublicStatus.PUBLIC, urls);
+        PostResponse postResponse = postService.create(user, createPostReq);
+        assertThat(postResponse.getPollStatus()).isEqualTo(PollStatus.ONGOING.name());
+
+        //when
+        PostResponse result = postService.endPoll(user, postResponse.getId());
+
+        //when
+        assertThat(result.getPollStatus()).isEqualTo(PollStatus.CLOSED.name());
+    }
 }

@@ -126,4 +126,8 @@ public class Post extends BaseEntity {
 
         return pollItem;
     }
+
+    public void endPoll() {
+        this.pollStatus = PollStatus.CLOSED;
+    }
 }

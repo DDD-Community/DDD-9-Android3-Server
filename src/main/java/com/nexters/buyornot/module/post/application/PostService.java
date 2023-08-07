@@ -106,6 +106,17 @@ public class PostService {
         return response;
     }
 
+    @Transactional
+    public PostResponse endPoll(JwtUser user, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
+        if(!post.checkValidity(user.getId())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        post.endPoll();
+        Post savedPost = postRepository.save(post);
+        return savedPost.newPostResponse();
+    }
+
     //전체 공개 포스트만
     public List<PostResponse> getPage(JwtUser user, final int page, final int count) {
         String userId;
