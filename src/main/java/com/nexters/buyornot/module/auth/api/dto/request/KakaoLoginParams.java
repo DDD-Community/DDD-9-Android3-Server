@@ -4,9 +4,11 @@ import com.nexters.buyornot.module.auth.model.oauth.OAuthLoginParams;
 import com.nexters.buyornot.module.auth.model.oauth.OAuthProvider;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+@Slf4j
 @Getter
 @NoArgsConstructor
 public class KakaoLoginParams implements OAuthLoginParams {
@@ -21,6 +23,7 @@ public class KakaoLoginParams implements OAuthLoginParams {
     public MultiValueMap<String, String> makeBody() {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("code", authorizationCode);
+        log.info("kakao authorization code: " + authorizationCode);
         return body;
     }
 }
