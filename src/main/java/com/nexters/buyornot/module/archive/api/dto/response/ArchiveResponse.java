@@ -21,9 +21,10 @@ public class ArchiveResponse {
     private int originalPrice;
     private int discountedRate;
     private int discountedPrice;
+    private boolean isLiked;
     private LocalDateTime updatedAt;
 
-    public ArchiveResponse (Long id, String userId, String brand, String itemUrl, String itemName, String imgUrl, BigDecimal originalPrice, int discountedRate, BigDecimal discountedPrice, LocalDateTime updatedAt) {
+    public ArchiveResponse (Long id, String userId, String brand, String itemUrl, String itemName, String imgUrl, BigDecimal originalPrice, int discountedRate, BigDecimal discountedPrice, boolean isLiked, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
         this.brand = brand;
@@ -33,6 +34,7 @@ public class ArchiveResponse {
         this.originalPrice = originalPrice.intValue();
         this.discountedRate = discountedRate;
         this.discountedPrice = discountedPrice.intValue();
+        this.isLiked = isLiked;
         this.updatedAt = updatedAt;
     }
 }

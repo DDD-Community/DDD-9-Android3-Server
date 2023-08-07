@@ -9,7 +9,6 @@ import com.nexters.buyornot.module.item.domain.Item;
 import com.nexters.buyornot.module.item.event.SavedItemEvent;
 import com.nexters.buyornot.module.model.Role;
 import com.nexters.buyornot.module.post.dao.PostRepository;
-import com.nexters.buyornot.module.post.domain.post.Post;
 import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 import static com.nexters.buyornot.global.common.codes.ErrorCode.*;
@@ -77,5 +75,16 @@ public class ArchiveService {
         Archive savedArchive = archiveRepository.save(archive);
         ArchiveResponse response = savedArchive.newResponse();
         return response;
+    }
+
+    public ArchiveResponse likeArchive(JwtUser user, Long archiveId) {
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        Archive archive = archiveRepository.findById(archiveId)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ARCHIVE_EXCEPTION));
+
+        archive.like();
+        archiveRepository.save(archive);
+
+        return archive.newResponse();
     }
 }
