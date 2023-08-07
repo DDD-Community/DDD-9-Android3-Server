@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Tag(name = "archive", description = "아카이브 API")
 @RequestMapping("/api/archive")
@@ -36,5 +38,11 @@ public class ArchiveController {
     @PatchMapping("/pick/{archiveId}")
     public ResponseEntity<ApiResponse<ArchiveResponse>> likeArchive(@LoginUser JwtUser user, @PathVariable(name = "archiveId") Long archiveId) {
         return ApiResponse.success(SuccessCode.INSERT_SUCCESS, archiveService.likeArchive(user, archiveId));
+    }
+
+    @Operation(summary = "내 아카이브함")
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<ArchiveResponse>>> getAll(@LoginUser JwtUser user, @RequestParam("page") final Integer page, @RequestParam("count") final int count) {
+        return ApiResponse.success(SuccessCode.SELECT_SUCCESS, archiveService.getAll(user, page, count));
     }
 }

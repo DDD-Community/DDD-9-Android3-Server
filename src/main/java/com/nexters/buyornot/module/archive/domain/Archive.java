@@ -76,6 +76,10 @@ public class Archive extends BaseEntity {
     }
 
     public void like() {
+        if(isLiked == true) {
+            isLiked = false;
+            return;
+        }
         this.isLiked = true;
     }
 }
