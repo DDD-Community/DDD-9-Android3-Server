@@ -82,4 +82,13 @@ public class Archive extends BaseEntity {
         }
         this.isLiked = true;
     }
+
+    public boolean verifyValidity(String userId) {
+        if(this.userId.equals(userId)) return true;
+        return false;
+    }
+
+    public Long getId() {
+        return id;
+    }
 }

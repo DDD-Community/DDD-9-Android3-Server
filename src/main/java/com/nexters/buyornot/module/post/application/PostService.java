@@ -188,6 +188,7 @@ public class PostService {
         if (!post.checkValidity(user.getId())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
 
         post.delete();
+        postRepository.save(post);
 
         return post.getId();
     }
