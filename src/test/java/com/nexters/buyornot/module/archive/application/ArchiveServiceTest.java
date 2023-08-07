@@ -94,21 +94,30 @@ class ArchiveServiceTest {
         //given
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
 
-        archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
-        archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
-        archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
-        archiveService.saveFromWeb(user, "https://product.29cm.co.kr/catalog/2142915");
-        archiveService.saveFromWeb(user, "https://www.wconcept.co.kr/Product/303147448");
-
+        ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
+        ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
+        ArchiveResponse archiveResponse3 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+        ArchiveResponse archiveResponse4 = archiveService.saveFromWeb(user, "https://product.29cm.co.kr/catalog/2142915");
+        ArchiveResponse archiveResponse5 = archiveService.saveFromWeb(user, "https://www.wconcept.co.kr/Product/303147448");
 
         //when
+        archiveService.likeArchive(user, archiveResponse1.getId());
+        archiveService.likeArchive(user, archiveResponse2.getId());
+        archiveService.likeArchive(user, archiveResponse3.getId());
+        archiveService.likeArchive(user, archiveResponse4.getId());
+        archiveService.likeArchive(user, archiveResponse5.getId());
         List<ArchiveResponse> responseList = archiveService.getAll(user, 0, 3);
+        List<ArchiveResponse> likeList = archiveService.getLikes(user, 0, 3);
 
         for(ArchiveResponse response : responseList) {
-            log.info("response: " + response.getUpdatedAt());
+            log.info("get all archive response: " + response.getId());
+        }
+        for(ArchiveResponse response : likeList) {
+            log.info("likes list: " + response.getId());
         }
 
         //then
         assertThat(responseList.size()).isEqualTo(3);
+        assertThat(likeList.size()).isEqualTo(3);
     }
 }
