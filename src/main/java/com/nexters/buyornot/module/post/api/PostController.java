@@ -37,9 +37,15 @@ public class PostController {
     }
 
     @Operation(summary = "작성 글 목록 조회 - 투표 진행 중")
-    @GetMapping("/list")
-    public ResponseEntity<ApiResponse<List<PostResponse>>> getMyPosts(@LoginUser JwtUser user, @RequestParam("page") final Integer page, @RequestParam("count") final int count) {
+    @GetMapping("/ongoing-list")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> getOngoing(@LoginUser JwtUser user, @RequestParam("page") final Integer page, @RequestParam("count") final int count) {
         return ApiResponse.success(SuccessCode.SELECT_SUCCESS, postService.getOngoing(user, page, count));
+    }
+
+    @Operation(summary = "작성 글 목록 조회 - 투표 마감")
+    @GetMapping("/closed-list")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> getClosed(@LoginUser JwtUser user, @RequestParam("page") final Integer page, @RequestParam("count") final int count) {
+        return ApiResponse.success(SuccessCode.SELECT_SUCCESS, postService.getClosed(user, page, count));
     }
 
     @Operation(summary = "전체 게시글 리스트")
