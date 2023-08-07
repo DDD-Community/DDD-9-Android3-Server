@@ -13,10 +13,13 @@ import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.nexters.buyornot.global.common.codes.ErrorCode.*;
 
@@ -86,5 +89,18 @@ public class ArchiveService {
         archiveRepository.save(archive);
 
         return archive.newResponse();
+    }
+
+    public List<ArchiveResponse> getAll(JwtUser user, final int page, final int count) {
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        String userId = user.getId().toString();
+
+        List<ArchiveResponse> list = archiveRepository.findPageByUserIdOrderByUpdatedAtDesc(userId, PageRequest.of(page, count))
+                .stream()
+                .map(Archive::newResponse)
+                .collect(Collectors.toList());
+
+        return list;
     }
 }

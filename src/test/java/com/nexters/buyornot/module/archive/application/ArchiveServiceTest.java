@@ -87,4 +87,28 @@ class ArchiveServiceTest {
         //then
         assertThat(response.isLiked()).isEqualTo(true);
     }
+
+    @Test
+    @Transactional
+    void 아카이브_리스트() {
+        //given
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+
+        archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
+        archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
+        archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+        archiveService.saveFromWeb(user, "https://product.29cm.co.kr/catalog/2142915");
+        archiveService.saveFromWeb(user, "https://www.wconcept.co.kr/Product/303147448");
+
+
+        //when
+        List<ArchiveResponse> responseList = archiveService.getAll(user, 0, 3);
+
+        for(ArchiveResponse response : responseList) {
+            log.info("response: " + response.getUpdatedAt());
+        }
+
+        //then
+        assertThat(responseList.size()).isEqualTo(3);
+    }
 }
