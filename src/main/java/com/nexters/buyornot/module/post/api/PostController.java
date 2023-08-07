@@ -65,4 +65,10 @@ public class PostController {
     public ResponseEntity<ApiResponse<Long>> deletePost(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId) {
         return ApiResponse.success(SuccessCode.DELETE_SUCCESS, postService.deletePost(user, postId));
     }
+
+    @Operation(summary = "투표 종료")
+    @PatchMapping("{/postId}/end-poll")
+    public ResponseEntity<ApiResponse<PostResponse>> endPoll(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId) {
+        return ApiResponse.success(SuccessCode.UPDATE_SUCCESS, postService.endPoll(user, postId));
+    }
 }
