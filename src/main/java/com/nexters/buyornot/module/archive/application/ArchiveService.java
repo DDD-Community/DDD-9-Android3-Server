@@ -103,4 +103,17 @@ public class ArchiveService {
 
         return list;
     }
+
+    public List<ArchiveResponse> getLikes(JwtUser user, final int page, final int count) {
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        String userId = user.getId().toString();
+
+        List<ArchiveResponse> list = archiveRepository.findPageByUserIdAndIsLikedOrderByUpdatedAtDesc(userId, true, PageRequest.of(page, count))
+                .stream()
+                .map(Archive::newResponse)
+                .collect(Collectors.toList());
+
+        return list;
+    }
 }

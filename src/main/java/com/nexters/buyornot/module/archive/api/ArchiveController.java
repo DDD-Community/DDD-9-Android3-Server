@@ -45,4 +45,10 @@ public class ArchiveController {
     public ResponseEntity<ApiResponse<List<ArchiveResponse>>> getAll(@LoginUser JwtUser user, @RequestParam("page") final Integer page, @RequestParam("count") final int count) {
         return ApiResponse.success(SuccessCode.SELECT_SUCCESS, archiveService.getAll(user, page, count));
     }
+
+    @Operation(summary = "내 아카이브함 - 좋아요")
+    @GetMapping("/liked-list")
+    public ResponseEntity<ApiResponse<List<ArchiveResponse>>> getLikes(@LoginUser JwtUser user, @RequestParam("page") final Integer page, @RequestParam("count") final int count) {
+        return ApiResponse.success(SuccessCode.SELECT_SUCCESS, archiveService.getLikes(user, page, count));
+    }
 }
