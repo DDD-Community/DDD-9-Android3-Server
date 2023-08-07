@@ -2,7 +2,10 @@ package com.nexters.buyornot.module.post.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.nexters.buyornot.module.archive.api.dto.response.ArchiveResponse;
+import com.nexters.buyornot.module.archive.application.ArchiveService;
 import com.nexters.buyornot.module.model.EntityStatus;
+import com.nexters.buyornot.module.post.api.dto.request.FromArchive;
 import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.domain.post.Post;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
@@ -28,9 +31,9 @@ class PostServiceTest {
     @Autowired
     private PostService postService;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private ArchiveService archiveService;
 
     @Test
     @Transactional
@@ -54,64 +57,88 @@ class PostServiceTest {
         log.info("response ->{}", response.getPollItemResponseList().get(0).getItemUrl());
     }
 
-//    @Test
-//    @Transactional
-//    void get_temporaries() {
-//
-//        //given
-//        User user = new User("mina");
-//        User savedUser = userRepository.save(user);
-//        JwtUser jwtUser = savedUser.toJwtUser();
-//
-//        //when
-//        create_post(jwtUser);
-//
-//        List<PostResponse> temporaries = postService.getTemporaries(jwtUser);
-//
-//        //then
-//        log.info(temporaries.get(0).getTitle());
-//        assertThat(temporaries.get(0).getTitle()).isEqualTo("temporary1");
-//    }
-//
-//    @Test
-//    @Transactional
-//    void update_post() {
-//
-//        //given
-//        User user = new User("mina");
-//        User savedUser = userRepository.save(user);
-//        JwtUser jwtUser = savedUser.toJwtUser();
-//        Long postId = create_post(jwtUser);
-//
-//        List<String> urls = new ArrayList<>();
-//        urls.add("https://zigzag.kr/catalog/products/113607837");
-//        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
-//
-//        CreatePostReq createPostReq = CreatePostReq.of("update1", "test", PublicStatus.PUBLIC, urls);
-//
-//        //when
-//        postService.updatePost(jwtUser, postId, createPostReq);
-//
-//        //then
-//        assertThat(postRepository.findById(postId).get().newPostResponse().getTitle()).isEqualTo("update1");
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void delete() {
-//        //given
-//        User user = new User("mina");
-//        User savedUser = userRepository.save(user);
-//        JwtUser jwtUser = savedUser.toJwtUser();
-//        Long postId = create_post(jwtUser);
-//
-//
-//        //when
-//        Post post = postRepository.findById(postId).get();
-//        postService.deletePost(jwtUser, postId);
-//
-//        //then
-//        assertThat(post.getEntityStatus()).isEqualTo(EntityStatus.DELETED);
-//    }
+    @Test
+    @Transactional
+    void get_temporaries() {
+
+        //given
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+
+        CreatePostReq createPostReq = CreatePostReq.of("임시 저장 테스트", "test", PublicStatus.TEMPORARY_STORAGE, urls);
+        PostResponse postResponse = postService.create(user, createPostReq);
+
+        //when
+        List<PostResponse> temporaries = postService.getTemporaries(user);
+
+        //then
+        log.info(temporaries.get(0).getTitle());
+        assertThat(temporaries.get(0).getTitle()).isEqualTo("temporary1");
+    }
+
+    @Test
+    @Transactional
+    void update_post() {
+
+        //given
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+
+        CreatePostReq createPostReq = CreatePostReq.of("임시 저장 테스트", "test", PublicStatus.TEMPORARY_STORAGE, urls);
+        PostResponse postResponse = postService.create(user, createPostReq);
+
+        List<String> updateUrl = new ArrayList<>();
+        updateUrl.add("https://zigzag.kr/catalog/products/113607837");
+        updateUrl.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+
+        CreatePostReq updatePostReq = CreatePostReq.of("update1", "test", PublicStatus.PUBLIC, updateUrl);
+
+        //when
+        postService.updatePost(user, postResponse.getId(), updatePostReq);
+
+        //then
+        assertThat(postRepository.findById(postResponse.getId()).get().newPostResponse().getTitle()).isEqualTo("update1");
+    }
+
+    @Test
+    @Transactional
+    public void delete() {
+        //given
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+
+        CreatePostReq createPostReq = CreatePostReq.of("임시 저장 테스트", "test", PublicStatus.TEMPORARY_STORAGE, urls);
+        PostResponse postResponse = postService.create(user, createPostReq);
+
+        //when
+        Post post = postRepository.findById(postResponse.getId()).get();
+        postService.deletePost(user, postResponse.getId());
+
+        //then
+        assertThat(post.getEntityStatus()).isEqualTo(EntityStatus.DELETED);
+    }
+
+    @Test
+    @Transactional
+    public void 아카이브에서_글작성() {
+        //given
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
+        ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
+        FromArchive dto = new FromArchive("아카이브 글 작성 테스트", "테스트", PublicStatus.PUBLIC);
+
+        //when
+        log.info("---글 작성---");
+        PostResponse response = postService.createFromArchive(user, archiveResponse1.getItemId(), archiveResponse2.getItemId(), dto);
+
+        //then
+        assertThat(response.getTitle()).isEqualTo("아카이브 글 작성 테스트");
+    }
 
 }

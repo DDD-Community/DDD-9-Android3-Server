@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class ArchiveResponse {
     private Long id;
     private String userId;
+    private Long itemId;
     private String itemUrl;
     private String brand;
     private String itemName;
@@ -24,9 +25,10 @@ public class ArchiveResponse {
     private boolean isLiked;
     private LocalDateTime updatedAt;
 
-    public ArchiveResponse (Long id, String userId, String brand, String itemUrl, String itemName, String imgUrl, BigDecimal originalPrice, int discountedRate, BigDecimal discountedPrice, boolean isLiked, LocalDateTime updatedAt) {
+    public ArchiveResponse (Long id, String userId, Long itemId, String brand, String itemUrl, String itemName, String imgUrl, BigDecimal originalPrice, int discountedRate, BigDecimal discountedPrice, boolean isLiked, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
+        this.itemId = itemId;
         this.brand = brand;
         this.itemUrl = itemUrl;
         this.itemName = itemName;
