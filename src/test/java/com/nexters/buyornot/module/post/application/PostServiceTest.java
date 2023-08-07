@@ -12,8 +12,6 @@ import com.nexters.buyornot.module.post.domain.post.Post;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
-import com.nexters.buyornot.module.user.dao.UserRepository;
-import com.nexters.buyornot.module.user.domain.User;
 import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -159,5 +157,29 @@ class PostServiceTest {
 
         //when
         assertThat(result.getPollStatus()).isEqualTo(PollStatus.CLOSED.name());
+    }
+
+    @Test
+    @Transactional
+    public void 투표_진행중_내_글목록() {
+        //given
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+        CreatePostReq createPostReq1 = CreatePostReq.of("내 글 목록 테스트1", "테스트", PublicStatus.PUBLIC, urls);
+        CreatePostReq createPostReq2 = CreatePostReq.of("내 글 목록 테스트2", "테스트", PublicStatus.PUBLIC, urls);
+        PostResponse postResponse1 = postService.create(user, createPostReq1);
+        PostResponse postResponse2 = postService.create(user, createPostReq2);
+        assertThat(postResponse1.getPollStatus()).isEqualTo(PollStatus.ONGOING.name());
+        assertThat(postResponse2.getPollStatus()).isEqualTo(PollStatus.ONGOING.name());
+
+        //when
+        PostResponse afterEndPoll = postService.endPoll(user, postResponse1.getId());
+        assertThat(afterEndPoll.getPollStatus()).isEqualTo(PollStatus.CLOSED.name());
+        List<PostResponse> result = postService.getOngoing(user, 0, 5);
+
+        //then
+        assertThat(result.size()).isEqualTo(1);
     }
 }

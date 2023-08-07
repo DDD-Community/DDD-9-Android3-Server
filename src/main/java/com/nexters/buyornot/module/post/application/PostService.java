@@ -12,6 +12,7 @@ import com.nexters.buyornot.module.post.api.dto.response.PollResponse;
 import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.dao.poll.ParticipantRepository;
 import com.nexters.buyornot.module.post.dao.poll.UnrecommendedRepository;
+import com.nexters.buyornot.module.post.domain.model.PollStatus;
 import com.nexters.buyornot.module.post.domain.poll.Participant;
 import com.nexters.buyornot.module.post.domain.poll.Unrecommended;
 import com.nexters.buyornot.module.post.domain.post.PollItem;
@@ -152,9 +153,9 @@ public class PostService {
         return responseList;
     }
 
-    public List<PostResponse> getMine(JwtUser user, final int page, final int count) {
+    public List<PostResponse> getOngoing(JwtUser user, final int page, final int count) {
 
-        List<PostResponse> responseList = postRepository.findPageByUser(user.getId(), PublicStatus.PUBLIC, PageRequest.of(page, count))
+        List<PostResponse> responseList = postRepository.findPageByUserAndPollStatus(user.getId(), PollStatus.ONGOING, PageRequest.of(page, count))
                 .stream()
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
