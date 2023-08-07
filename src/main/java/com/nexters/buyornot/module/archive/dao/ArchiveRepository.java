@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ArchiveRepository extends JpaRepository<Archive, Long> {
@@ -22,4 +23,6 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
     List<Archive> findPageByUserIdOrderByUpdatedAtDesc(String userId, Pageable pageable);
 
     List<Archive> findPageByUserIdAndIsLikedOrderByUpdatedAtDesc(String userId, boolean isLiked, PageRequest of);
+
+    Optional<Archive> findByIdAndUserId(Long archiveId, String userId);
 }

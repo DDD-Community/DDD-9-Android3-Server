@@ -1,12 +1,14 @@
 package com.nexters.buyornot.module.archive.application;
 
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
+import com.nexters.buyornot.module.archive.api.dto.request.DeleteArchiveReq;
 import com.nexters.buyornot.module.archive.api.dto.response.ArchiveResponse;
 import com.nexters.buyornot.module.archive.dao.ArchiveRepository;
 import com.nexters.buyornot.module.archive.domain.Archive;
 import com.nexters.buyornot.module.item.dao.ItemRepository;
 import com.nexters.buyornot.module.item.domain.Item;
 import com.nexters.buyornot.module.item.event.SavedItemEvent;
+import com.nexters.buyornot.module.model.EntityStatus;
 import com.nexters.buyornot.module.model.Role;
 import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.user.dto.JwtUser;
@@ -17,7 +19,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -115,5 +119,25 @@ public class ArchiveService {
                 .collect(Collectors.toList());
 
         return list;
+    }
+
+    @Transactional
+    public Map<Long, EntityStatus> delete(JwtUser user, DeleteArchiveReq deleteArchiveReq) {
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        Map<Long, EntityStatus> map = new HashMap<>();
+
+        for(Long id : deleteArchiveReq.getIds()) {
+            Archive archive = archiveRepository.findByIdAndUserId(id, user.getId().toString())
+                    .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ARCHIVE_EXCEPTION));
+
+            if(archive.verifyValidity(user.getId().toString())) {
+                archive.delete();
+            }
+            archiveRepository.save(archive);
+            map.put(archive.getId(), archive.getEntityStatus());
+        }
+
+        return map;
     }
 }

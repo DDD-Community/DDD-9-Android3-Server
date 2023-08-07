@@ -1,7 +1,9 @@
 package com.nexters.buyornot.module.archive.application;
 
+import com.nexters.buyornot.module.archive.api.dto.request.DeleteArchiveReq;
 import com.nexters.buyornot.module.archive.api.dto.response.ArchiveResponse;
 import com.nexters.buyornot.module.archive.dao.ArchiveRepository;
+import com.nexters.buyornot.module.model.EntityStatus;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
 import com.nexters.buyornot.module.post.application.PostService;
@@ -14,9 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -119,5 +119,27 @@ class ArchiveServiceTest {
         //then
         assertThat(responseList.size()).isEqualTo(3);
         assertThat(likeList.size()).isEqualTo(3);
+    }
+
+    @Test
+    @Transactional
+    void 아카이브_삭제() {
+        //given
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
+        ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
+        List<Long> list = new ArrayList<>();
+        list.add(archiveResponse1.getId());
+        list.add(archiveResponse2.getId());
+        DeleteArchiveReq deleteArchiveReq = new DeleteArchiveReq(list);
+
+        //when
+        Map<Long, EntityStatus> result = archiveService.delete(user, deleteArchiveReq);
+
+        //then
+        for(Long id : result.keySet()) {
+            log.info("id: " + id);
+            assertThat(result.get(id)).isEqualTo(EntityStatus.DELETED);
+        }
     }
 }
