@@ -16,7 +16,7 @@ public class JwtUser implements Serializable {
     private String name = "non-member";
     private String nickname;
     private String email;
-    private String role;
+    private String role = "NON_MEMBER";
 
     public static JwtUser newJwtUser(Claims claims) {
         return builder()

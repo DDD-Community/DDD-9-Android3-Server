@@ -2,6 +2,7 @@ package com.nexters.buyornot.module.post.domain.post;
 
 import com.nexters.buyornot.module.model.BaseEntity;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
+import com.nexters.buyornot.module.post.api.dto.request.FromArchive;
 import com.nexters.buyornot.module.post.domain.model.PollStatus;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.api.dto.response.PollItemResponse;
@@ -65,8 +66,25 @@ public class Post extends BaseEntity {
         }
     }
 
+    private Post(JwtUser user, FromArchive dto, List<PollItem> pollItems) {
+        this.userId = user.getId();
+        this.nickname = user.getNickname();
+        this.title = dto.getTitle();
+        this.content = dto.getContent();
+        this.publicStatus = dto.getPublicStatus();
+        this.pollItems = pollItems;
+
+        for(PollItem item : pollItems) {
+            item.belong(this);
+        }
+    }
+
     public static Post newPost(JwtUser jwtUser, CreatePostReq dto, List<PollItem> pollItems) {
         return new Post(jwtUser, dto, pollItems);
+    }
+
+    public static Post newPostFromArchive(JwtUser user, FromArchive dto, List<PollItem> pollItems) {
+        return new Post(user, dto, pollItems);
     }
 
     public PostResponse newPostResponse() {

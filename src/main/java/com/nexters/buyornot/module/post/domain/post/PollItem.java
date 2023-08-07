@@ -26,7 +26,11 @@ public class PollItem extends BaseEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
+    private Long itemId;
+
     private String itemUrl;
+
+    private String brand;
 
     private String itemName;
 
@@ -36,8 +40,10 @@ public class PollItem extends BaseEntity {
     @Lob
     private String imgUrl;
 
-    public static PollItem newPollItem(String itemName, Price itemPrice, String itemUrl, String imgUrl) {
+    public static PollItem newPollItem(Long itemId, String brand, String itemName, Price itemPrice, String itemUrl, String imgUrl) {
         return builder()
+                .itemId(itemId)
+                .brand(brand)
                 .itemName(itemName)
                 .itemPrice(itemPrice)
                 .itemUrl(itemUrl)
@@ -50,7 +56,7 @@ public class PollItem extends BaseEntity {
     }
 
     public PollItemResponse newPollItemResponse() {
-        return new PollItemResponse(this.id, this.itemUrl, this.itemName, this.imgUrl, this.itemPrice.getValue(), this.itemPrice.getDiscountRate(), this.itemPrice.getDiscountedPrice());
+        return new PollItemResponse(this.id, this.itemId, this.brand, this.itemUrl, this.itemName, this.imgUrl, this.itemPrice.getValue(), this.itemPrice.getDiscountRate(), this.itemPrice.getDiscountedPrice());
     }
 
     public Long getId() {

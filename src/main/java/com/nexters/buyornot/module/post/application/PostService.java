@@ -5,6 +5,8 @@ import com.nexters.buyornot.global.utils.RedisUtil;
 import com.nexters.buyornot.module.item.dao.ItemRepository;
 import com.nexters.buyornot.module.item.domain.Item;
 import com.nexters.buyornot.module.item.event.SavedItemEvent;
+import com.nexters.buyornot.module.model.Role;
+import com.nexters.buyornot.module.post.api.dto.request.FromArchive;
 import com.nexters.buyornot.module.post.api.dto.response.PollItemResponse;
 import com.nexters.buyornot.module.post.api.dto.response.PollResponse;
 import com.nexters.buyornot.module.post.dao.PostRepository;
@@ -19,6 +21,7 @@ import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
 import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 import static com.nexters.buyornot.global.common.codes.ErrorCode.*;
 import static com.nexters.buyornot.module.post.application.PollService.*;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -46,10 +50,7 @@ public class PostService {
     @Transactional
     public PostResponse create(JwtUser jwtUser, CreatePostReq dto) {
 
-        if(jwtUser.equals(new JwtUser())) {
-            new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
-        }
-
+        if(jwtUser.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
         eventPublisher.publishEvent(
                 SavedItemEvent.of(dto.getItemUrls())
         );
@@ -79,7 +80,7 @@ public class PostService {
     public PostResponse getPost(JwtUser user, Long postId) {
         String userId;
         //비회원
-        if(user.getName().equals(nonMember)) userId = postId + nonMember + LocalDateTime.now();
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = postId + nonMember + LocalDateTime.now();
         else userId = user.getId().toString();
 
         String key = String.format(keyPrefix + "%s", postId);
@@ -109,7 +110,7 @@ public class PostService {
     public List<PostResponse> getPage(JwtUser user, final int page, final int count) {
         String userId;
         //비회원
-        if(user.getName().equals(nonMember)) userId = nonMember + LocalDateTime.now();
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = nonMember + LocalDateTime.now();
         else userId = user.getId().toString();
 
         List<PostResponse> responseList = postRepository.findPageByPublicStatusOrderByIdDesc(PublicStatus.PUBLIC, PageRequest.of(page, count))
@@ -187,6 +188,7 @@ public class PostService {
         if (!post.checkValidity(user.getId())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
 
         post.delete();
+        postRepository.save(post);
 
         return post.getId();
     }
@@ -207,5 +209,22 @@ public class PostService {
             redis.getPoll(key, unrecommended.getUserId(), unRecommend);
 
         redis.expire(key, duration);
+    }
+
+    @Transactional
+    public PostResponse createFromArchive(JwtUser user, Long itemId1, Long itemId2, FromArchive dto) {
+        Item item1 = itemRepository.findById(itemId1)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ITEM_EXCEPTION));
+        Item item2 = itemRepository.findById(itemId2)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ITEM_EXCEPTION));
+
+        List<PollItem> pollItems = new ArrayList<>();
+        pollItems.add(item1.createPollItem());
+        pollItems.add(item2.createPollItem());
+
+        Post post = Post.newPostFromArchive(user, dto, pollItems);
+        Post savedPost = postRepository.save(post);
+        PostResponse postResponse = savedPost.newPostResponse();
+        return postResponse;
     }
 }

@@ -2,6 +2,7 @@ package com.nexters.buyornot.module.post.application;
 
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.global.utils.RedisUtil;
+import com.nexters.buyornot.module.model.Role;
 import com.nexters.buyornot.module.post.api.dto.response.PollResponse;
 import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.dao.poll.ParticipantRepository;
@@ -44,7 +45,7 @@ public class PollService {
         String userId;
 
         //비회원
-        if(user.getName().equals(nonMember)) userId = postId + nonMember + uniqueNum++ +  LocalDateTime.now();
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = postId + nonMember + uniqueNum++ +  LocalDateTime.now();
         else userId = user.getId().toString();
 
         //item id
