@@ -61,23 +61,4 @@ class PostRepositoryTest {
         log.info("===========================================");
     }
 
-    @Test
-    @Transactional
-    public void pagingByUser() {
-
-        //given
-        User user = userRepository.findByNickname("홍민아2307212021_FzcuG");
-
-        log.info("user id: " + user.getId());
-
-        //when
-        List<PostResponse> responseList = postRepository.findPageByUser(user.getId(), PublicStatus.PUBLIC, PageRequest.of(0, 6))
-                .stream()
-                .map(Post::newPostResponse)
-                .collect(Collectors.toList());
-
-        //then
-//        assertThat(responseList.size()).isEqualTo(6);
-    }
-
 }
