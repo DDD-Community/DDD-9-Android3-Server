@@ -161,7 +161,7 @@ class PostServiceTest {
 
     @Test
     @Transactional
-    public void 투표_진행중_내_글목록() {
+    public void 내_글_목록() {
         //given
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
         List<String> urls = new ArrayList<>();
@@ -169,17 +169,25 @@ class PostServiceTest {
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
         CreatePostReq createPostReq1 = CreatePostReq.of("내 글 목록 테스트1", "테스트", PublicStatus.PUBLIC, urls);
         CreatePostReq createPostReq2 = CreatePostReq.of("내 글 목록 테스트2", "테스트", PublicStatus.PUBLIC, urls);
+        CreatePostReq createPostReq3 = CreatePostReq.of("내 글 목록 테스트3", "테스트", PublicStatus.PUBLIC, urls);
+
         PostResponse postResponse1 = postService.create(user, createPostReq1);
         PostResponse postResponse2 = postService.create(user, createPostReq2);
+        PostResponse postResponse3 = postService.create(user, createPostReq3);
         assertThat(postResponse1.getPollStatus()).isEqualTo(PollStatus.ONGOING.name());
         assertThat(postResponse2.getPollStatus()).isEqualTo(PollStatus.ONGOING.name());
+        assertThat(postResponse3.getPollStatus()).isEqualTo(PollStatus.ONGOING.name());
 
         //when
-        PostResponse afterEndPoll = postService.endPoll(user, postResponse1.getId());
-        assertThat(afterEndPoll.getPollStatus()).isEqualTo(PollStatus.CLOSED.name());
-        List<PostResponse> result = postService.getOngoing(user, 0, 5);
+        PostResponse afterEndPoll1 = postService.endPoll(user, postResponse1.getId());
+        PostResponse afterEndPoll2 = postService.endPoll(user, postResponse2.getId());
+        assertThat(afterEndPoll1.getPollStatus()).isEqualTo(PollStatus.CLOSED.name());
+        assertThat(afterEndPoll2.getPollStatus()).isEqualTo(PollStatus.CLOSED.name());
+        List<PostResponse> ongoing = postService.getOngoing(user, 0, 5);
+        List<PostResponse> closed = postService.getClosed(user, 0, 5);
 
         //then
-        assertThat(result.size()).isEqualTo(1);
+        assertThat(ongoing.size()).isEqualTo(1);
+        assertThat(closed.size()).isEqualTo(2);
     }
 }
