@@ -3,6 +3,7 @@ package com.nexters.buyornot.module.post.api;
 import com.nexters.buyornot.global.common.codes.SuccessCode;
 import com.nexters.buyornot.global.common.response.ApiResponse;
 import com.nexters.buyornot.global.config.resolver.LoginUser;
+import com.nexters.buyornot.module.post.api.dto.request.FromArchive;
 import com.nexters.buyornot.module.post.application.PostService;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
@@ -26,8 +27,14 @@ public class PostController {
 
     @Operation(summary = "게시물 등록")
     @PostMapping("/new")
-    public ResponseEntity<ApiResponse<PostResponse>> writePoll(@LoginUser JwtUser user, @Validated @RequestBody CreatePostReq dto) {
+    public ResponseEntity<ApiResponse<PostResponse>> create(@LoginUser JwtUser user, @Validated @RequestBody CreatePostReq dto) {
         return ApiResponse.success(SuccessCode.INSERT_SUCCESS, postService.create(user, dto));
+    }
+
+    @Operation(summary = "아카이브에서 글 작성")
+    @PostMapping("/from-archive")
+    public ResponseEntity<ApiResponse<PostResponse>> createFromArchive(@LoginUser JwtUser user, @RequestParam Long itemId1, @RequestParam Long itemId2, @Validated @RequestBody FromArchive dto) {
+        return ApiResponse.success(SuccessCode.INSERT_SUCCESS, postService.createFromArchive(user, itemId1, itemId2, dto));
     }
 
     @Operation(summary = "게시물 상세 조회")
