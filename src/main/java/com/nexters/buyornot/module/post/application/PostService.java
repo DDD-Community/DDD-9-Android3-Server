@@ -12,6 +12,7 @@ import com.nexters.buyornot.module.post.api.dto.response.PollResponse;
 import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.dao.poll.ParticipantRepository;
 import com.nexters.buyornot.module.post.dao.poll.UnrecommendedRepository;
+import com.nexters.buyornot.module.post.domain.model.PollStatus;
 import com.nexters.buyornot.module.post.domain.poll.Participant;
 import com.nexters.buyornot.module.post.domain.poll.Unrecommended;
 import com.nexters.buyornot.module.post.domain.post.PollItem;
@@ -51,6 +52,14 @@ public class PostService {
     public PostResponse create(JwtUser jwtUser, CreatePostReq dto) {
 
         if(jwtUser.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        if(dto.getPublicStatus().equals(PublicStatus.TEMPORARY_STORAGE)) {
+            List<Post> temporaryList = postRepository.findByUserIdAndPublicStatus(jwtUser.getId(), PublicStatus.TEMPORARY_STORAGE);
+            if(temporaryList.size() >= 5) {
+                throw new BusinessExceptionHandler(STORAGE_COUNT_EXCEEDED);
+            }
+        }
+
         eventPublisher.publishEvent(
                 SavedItemEvent.of(dto.getItemUrls())
         );
@@ -106,6 +115,17 @@ public class PostService {
         return response;
     }
 
+    @Transactional
+    public PostResponse endPoll(JwtUser user, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
+        if(!post.checkValidity(user.getId())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        post.endPoll();
+        Post savedPost = postRepository.save(post);
+        return savedPost.newPostResponse();
+    }
+
     //전체 공개 포스트만
     public List<PostResponse> getPage(JwtUser user, final int page, final int count) {
         String userId;
@@ -141,9 +161,17 @@ public class PostService {
         return responseList;
     }
 
-    public List<PostResponse> getMine(JwtUser user, final int page, final int count) {
+    public List<PostResponse> getOngoing(JwtUser user, final int page, final int count) {
+        List<PostResponse> responseList = postRepository.findPageByUserAndPollStatus(user.getId(), PollStatus.ONGOING, PageRequest.of(page, count))
+                .stream()
+                .map(Post::newPostResponse)
+                .collect(Collectors.toList());
 
-        List<PostResponse> responseList = postRepository.findPageByUser(user.getId(), PublicStatus.PUBLIC, PageRequest.of(page, count))
+        return responseList;
+    }
+
+    public List<PostResponse> getClosed(JwtUser user, final int page, final int count) {
+        List<PostResponse> responseList = postRepository.findPageByUserAndPollStatus(user.getId(), PollStatus.CLOSED, PageRequest.of(page, count))
                 .stream()
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());

@@ -1,18 +1,17 @@
 package com.nexters.buyornot.module.post.application;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.nexters.buyornot.global.common.codes.ErrorCode;
+import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.archive.api.dto.response.ArchiveResponse;
 import com.nexters.buyornot.module.archive.application.ArchiveService;
 import com.nexters.buyornot.module.model.EntityStatus;
 import com.nexters.buyornot.module.post.api.dto.request.FromArchive;
 import com.nexters.buyornot.module.post.dao.PostRepository;
+import com.nexters.buyornot.module.post.domain.model.PollStatus;
 import com.nexters.buyornot.module.post.domain.post.Post;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
-import com.nexters.buyornot.module.user.dao.UserRepository;
-import com.nexters.buyornot.module.user.domain.User;
 import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -23,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Slf4j
@@ -141,4 +142,77 @@ class PostServiceTest {
         assertThat(response.getTitle()).isEqualTo("아카이브 글 작성 테스트");
     }
 
+    @Test
+    @Transactional
+    public void 투표_종료() {
+        //given
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+        CreatePostReq createPostReq = CreatePostReq.of("투표 종료 테스트", "테스트", PublicStatus.PUBLIC, urls);
+        PostResponse postResponse = postService.create(user, createPostReq);
+        assertThat(postResponse.getPollStatus()).isEqualTo(PollStatus.ONGOING.name());
+
+        //when
+        PostResponse result = postService.endPoll(user, postResponse.getId());
+
+        //when
+        assertThat(result.getPollStatus()).isEqualTo(PollStatus.CLOSED.name());
+    }
+
+    @Test
+    @Transactional
+    public void 내_글_목록() {
+        //given
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+        CreatePostReq createPostReq1 = CreatePostReq.of("내 글 목록 테스트1", "테스트", PublicStatus.PUBLIC, urls);
+        CreatePostReq createPostReq2 = CreatePostReq.of("내 글 목록 테스트2", "테스트", PublicStatus.PUBLIC, urls);
+        CreatePostReq createPostReq3 = CreatePostReq.of("내 글 목록 테스트3", "테스트", PublicStatus.PUBLIC, urls);
+
+        PostResponse postResponse1 = postService.create(user, createPostReq1);
+        PostResponse postResponse2 = postService.create(user, createPostReq2);
+        PostResponse postResponse3 = postService.create(user, createPostReq3);
+        assertThat(postResponse1.getPollStatus()).isEqualTo(PollStatus.ONGOING.name());
+        assertThat(postResponse2.getPollStatus()).isEqualTo(PollStatus.ONGOING.name());
+        assertThat(postResponse3.getPollStatus()).isEqualTo(PollStatus.ONGOING.name());
+
+        //when
+        PostResponse afterEndPoll1 = postService.endPoll(user, postResponse1.getId());
+        PostResponse afterEndPoll2 = postService.endPoll(user, postResponse2.getId());
+        assertThat(afterEndPoll1.getPollStatus()).isEqualTo(PollStatus.CLOSED.name());
+        assertThat(afterEndPoll2.getPollStatus()).isEqualTo(PollStatus.CLOSED.name());
+        List<PostResponse> ongoing = postService.getOngoing(user, 0, 5);
+        List<PostResponse> closed = postService.getClosed(user, 0, 5);
+
+        //then
+        assertThat(ongoing.size()).isEqualTo(1);
+        assertThat(closed.size()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    public void 임시저장_개수_초과() {
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+
+
+        for (int i = 0; i < 10; i++) {
+            CreatePostReq createPostReq = CreatePostReq.of("임시 저장 테스트" + i, "테스트", PublicStatus.TEMPORARY_STORAGE, urls);
+
+            if (i == 5) {
+                log.info("count: " + i);
+
+                assertThatThrownBy(() -> postService.create(user, createPostReq))
+                        .isEqualTo(new BusinessExceptionHandler(ErrorCode.STORAGE_COUNT_EXCEEDED));
+            }
+
+            postService.create(user, createPostReq);
+        }
+    }
 }
