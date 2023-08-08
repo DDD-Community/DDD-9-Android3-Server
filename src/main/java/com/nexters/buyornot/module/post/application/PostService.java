@@ -52,6 +52,14 @@ public class PostService {
     public PostResponse create(JwtUser jwtUser, CreatePostReq dto) {
 
         if(jwtUser.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        if(dto.getPublicStatus().equals(PublicStatus.TEMPORARY_STORAGE)) {
+            List<Post> temporaryList = postRepository.findByUserIdAndPublicStatus(jwtUser.getId(), PublicStatus.TEMPORARY_STORAGE);
+            if(temporaryList.size() >= 5) {
+                throw new BusinessExceptionHandler(STORAGE_COUNT_EXCEEDED);
+            }
+        }
+
         eventPublisher.publishEvent(
                 SavedItemEvent.of(dto.getItemUrls())
         );

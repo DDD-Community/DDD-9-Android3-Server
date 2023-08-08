@@ -69,6 +69,8 @@ public enum ErrorCode {
      */
 
     UNAUTHORIZED_USER_EXCEPTION(403, "B100", "권한이 없는 사용자입니다."),
+    STORAGE_COUNT_EXCEEDED(403, "B101", "저장 가능한 임시저장 개수를 초과했습니다."),
+
     // 유저가 존재하지 않음
     NOT_FOUND_USER_EXCEPTION(404, "B200", "존재하지 않는 유저입니다."),
     NOT_FOUND_ITEM_EXCEPTION(404, "B201", "존재하지 않는 아이템입니다."),

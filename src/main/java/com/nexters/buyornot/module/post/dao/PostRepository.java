@@ -32,4 +32,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             countQuery = "select count(p) from Post p where p.userId = (:user_id) and p.pollStatus IN (:poll_status) order by p.createdAt DESC"
     )
     Page<Post> findPageByUserAndPollStatus(UUID user_id, PollStatus poll_status, Pageable pageable);
+
+    List<Post> findByUserIdAndPublicStatus(UUID userId, PublicStatus publicStatus);
 }
