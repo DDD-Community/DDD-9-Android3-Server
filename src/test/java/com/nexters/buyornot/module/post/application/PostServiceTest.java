@@ -1,7 +1,7 @@
 package com.nexters.buyornot.module.post.application;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.nexters.buyornot.global.common.codes.ErrorCode;
+import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.archive.api.dto.response.ArchiveResponse;
 import com.nexters.buyornot.module.archive.application.ArchiveService;
 import com.nexters.buyornot.module.model.EntityStatus;
@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Slf4j
@@ -189,5 +191,28 @@ class PostServiceTest {
         //then
         assertThat(ongoing.size()).isEqualTo(1);
         assertThat(closed.size()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    public void 임시저장_개수_초과() {
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+
+
+        for (int i = 0; i < 10; i++) {
+            CreatePostReq createPostReq = CreatePostReq.of("임시 저장 테스트" + i, "테스트", PublicStatus.TEMPORARY_STORAGE, urls);
+
+            if (i == 5) {
+                log.info("count: " + i);
+
+                assertThatThrownBy(() -> postService.create(user, createPostReq))
+                        .isEqualTo(new BusinessExceptionHandler(ErrorCode.STORAGE_COUNT_EXCEEDED));
+            }
+
+            postService.create(user, createPostReq);
+        }
     }
 }
