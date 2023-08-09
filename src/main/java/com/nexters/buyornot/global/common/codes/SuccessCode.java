@@ -20,6 +20,7 @@ public enum SuccessCode {
     // 삭제 성공 코드 (HTTP Response: 200 OK)
     DELETE_SUCCESS(200, "200", "DELETE SUCCESS"),
     LOGIN_SUCCESS(200, "200", "LOGIN SUCCESS"),
+    LOGOUT_SUCCESS(200, "200", "LOGOUT SUCCESS"),
     // 삽입 성공 코드 (HTTP Response: 201 Created)
     INSERT_SUCCESS(201, "201", "INSERT SUCCESS"),
     // 수정 성공 코드 (HTTP Response: 201 Created)

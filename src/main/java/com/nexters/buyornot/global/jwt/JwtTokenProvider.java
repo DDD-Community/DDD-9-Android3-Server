@@ -24,6 +24,7 @@ public class JwtTokenProvider {
     private static final String BEARER_TYPE = "Bearer ";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;            // 30분
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;  // 7일
+    private static final long EXPIRED_TIME = 1L;
     private final RedisTemplate<String, Object> redisTemplate;
 
     public JwtTokenProvider(@Value("${jwt.token.secret-key}") String secretKey, RedisTemplate<String, Object> redisTemplate) {
@@ -61,7 +62,7 @@ public class JwtTokenProvider {
     }
 
     public void expireRefreshToken(UUID userId) {
-        redisTemplate.opsForValue().set(RedisKey.REFRESH_TOKEN + userId, "", REFRESH_TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(RedisKey.REFRESH_TOKEN + userId, "", EXPIRED_TIME, TimeUnit.MILLISECONDS);
     }
 
     public String extractSubject(String accessToken) {

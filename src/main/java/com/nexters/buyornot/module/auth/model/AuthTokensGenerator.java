@@ -23,20 +23,14 @@ public class AuthTokensGenerator {
     private final RedisTemplate<String, Object> redisTemplate;
 
     public AuthTokens generate(JwtUser jwtUser) {
-
         return jwtTokenProvider.generate(jwtUser);
-
-//        long now = (new Date()).getTime();
-//        Date accessTokenExpiredAt = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
-//        Date refreshTokenExpiredAt = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
-//
-//        String accessToken = jwtTokenProvider.generate(jwtUser, accessTokenExpiredAt);
-//        String refreshToken = jwtTokenProvider.generate(jwtUser, refreshTokenExpiredAt);
-//
-//        return AuthTokens.of(accessToken, refreshToken, BEARER_TYPE, ACCESS_TOKEN_EXPIRE_TIME / 1000L);
     }
 
     public UUID extractMemberId(String accessToken) {
         return UUID.fromString(jwtTokenProvider.extractSubject(accessToken));
+    }
+
+    public void expireToken(UUID userId) {
+        jwtTokenProvider.expireRefreshToken(userId);
     }
 }
