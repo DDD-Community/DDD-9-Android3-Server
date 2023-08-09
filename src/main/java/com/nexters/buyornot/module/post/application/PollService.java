@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_FOUND_POST_EXCEPTION;
+import static com.nexters.buyornot.global.common.constant.RedisKey.POLL_DEFAULT;
+import static com.nexters.buyornot.global.common.constant.RedisKey.POLL_UPDATE;
 
 @Service
 @Slf4j
@@ -32,20 +34,18 @@ public class PollService {
     private final ParticipantRepository participantRepository;
     private final UnrecommendedRepository unrecommendedRepository;
     private final RedisUtil redis;
-    protected static final String nonMember = "non-member";
-    protected static final String unRecommend = "unrecommended";
+    protected static final String NON_MEMBER = "non-member";
+    protected static final String UNRECOMMENDED = "unrecommended";
     protected static long uniqueNum = 0;
     protected static final long duration = 3600*2; //2시간
-    protected static final String keyPrefix = "bon:poll:";
-    protected static final String keyUpdate = "key:update";
 
     @Transactional
     public PollResponse takePoll(Long postId, JwtUser user, String poll) {
-        String key = String.format(keyPrefix + "%s", postId);
+        String key = String.format(POLL_DEFAULT + "%s", postId);
         String userId;
 
         //비회원
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = postId + nonMember + uniqueNum++ +  LocalDateTime.now();
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = postId + NON_MEMBER + uniqueNum++ +  LocalDateTime.now();
         else userId = user.getId().toString();
 
         //item id
@@ -64,7 +64,7 @@ public class PollService {
         }
 
         //업데이트 정보 저장
-        redis.sAdd(keyUpdate, postId);
+        redis.sAdd(POLL_UPDATE, postId);
         redis.expire(key, duration);
 
         //choices
@@ -79,13 +79,13 @@ public class PollService {
             status.put(id.toString(), count);
         }
 
-        status.put(unRecommend, Collections.frequency(polls, unRecommend));
+        status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
 
         return new PollResponse(status);
     }
 
     public void DBtoCache(Long postId, List<Long> pollItemList) {
-        String key = String.format(keyPrefix + "%s", postId);
+        String key = String.format(POLL_DEFAULT + "%s", postId);
 
         for(Long itemId : pollItemList) {
             List<Participant> participants = participantRepository.findByPollItemId(itemId);
@@ -97,7 +97,7 @@ public class PollService {
         List<Unrecommended> unrecommendedList = unrecommendedRepository.findByPostId(postId);
 
         for(Unrecommended unrecommended : unrecommendedList)
-            redis.getPoll(key, unrecommended.getUserId(), unRecommend);
+            redis.getPoll(key, unrecommended.getUserId(), UNRECOMMENDED);
 
         redis.expire(key, duration);
     }
@@ -120,7 +120,7 @@ public class PollService {
 
             log.info("투표자: " + userId + " choice: " + choice);
 
-            if(choice.equals(unRecommend)) {
+            if(choice.equals(UNRECOMMENDED)) {
                 Unrecommended unrecommended = Unrecommended.newPoll(post, userId);
                 unrecommendedRepository.save(unrecommended);
             } else {

@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.nexters.buyornot.global.common.codes.ErrorCode.*;
+import static com.nexters.buyornot.global.common.constant.RedisKey.POLL_DEFAULT;
 import static com.nexters.buyornot.module.post.application.PollService.*;
 
 @Slf4j
@@ -89,10 +90,10 @@ public class PostService {
     public PostResponse getPost(JwtUser user, Long postId) {
         String userId;
         //비회원
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = postId + nonMember + LocalDateTime.now();
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = postId + NON_MEMBER + LocalDateTime.now();
         else userId = user.getId().toString();
 
-        String key = String.format(keyPrefix + "%s", postId);
+        String key = String.format(POLL_DEFAULT + "%s", postId);
 
         PostResponse response = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION))
@@ -109,7 +110,7 @@ public class PostService {
                 int count = Collections.frequency(polls, item.getId().toString());
                 status.put(item.getId().toString(), count);
             }
-            status.put(unRecommend, Collections.frequency(polls, unRecommend));
+            status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
             response.addPollResponse(new PollResponse(status));
         }
         return response;
@@ -130,7 +131,7 @@ public class PostService {
     public List<PostResponse> getPage(JwtUser user, final int page, final int count) {
         String userId;
         //비회원
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = nonMember + LocalDateTime.now();
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = NON_MEMBER + LocalDateTime.now();
         else userId = user.getId().toString();
 
         List<PostResponse> responseList = postRepository.findPageByPublicStatusOrderByIdDesc(PublicStatus.PUBLIC, PageRequest.of(page, count))
@@ -140,7 +141,7 @@ public class PostService {
 
         for(PostResponse response : responseList) {
             Long postId = response.getId();
-            String key = String.format(keyPrefix + "%s", postId);
+            String key = String.format(POLL_DEFAULT + "%s", postId);
 
             if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
 
@@ -154,7 +155,7 @@ public class PostService {
                     status.put(item.getId().toString(), pollCount);
                 }
 
-                status.put(unRecommend, Collections.frequency(polls, unRecommend));
+                status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
                 response.addPollResponse(new PollResponse(status));
             }
         }
@@ -222,7 +223,7 @@ public class PostService {
     }
 
     public void DBtoCache(Long postId, List<Long> pollItemList) {
-        String key = String.format(keyPrefix + "%s", postId);
+        String key = String.format(POLL_DEFAULT + "%s", postId);
 
         for(Long itemId : pollItemList) {
             List<Participant> participants = participantRepository.findByPollItemId(itemId);
@@ -234,7 +235,7 @@ public class PostService {
         List<Unrecommended> unrecommendedList = unrecommendedRepository.findByPostId(postId);
 
         for(Unrecommended unrecommended : unrecommendedList)
-            redis.getPoll(key, unrecommended.getUserId(), unRecommend);
+            redis.getPoll(key, unrecommended.getUserId(), UNRECOMMENDED);
 
         redis.expire(key, duration);
     }
