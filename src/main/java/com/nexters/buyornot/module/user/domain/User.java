@@ -59,7 +59,7 @@ public class User extends BaseEntity {
     }
 
     public JwtUser toJwtUser() {
-        return JwtUser.fromUser(id, name, nickname, email, role.getValue());
+        return JwtUser.fromUser(id, nickname, role.getValue());
     }
 
     public User(String name) {
