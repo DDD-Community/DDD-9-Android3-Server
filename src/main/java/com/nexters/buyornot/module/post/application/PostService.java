@@ -124,7 +124,7 @@ public class PostService {
         if(!post.checkValidity(user.getId())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
 
         post.endPoll();
-        Post savedPost = postRepository.save(post);
+        postRepository.save(post);
         return SuccessCode.DELETE_SUCCESS.getMessage();
     }
 
