@@ -35,12 +35,12 @@ public class PollService {
     private final UnrecommendedRepository unrecommendedRepository;
     private final RedisUtil redis;
     protected static final String NON_MEMBER = "non-member";
-    protected static final String UNRECOMMENDED = "unrecommended";
+    protected static final Long UNRECOMMENDED = 0L;
     protected static long uniqueNum = 0;
     protected static final long duration = 3600*2; //2시간
 
     @Transactional
-    public PollResponse takePoll(Long postId, JwtUser user, String poll) {
+    public PollResponse takePoll(Long postId, JwtUser user, Long poll) {
         String key = String.format(POLL_DEFAULT + "%s", postId);
         String userId;
 
@@ -58,7 +58,7 @@ public class PollService {
 
         //투표 안했다면
         if(!redis.alreadyPolled(key, userId)) {
-            log.info(userId + " haven't polled");
+            log.info(userId + " takes a poll to " + poll);
             redis.addPoll(key, userId, poll);
             redis.expire(key, duration);
         }
@@ -68,15 +68,15 @@ public class PollService {
         redis.expire(key, duration);
 
         //choices
-        List<String> polls = redis.getPollsByPost(key);
+        List<Long> polls = redis.getPollsByPost(key);
         log.info("poll size: " + polls.size());
 
         //choice : num
-        Map<String, Integer> status = new HashMap<>();
+        Map<Long, Integer> status = new HashMap<>();
 
         for(Long id : pollItemList) {
-            int count = Collections.frequency(polls, id.toString());
-            status.put(id.toString(), count);
+            int count = Collections.frequency(polls, id);
+            status.put(id, count);
         }
 
         status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
@@ -90,7 +90,7 @@ public class PollService {
         for(Long itemId : pollItemList) {
             List<Participant> participants = participantRepository.findByPollItemId(itemId);
             for(Participant participant : participants) {
-                redis.getPoll(key, participant.getUserId(), itemId.toString());
+                redis.getPoll(key, participant.getUserId(), itemId);
             }
         }
 

@@ -20,7 +20,7 @@ public class PollController {
 
     @Operation(summary = "투표", description = "poll item id를 String 타입으로 전환해서 넘겨주세요! 비추천이 기본값입니다.")
     @PatchMapping("/poll")
-    public ResponseEntity<ApiResponse<PollResponse>> takePoll(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId, @RequestParam(value = "choice", required = false, defaultValue = "unrecommended") String poll) {
+    public ResponseEntity<ApiResponse<PollResponse>> takePoll(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId, @RequestParam(value = "choice") Long poll) {
         return ApiResponse.success(SuccessCode.UPDATE_SUCCESS, pollService.takePoll(postId, user, poll));
     }
 }

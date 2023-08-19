@@ -1,5 +1,6 @@
 package com.nexters.buyornot.module.archive.application;
 
+import com.nexters.buyornot.global.common.codes.SuccessCode;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.archive.api.dto.request.DeleteArchiveReq;
 import com.nexters.buyornot.module.archive.api.dto.response.ArchiveResponse;
@@ -122,10 +123,8 @@ public class ArchiveService {
     }
 
     @Transactional
-    public Map<Long, EntityStatus> delete(JwtUser user, DeleteArchiveReq deleteArchiveReq) {
+    public String delete(JwtUser user, DeleteArchiveReq deleteArchiveReq) {
         if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
-
-        Map<Long, EntityStatus> map = new HashMap<>();
 
         for(Long id : deleteArchiveReq.getIds()) {
             Archive archive = archiveRepository.findByIdAndUserId(id, user.getId().toString())
@@ -135,9 +134,7 @@ public class ArchiveService {
                 archive.delete();
             }
             archiveRepository.save(archive);
-            map.put(archive.getId(), archive.getEntityStatus());
         }
-
-        return map;
+        return SuccessCode.DELETE_SUCCESS.getMessage();
     }
 }

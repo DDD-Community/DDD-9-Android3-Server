@@ -1,5 +1,6 @@
 package com.nexters.buyornot.module.post.application;
 
+import com.nexters.buyornot.global.common.codes.SuccessCode;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.global.utils.RedisUtil;
 import com.nexters.buyornot.module.item.dao.ItemRepository;
@@ -101,14 +102,14 @@ public class PostService {
 
         if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
 
-        List<String> polls = redis.getPollsByPost(key);
+        List<Long> polls = redis.getPollsByPost(key);
 
         if(redis.alreadyPolled(key, userId)) {
-            Map<String, Integer> status = new HashMap<>();
+            Map<Long, Integer> status = new HashMap<>();
 
             for(PollItemResponse item : response.getPollItemResponseList()) {
                 int count = Collections.frequency(polls, item.getId().toString());
-                status.put(item.getId().toString(), count);
+                status.put(item.getId(), count);
             }
             status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
             response.addPollResponse(new PollResponse(status));
@@ -117,14 +118,14 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse endPoll(JwtUser user, Long postId) {
+    public String endPoll(JwtUser user, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
         if(!post.checkValidity(user.getId())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
 
         post.endPoll();
         Post savedPost = postRepository.save(post);
-        return savedPost.newPostResponse();
+        return SuccessCode.DELETE_SUCCESS.getMessage();
     }
 
     //전체 공개 포스트만
@@ -145,14 +146,14 @@ public class PostService {
 
             if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
 
-            List<String> polls = redis.getPollsByPost(key);
+            List<Long> polls = redis.getPollsByPost(key);
 
             if(redis.alreadyPolled(key, userId)) {
-                Map<String, Integer> status = new HashMap<>();
+                Map<Long, Integer> status = new HashMap<>();
 
                 for(PollItemResponse item : response.getPollItemResponseList()) {
-                    int pollCount = Collections.frequency(polls, item.getId().toString());
-                    status.put(item.getId().toString(), pollCount);
+                    int pollCount = Collections.frequency(polls, item.getId());
+                    status.put(item.getId(), pollCount);
                 }
 
                 status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
@@ -228,7 +229,7 @@ public class PostService {
         for(Long itemId : pollItemList) {
             List<Participant> participants = participantRepository.findByPollItemId(itemId);
             for(Participant participant : participants) {
-                redis.getPoll(key, participant.getUserId(), itemId.toString());
+                redis.getPoll(key, participant.getUserId(), itemId);
             }
         }
 
