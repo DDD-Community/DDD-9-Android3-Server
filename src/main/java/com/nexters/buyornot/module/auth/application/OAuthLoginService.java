@@ -1,5 +1,7 @@
 package com.nexters.buyornot.module.auth.application;
 
+import com.nexters.buyornot.global.common.codes.ErrorCode;
+import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.auth.api.dto.response.AuthTokens;
 import com.nexters.buyornot.module.auth.model.AuthTokensGenerator;
 import com.nexters.buyornot.module.auth.model.oauth.OAuthInfoResponse;
@@ -11,8 +13,7 @@ import com.nexters.buyornot.module.user.domain.User;
 import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,4 +47,15 @@ public class OAuthLoginService {
         User savedUser = userRepository.save(user);
         return savedUser.toJwtUser();
     }
+
+    @Transactional
+    public String logout(JwtUser jwtUser) {
+        User user = userRepository.findById(jwtUser.getId())
+                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_EXCEPTION));
+
+        authTokensGenerator.expireToken(user.getId());
+        return "logout success";
+    }
+
+
 }
