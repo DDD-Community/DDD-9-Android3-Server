@@ -1,5 +1,7 @@
 package com.nexters.buyornot.module.post.api.dto.response;
 
+import com.nexters.buyornot.module.post.domain.model.PollStatus;
+import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.domain.post.Post;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,13 +19,13 @@ public class PostResponse {
     private String userNickname;
     private String title;
     private String content;
-    private String publicStatus;
-    private String pollStatus;
+    private PublicStatus publicStatus;
+    private PollStatus pollStatus;
     private List<PollItemResponse> pollItemResponseList;
     private boolean participateStatus = false;
     private PollResponse pollResponse;
 
-    public PostResponse(Long id, String userId, String userNickname, String title, String content, String publicStatus, String pollStatus, List<PollItemResponse> pollItems) {
+    public PostResponse(Long id, String userId, String userNickname, String title, String content, PublicStatus publicStatus, PollStatus pollStatus, List<PollItemResponse> pollItems) {
         this.id = id;
         this.userId = userId;
         this.userNickname = userNickname;
