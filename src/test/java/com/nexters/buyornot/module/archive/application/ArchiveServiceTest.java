@@ -37,7 +37,7 @@ class ArchiveServiceTest {
     @Transactional
     void 웹에서_저장() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
         String url = "https://www.musinsa.com/app/goods/2028329";
 
         //when
@@ -58,7 +58,7 @@ class ArchiveServiceTest {
     @Transactional
     void 게시물에서_저장() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
 
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
@@ -78,7 +78,7 @@ class ArchiveServiceTest {
     @Transactional
     void 좋아요() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
         ArchiveResponse archive = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
 
         //when
@@ -92,7 +92,7 @@ class ArchiveServiceTest {
     @Transactional
     void 아카이브_리스트() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
 
         ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
         ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
@@ -125,7 +125,7 @@ class ArchiveServiceTest {
     @Transactional
     void 아카이브_삭제() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
         ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
         ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
         List<Long> list = new ArrayList<>();

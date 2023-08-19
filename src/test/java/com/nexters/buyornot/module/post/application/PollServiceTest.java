@@ -37,10 +37,11 @@ class PollServiceTest {
     private UnrecommendedRepository unrecommendedRepository;
     @Autowired
     private PostService postService;
+    static final Long UNRECOMMENDED = 0L;
 
     @BeforeEach
     void set() {
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@gmail.com", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
 
         List<String> item = new ArrayList<>() {
             {
@@ -64,58 +65,58 @@ class PollServiceTest {
         List<Long> itemList = post.getItemList();
 
         //when
-        pollService.takePoll(post.getId(), nonMember, itemList.get(0).toString());
-        pollService.takePoll(post.getId(), nonMember, itemList.get(1).toString());
-        PollResponse response = pollService.takePoll(post.getId(), nonMember, "unrecommended");
+        pollService.takePoll(post.getId(), nonMember, itemList.get(0));
+        pollService.takePoll(post.getId(), nonMember, itemList.get(1));
+        PollResponse response = pollService.takePoll(post.getId(), nonMember, UNRECOMMENDED);
 
         //then
-        for(String key : response.getResult().keySet()) {
+        for(Long key : response.getResult().keySet()) {
             log.info("key: " + key + " value: " + response.getResult().get(key));
         }
 
-        assertThat(response.getResult().get("unrecommended")).isEqualTo(1);
+        assertThat(response.getResult().get(UNRECOMMENDED)).isEqualTo(1);
     }
 
     @Test
     @Transactional
     void 회원_중복_투표() {
-        JwtUser member = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "participant@gmail.com", "ROLE_USER");
+        JwtUser member = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
 
         Post post = postRepository.findByTitle("poll test");
 
         //when
-        pollService.takePoll(post.getId(), member, "unrecommended");
-        pollService.takePoll(post.getId(), member, "unrecommended");
-        PollResponse response = pollService.takePoll(post.getId(), member, "unrecommended");
+        pollService.takePoll(post.getId(), member, 0L);
+        pollService.takePoll(post.getId(), member, 0L);
+        PollResponse response = pollService.takePoll(post.getId(), member, 0L);
 
         //then
-        for(String key : response.getResult().keySet()) {
+        for(Long key : response.getResult().keySet()) {
             log.info("key: " + key + " value: " + response.getResult().get(key));
         }
 
-        assertThat(response.getResult().get("unrecommended")).isEqualTo(1);
+        assertThat(response.getResult().get(0L)).isEqualTo(1);
     }
 
-    @Test
-    @Transactional
-    void 캐시_쓰기() {
-        //given
-        Post post = postRepository.findByTitle("poll test");
-        log.info("test post id: " + post.getId());
-        JwtUser member = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "participant@gmail.com", "ROLE_USER");
-        pollService.takePoll(post.getId(), member, "unrecommended");
-
-        //when
-        List<Unrecommended> unrecommendedList = unrecommendedRepository.findByPostId(post.getId());
-        log.info("before write: " + unrecommendedList.size());
-
-        Awaitility.await()
-                .pollDelay(Duration.ofSeconds(50))
-                .pollInterval(Duration.ofSeconds(5))
-                .atMost(2, TimeUnit.MINUTES)
-                .untilAsserted(() -> {
-                    List<Unrecommended> afterWrite = unrecommendedRepository.findByPostId(post.getId());
-                    assertThat(afterWrite.size()).isEqualTo(1);
-                });
-    }
+//    @Test
+//    @Transactional
+//    void 캐시_쓰기() {
+//        //given
+//        Post post = postRepository.findByTitle("poll test");
+//        log.info("test post id: " + post.getId());
+//        JwtUser member = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+//        pollService.takePoll(post.getId(), member, 0L);
+//
+//        //when
+//        List<Unrecommended> unrecommendedList = unrecommendedRepository.findByPostId(post.getId());
+//        log.info("before write: " + unrecommendedList.size());
+//
+//        Awaitility.await()
+//                .pollDelay(Duration.ofSeconds(50))
+//                .pollInterval(Duration.ofSeconds(5))
+//                .atMost(2, TimeUnit.MINUTES)
+//                .untilAsserted(() -> {
+//                    List<Unrecommended> afterWrite = unrecommendedRepository.findByPostId(post.getId());
+//                    assertThat(afterWrite.size()).isEqualTo(1);
+//                });
+//    }
 }

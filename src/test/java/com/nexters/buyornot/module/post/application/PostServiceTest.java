@@ -40,7 +40,7 @@ class PostServiceTest {
     @Transactional
     void 글_작성() {
 
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
 
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
@@ -63,7 +63,7 @@ class PostServiceTest {
     void get_temporaries() {
 
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
@@ -84,7 +84,7 @@ class PostServiceTest {
     void update_post() {
 
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
@@ -109,7 +109,7 @@ class PostServiceTest {
     @Transactional
     public void delete() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
@@ -129,7 +129,7 @@ class PostServiceTest {
     @Transactional
     public void 아카이브에서_글작성() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
         ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
         ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
         FromArchive dto = new FromArchive("아카이브 글 작성 테스트", "테스트", PublicStatus.PUBLIC);
@@ -146,7 +146,7 @@ class PostServiceTest {
     @Transactional
     public void 투표_종료() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
@@ -155,17 +155,17 @@ class PostServiceTest {
         assertThat(postResponse.getPollStatus()).isEqualTo(PollStatus.ONGOING.name());
 
         //when
-        PostResponse result = postService.endPoll(user, postResponse.getId());
+        String result = postService.endPoll(user, postResponse.getId());
 
         //when
-        assertThat(result.getPollStatus()).isEqualTo(PollStatus.CLOSED.name());
+        assertThat(result).isEqualTo(PollStatus.CLOSED.name());
     }
 
     @Test
     @Transactional
     public void 내_글_목록() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
@@ -181,10 +181,10 @@ class PostServiceTest {
         assertThat(postResponse3.getPollStatus()).isEqualTo(PollStatus.ONGOING.name());
 
         //when
-        PostResponse afterEndPoll1 = postService.endPoll(user, postResponse1.getId());
-        PostResponse afterEndPoll2 = postService.endPoll(user, postResponse2.getId());
-        assertThat(afterEndPoll1.getPollStatus()).isEqualTo(PollStatus.CLOSED.name());
-        assertThat(afterEndPoll2.getPollStatus()).isEqualTo(PollStatus.CLOSED.name());
+        String afterEndPoll1 = postService.endPoll(user, postResponse1.getId());
+        String afterEndPoll2 = postService.endPoll(user, postResponse2.getId());
+        assertThat(afterEndPoll1).isEqualTo(PollStatus.CLOSED.name());
+        assertThat(afterEndPoll2).isEqualTo(PollStatus.CLOSED.name());
         List<PostResponse> ongoing = postService.getOngoing(user, 0, 5);
         List<PostResponse> closed = postService.getClosed(user, 0, 5);
 
@@ -196,7 +196,7 @@ class PostServiceTest {
     @Test
     @Transactional
     public void 임시저장_개수_초과() {
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");

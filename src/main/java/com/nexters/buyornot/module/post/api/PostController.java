@@ -80,8 +80,8 @@ public class PostController {
     }
 
     @Operation(summary = "투표 종료")
-    @PatchMapping("{/postId}/end-poll")
-    public ResponseEntity<ApiResponse<PostResponse>> endPoll(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId) {
+    @PatchMapping("{postId}/end-poll")
+    public ResponseEntity<ApiResponse<String>> endPoll(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId) {
         return ApiResponse.success(SuccessCode.UPDATE_SUCCESS, postService.endPoll(user, postId));
     }
 }

@@ -27,12 +27,12 @@ public class ArchiveController {
 
     @Operation(summary = "웹에서 보관")
     @PostMapping("/from-web")
-    public ResponseEntity<ApiResponse<ArchiveResponse>> fromWeb(@LoginUser JwtUser user, @RequestParam(name = "item-url") String url) {
-        return ApiResponse.success(SuccessCode.INSERT_SUCCESS, archiveService.saveFromWeb(user, url));
+    public ResponseEntity<ApiResponse<ArchiveResponse>> fromWeb(@LoginUser JwtUser user, @RequestParam(name = "itemUrl") String itemUrl) {
+        return ApiResponse.success(SuccessCode.INSERT_SUCCESS, archiveService.saveFromWeb(user, itemUrl));
     }
 
     @Operation(summary = "게시물에서 보관")
-    @PostMapping("/from-post{itemId}")
+    @PostMapping("/from-post/{itemId}")
     public ResponseEntity<ApiResponse<ArchiveResponse>> fromPost(@LoginUser JwtUser user, @PathVariable(name = "itemId") Long itemId) {
         return ApiResponse.success(SuccessCode.INSERT_SUCCESS, archiveService.saveFromPost(user, itemId));
     }
@@ -57,7 +57,7 @@ public class ArchiveController {
 
     @Operation(summary = "아카이브 삭제")
     @PatchMapping("/deletion")
-    public ResponseEntity<ApiResponse<Map<Long, EntityStatus>>> deleteArchive(@LoginUser JwtUser user, @RequestBody DeleteArchiveReq deleteArchiveReq) {
+    public ResponseEntity<ApiResponse<String>> deleteArchive(@LoginUser JwtUser user, @RequestBody DeleteArchiveReq deleteArchiveReq) {
         return ApiResponse.success(SuccessCode.DELETE_SUCCESS, archiveService.delete(user, deleteArchiveReq));
     }
 }

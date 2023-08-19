@@ -8,9 +8,9 @@ import java.util.Map;
 @Setter
 @Builder(access = AccessLevel.PRIVATE)
 public class PollResponse {
-    Map<String, Integer> result;
+    Map<Long, Integer> result;
 
-    public PollResponse(Map<String, Integer> status) {
+    public PollResponse(Map<Long, Integer> status) {
         this.result = status;
     }
 }

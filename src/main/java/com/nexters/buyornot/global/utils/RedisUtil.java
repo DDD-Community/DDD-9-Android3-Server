@@ -55,7 +55,7 @@ public class RedisUtil {
         return redisTemplate.hasKey(key);
     }
 
-    public void getPoll(String key, String field, String value) {
+    public void getPoll(String key, String field, Long value) {
         redisTemplate.opsForHash().putIfAbsent(key, field, value);
     }
 
@@ -64,14 +64,14 @@ public class RedisUtil {
         return false;
     }
 
-    public void addPoll(String key, String userId, String choice) {
+    public void addPoll(String key, String userId, Long choice) {
         redisTemplate.opsForHash().put(key, userId, choice);
     }
 
-    public List<String> getPollsByPost(String key) {
+    public List<Long> getPollsByPost(String key) {
         return redisTemplate.opsForHash().values(key)
                 .stream()
-                .map(v -> v.toString())
+                .map(c -> Long.parseLong(c.toString()))
                 .collect(Collectors.toList());
     }
 
