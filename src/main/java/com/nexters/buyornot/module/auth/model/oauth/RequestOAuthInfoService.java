@@ -1,5 +1,6 @@
 package com.nexters.buyornot.module.auth.model.oauth;
 
+import com.nexters.buyornot.module.auth.api.dto.request.KakaoLoginParams;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,9 +18,10 @@ public class RequestOAuthInfoService {
         );
     }
 
-    public OAuthInfoResponse request(OAuthLoginParams params) {
+    public OAuthInfoResponse request(KakaoLoginParams params) {
         OAuthApiClient client = clients.get(params.oAuthProvider());
-        String accessToken = client.requestAccessToken(params);
+//        String accessToken = client.requestAccessToken(params);
+        String accessToken = params.getAccessToken();
         return client.requestOauthInfo(accessToken);
     }
 }
