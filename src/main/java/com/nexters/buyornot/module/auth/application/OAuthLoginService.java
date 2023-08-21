@@ -2,6 +2,7 @@ package com.nexters.buyornot.module.auth.application;
 
 import com.nexters.buyornot.global.common.codes.ErrorCode;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
+import com.nexters.buyornot.module.auth.api.dto.request.KakaoLoginParams;
 import com.nexters.buyornot.module.auth.api.dto.response.AuthTokens;
 import com.nexters.buyornot.module.auth.model.AuthTokensGenerator;
 import com.nexters.buyornot.module.auth.model.oauth.OAuthInfoResponse;
@@ -22,7 +23,7 @@ public class OAuthLoginService {
     private final AuthTokensGenerator authTokensGenerator;
     private final RequestOAuthInfoService requestOAuthInfoService;
 
-    public AuthTokens login(OAuthLoginParams params) {
+    public AuthTokens login(KakaoLoginParams params) {
         OAuthInfoResponse oAuthInfoResponse = requestOAuthInfoService.request(params);
         JwtUser user = findOrCreateMember(oAuthInfoResponse);
         return authTokensGenerator.generate(user);
