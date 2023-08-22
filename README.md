@@ -9,7 +9,7 @@ DDD 9기 안드로이드 3팀 서버
 
 - Language: Java 17
 - Framework: SpringBoot, Spring Security
-- Database: MySQL 8.0.32, Spring Data JPA
+- Database: MySQL 8.0, Spring Data JPA
 - CI/CD: Github Actions, Docker, Docker Hub, Elastic Beanstalk
 - Docs: Swagger
 
@@ -97,6 +97,4 @@ DDD 9기 안드로이드 3팀 서버
 
 
 ## ERD
-
-<img src = "https://github.com/DDD-Community/DDD-9-Android3-Server/assets/70634740/7b1a991b-1ea6-4c58-82df-802e69afe80d" height = 300/>
 
