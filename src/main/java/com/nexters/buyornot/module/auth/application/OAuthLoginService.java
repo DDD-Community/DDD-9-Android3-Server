@@ -47,10 +47,12 @@ public class OAuthLoginService {
         String email = oAuthInfoResponse.getEmail();
         if(email.isEmpty()) email = "";
 
-        String nickname = oAuthInfoResponse.getNickname();
-        String profile = "";
+        List<String> list = generateNickname();
+        String nickname = list.get(0);
+        String profile = list.get(1);
+
         while(userRepository.existsByNickname(nickname)) {
-            List<String> list = generateNickname();
+            list = generateNickname();
             nickname = list.get(0);
             profile = list.get(1);
         }
