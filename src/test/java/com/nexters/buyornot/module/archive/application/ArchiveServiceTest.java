@@ -134,12 +134,9 @@ class ArchiveServiceTest {
         DeleteArchiveReq deleteArchiveReq = new DeleteArchiveReq(list);
 
         //when
-        Map<Long, EntityStatus> result = archiveService.delete(user, deleteArchiveReq);
+        String result = archiveService.delete(user, deleteArchiveReq);
 
         //then
-        for(Long id : result.keySet()) {
-            log.info("id: " + id);
-            assertThat(result.get(id)).isEqualTo(EntityStatus.DELETED);
-        }
+        assertThat(result).isEqualTo(EntityStatus.DELETED);
     }
 }

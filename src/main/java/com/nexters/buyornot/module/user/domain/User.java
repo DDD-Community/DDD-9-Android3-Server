@@ -32,12 +32,13 @@ public class User extends BaseEntity {
 
     private String name;
 
-    @Email(message = "이메일 형식에 맞지 않습니다.")
-    @Column(unique = true, length = 100)
+    @Column(length = 100)
     private String email;
 
     @Unique
     private String nickname;
+
+    private String profile;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -48,11 +49,12 @@ public class User extends BaseEntity {
     private OAuthProvider oAuthProvider;
 
     @Builder
-    public User(String gender, String email, String nickname, OAuthProvider oAuthProvider, String ageRange, Role role) {
-        this.name = nickname;
+    public User(String name, String gender, String email, String nickname, String profile, OAuthProvider oAuthProvider, String ageRange, Role role) {
+        this.name = name;
         this.gender = Gender.valueOf(gender);
         this.email = email;
         this.nickname = nickname;
+        this.profile = profile;
         this.ageRange = ageRange;
         this.oAuthProvider = oAuthProvider;
         this.role = role;

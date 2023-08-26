@@ -5,12 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nexters.buyornot.module.auth.model.oauth.OAuthInfoResponse;
 import com.nexters.buyornot.module.auth.model.oauth.OAuthProvider;
 import lombok.Getter;
-import org.apache.commons.lang3.RandomStringUtils;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -48,12 +42,7 @@ public class KakaoInfoResponse implements OAuthInfoResponse {
 
     @Override
     public String getNickname() {
-        String uniqueNickname = kakaoAccount.profile.nickname;
-        SimpleDateFormat format = new SimpleDateFormat("yyMMddHHmm");
-        Calendar dateTime = Calendar.getInstance();
-        uniqueNickname += format.format(dateTime.getTime());
-        uniqueNickname += "_" + RandomStringUtils.randomAlphabetic(5);
-        return uniqueNickname;
+        return kakaoAccount.profile.getNickname();
     }
 
     @Override
