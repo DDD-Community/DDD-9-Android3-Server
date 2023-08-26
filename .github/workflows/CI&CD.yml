@@ -15,7 +15,6 @@ jobs:
 
       - name: write yml
         run: |
-          mkdir ./src/main/resources
           cd ./src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" >> application.yml
 
