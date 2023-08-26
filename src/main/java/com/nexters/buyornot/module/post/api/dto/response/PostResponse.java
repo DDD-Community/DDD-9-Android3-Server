@@ -1,5 +1,6 @@
 package com.nexters.buyornot.module.post.api.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nexters.buyornot.module.post.domain.model.PollStatus;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.domain.post.Post;
@@ -7,7 +8,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.checkerframework.checker.formatter.qual.Format;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder(access = AccessLevel.PRIVATE)
@@ -25,7 +28,10 @@ public class PostResponse {
     private boolean participateStatus = false;
     private PollResponse pollResponse;
 
-    public PostResponse(Long id, String userId, String userNickname, String title, String content, PublicStatus publicStatus, PollStatus pollStatus, List<PollItemResponse> pollItems) {
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    private LocalDateTime updatedAt;
+
+    public PostResponse(Long id, String userId, String userNickname, String title, String content, PublicStatus publicStatus, PollStatus pollStatus, List<PollItemResponse> pollItems, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
         this.userNickname = userNickname;
@@ -34,6 +40,7 @@ public class PostResponse {
         this.publicStatus = publicStatus;
         this.pollStatus = pollStatus;
         this.pollItemResponseList = pollItems;
+        this.updatedAt = updatedAt;
     }
 
     public PostResponse(Post post) {
