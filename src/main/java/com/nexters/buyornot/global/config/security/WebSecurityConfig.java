@@ -53,6 +53,7 @@ public class WebSecurityConfig {
                 .cacheControl().and()
                 .xssProtection().and()
                 .httpStrictTransportSecurity().disable();
+        http.cors();
 
         return http.build();
     }
