@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.nexters.buyornot.global.common.constant.RedisKey.POLL_DEFAULT;
+import static com.nexters.buyornot.global.common.constant.RedisKey.POLL_UPDATE;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -22,8 +25,6 @@ public class ScheduleService {
     private final RedisUtil redis;
     private final PollService pollService;
     private static final long duration = 3600*2;   // 2시간
-    protected static final String keyPrefix = "bon:poll:";
-    protected static final String keyUpdate = "key:update";
 
     @Transactional
     @Scheduled(fixedDelay = 3000000L) //50분마다
@@ -33,15 +34,15 @@ public class ScheduleService {
         log.info("start poll scheduling: " + LocalDateTime.now());
 
         //업데이트 사항이 있는 글 리스트
-        Set<Integer> updatedIds = redis.sMembers(keyUpdate)
+        Set<Integer> updatedIds = redis.sMembers(POLL_UPDATE)
                 .stream()
                 .map(i -> (Integer) i).collect(Collectors.toSet());
 
-        redis.del(keyUpdate);
+        redis.del(POLL_UPDATE);
 
         for(Integer postId : updatedIds) {
             Long id = Long.parseLong(postId.toString());
-            String key = String.format(keyPrefix + "%s", id);
+            String key = String.format(POLL_DEFAULT + "%s", id);
 
             //유저 id, 투표 항목
             Map<Object, Object> updates = redis.getPollStatus(key);
@@ -49,7 +50,7 @@ public class ScheduleService {
             try {
                 pollService.storePoll(id, updates);
             } catch (Exception e) {
-                redis.sAdd(keyUpdate, id);
+                redis.sAdd(POLL_UPDATE, id);
             }
         }
     }
