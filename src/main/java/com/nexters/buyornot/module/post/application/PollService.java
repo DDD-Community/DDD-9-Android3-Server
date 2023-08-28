@@ -72,16 +72,15 @@ public class PollService {
         log.info("poll size: " + polls.size());
 
         //choice : num
-        Map<Long, Integer> status = new HashMap<>();
+        Map<Long, Integer> status = new TreeMap<>();
 
         for(Long id : pollItemList) {
             int count = Collections.frequency(polls, id);
             status.put(id, count);
         }
-
         status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
 
-        return new PollResponse(status);
+        return new PollResponse(status.values());
     }
 
     public void DBtoCache(Long postId, List<Long> pollItemList) {

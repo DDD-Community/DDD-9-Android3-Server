@@ -112,7 +112,7 @@ public class PostService {
                 status.put(item.getId(), count);
             }
             status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
-            response.addPollResponse(new PollResponse(status));
+            response.addPollResponse(new PollResponse(status.values()));
         }
         return response;
     }
@@ -157,7 +157,7 @@ public class PostService {
                 }
 
                 status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
-                response.addPollResponse(new PollResponse(status));
+                response.addPollResponse(new PollResponse(status.values()));
             }
         }
         return responseList;
