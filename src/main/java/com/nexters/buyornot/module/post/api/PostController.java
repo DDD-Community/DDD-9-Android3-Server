@@ -31,6 +31,12 @@ public class PostController {
         return ApiResponse.success(SuccessCode.INSERT_SUCCESS, postService.create(user, dto));
     }
 
+    @Operation(summary = "임시저장 글 출간")
+    @PostMapping("/publish-post/{postId}")
+    public ResponseEntity<ApiResponse<PostResponse>> publish(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId, @RequestBody CreatePostReq dto) {
+        return ApiResponse.success(SuccessCode.INSERT_SUCCESS, postService.publish(user, postId, dto));
+    }
+
     @Operation(summary = "아카이브에서 글 작성")
     @PostMapping("/from-archive")
     public ResponseEntity<ApiResponse<PostResponse>> createFromArchive(@LoginUser JwtUser user, @RequestParam Long itemId1, @RequestParam Long itemId2, @Validated @RequestBody FromArchive dto) {

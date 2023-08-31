@@ -1,6 +1,5 @@
 package com.nexters.buyornot.module.post.application;
 
-import com.nexters.buyornot.global.common.codes.SuccessCode;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.global.utils.RedisUtil;
 import com.nexters.buyornot.module.item.dao.ItemRepository;
@@ -54,9 +53,8 @@ public class PostService {
     public PostResponse create(JwtUser jwtUser, CreatePostReq dto) {
 
         if(jwtUser.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
-
-        if(dto.getPublicStatus().equals(PublicStatus.TEMPORARY_STORAGE)) {
-            List<Post> temporaryList = postRepository.findByUserIdAndPublicStatus(jwtUser.getId(), PublicStatus.TEMPORARY_STORAGE);
+        if(!dto.isPublished()) {
+            List<Post> temporaryList = postRepository.findByUserIdAndIsPublished(jwtUser.getId(), false);
             if(temporaryList.size() >= 5) {
                 throw new BusinessExceptionHandler(STORAGE_COUNT_EXCEEDED);
             }
@@ -72,7 +70,19 @@ public class PostService {
         Post savedPost = postRepository.save(post);
         PostResponse postResponse = savedPost.newPostResponse();
         return postResponse;
+    }
 
+    @Transactional
+    public PostResponse publish(JwtUser user, Long postId, CreatePostReq dto) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
+
+        if (!post.checkValidity(user.getId())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        PostResponse response = create(user, dto);
+        deletePost(user, postId);
+
+        return response;
     }
 
     private List<PollItem> addPollItem(List<String> itemUrls) {
@@ -125,7 +135,7 @@ public class PostService {
 
         post.endPoll();
         postRepository.save(post);
-        return SuccessCode.DELETE_SUCCESS.getMessage();
+        return PollStatus.CLOSED.name();
     }
 
     //전체 공개 포스트만
@@ -135,7 +145,7 @@ public class PostService {
         if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = NON_MEMBER + LocalDateTime.now();
         else userId = user.getId().toString();
 
-        List<PostResponse> responseList = postRepository.findPageByPublicStatusOrderByIdDesc(PublicStatus.PUBLIC, PageRequest.of(page, count))
+        List<PostResponse> responseList = postRepository.findPageByIsPublishedOrderByIdDesc(true, PageRequest.of(page, count))
                 .stream()
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
@@ -183,7 +193,7 @@ public class PostService {
 
     public List<PostResponse> getTemporaries(JwtUser user) {
 
-        List<PostResponse> responseList = postRepository.findTemporaries(user.getId(), PublicStatus.TEMPORARY_STORAGE)
+        List<PostResponse> responseList = postRepository.findTemporaries(user.getId(), false)
                 .stream()
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
@@ -193,7 +203,6 @@ public class PostService {
 
     @Transactional
     public PostResponse updatePost(JwtUser user, Long postId, CreatePostReq dto) {
-
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
 
@@ -206,6 +215,7 @@ public class PostService {
         List<PollItem> pollItems = addPollItem(dto.getItemUrls());
 
         post.update(dto, pollItems);
+        postRepository.save(post);
 
         return post.newPostResponse();
     }

@@ -23,6 +23,7 @@ public class PostResponse {
     private String title;
     private String content;
     private PublicStatus publicStatus;
+    private boolean isPublished;
     private PollStatus pollStatus;
     private List<PollItemResponse> pollItemResponseList;
     private boolean participateStatus = false;
@@ -31,13 +32,14 @@ public class PostResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
 
-    public PostResponse(Long id, String userId, String userNickname, String title, String content, PublicStatus publicStatus, PollStatus pollStatus, List<PollItemResponse> pollItems, LocalDateTime updatedAt) {
+    public PostResponse(Long id, String userId, String userNickname, String title, String content, PublicStatus publicStatus, boolean isPublished, PollStatus pollStatus, List<PollItemResponse> pollItems, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
         this.userNickname = userNickname;
         this.title = title;
         this.content = content;
         this.publicStatus = publicStatus;
+        this.isPublished = isPublished;
         this.pollStatus = pollStatus;
         this.pollItemResponseList = pollItems;
         this.updatedAt = updatedAt;
