@@ -5,11 +5,9 @@ import com.nexters.buyornot.module.post.api.dto.response.PollResponse;
 import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.dao.poll.UnrecommendedRepository;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
-import com.nexters.buyornot.module.post.domain.poll.Unrecommended;
 import com.nexters.buyornot.module.post.domain.post.Post;
 import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.extern.slf4j.Slf4j;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +48,7 @@ class PollServiceTest {
             }
         };
 
-        CreatePostReq dto = new CreatePostReq("poll test", "poll test", PublicStatus.PUBLIC, item);
+        CreatePostReq dto = new CreatePostReq("poll test", "poll test", PublicStatus.PUBLIC, item, true);
 
         postService.create(user, dto);
     }
@@ -70,11 +68,7 @@ class PollServiceTest {
         PollResponse response = pollService.takePoll(post.getId(), nonMember, UNRECOMMENDED);
 
         //then
-        for(Long key : response.getResult().keySet()) {
-            log.info("key: " + key + " value: " + response.getResult().get(key));
-        }
-
-        assertThat(response.getResult().get(UNRECOMMENDED)).isEqualTo(1);
+        assertThat(response.getUnrecommended()).isEqualTo(1);
     }
 
     @Test
@@ -90,11 +84,7 @@ class PollServiceTest {
         PollResponse response = pollService.takePoll(post.getId(), member, 0L);
 
         //then
-        for(Long key : response.getResult().keySet()) {
-            log.info("key: " + key + " value: " + response.getResult().get(key));
-        }
-
-        assertThat(response.getResult().get(0L)).isEqualTo(1);
+        assertThat(response.getUnrecommended()).isEqualTo(1);
     }
 
 //    @Test

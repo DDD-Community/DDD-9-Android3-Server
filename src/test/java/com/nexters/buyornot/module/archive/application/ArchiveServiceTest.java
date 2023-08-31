@@ -64,7 +64,7 @@ class ArchiveServiceTest {
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
 
-        CreatePostReq createPostReq = CreatePostReq.of("아카이브 저장 테스트!!", "test", PublicStatus.TEMPORARY_STORAGE, urls);
+        CreatePostReq createPostReq = CreatePostReq.of("아카이브 저장 테스트!!", "test", PublicStatus.PUBLIC, true, urls);
         PostResponse postResponse = postService.create(user, createPostReq);
 
         //when
