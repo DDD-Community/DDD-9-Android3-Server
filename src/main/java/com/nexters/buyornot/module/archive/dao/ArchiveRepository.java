@@ -25,4 +25,6 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
     List<Archive> findPageByUserIdAndIsLikedOrderByUpdatedAtDesc(String userId, boolean isLiked, PageRequest of);
 
     Optional<Archive> findByIdAndUserId(Long archiveId, String userId);
+
+    void deleteAllByUserId(String userId);
 }

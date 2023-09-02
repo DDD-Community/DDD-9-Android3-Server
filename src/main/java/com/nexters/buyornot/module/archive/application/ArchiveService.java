@@ -12,6 +12,7 @@ import com.nexters.buyornot.module.item.event.SavedItemEvent;
 import com.nexters.buyornot.module.model.EntityStatus;
 import com.nexters.buyornot.module.model.Role;
 import com.nexters.buyornot.module.post.dao.PostRepository;
+import com.nexters.buyornot.module.user.domain.User;
 import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -136,5 +137,10 @@ public class ArchiveService {
             archiveRepository.save(archive);
         }
         return SuccessCode.DELETE_SUCCESS.getMessage();
+    }
+
+    @Transactional
+    public void deleteAll(String userId) {
+        archiveRepository.deleteAllByUserId(userId);
     }
 }
