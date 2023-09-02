@@ -4,6 +4,7 @@ import com.nexters.buyornot.global.common.codes.ErrorCode;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.auth.api.dto.request.KakaoLoginParams;
 import com.nexters.buyornot.module.auth.api.dto.response.AuthTokens;
+import com.nexters.buyornot.module.auth.event.DeletedUserEvent;
 import com.nexters.buyornot.module.auth.model.AuthTokensGenerator;
 import com.nexters.buyornot.module.auth.model.oauth.OAuthInfoResponse;
 import com.nexters.buyornot.module.auth.model.oauth.RequestOAuthInfoService;
@@ -13,6 +14,7 @@ import com.nexters.buyornot.module.user.domain.Nickname;
 import com.nexters.buyornot.module.user.domain.User;
 import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,7 @@ public class OAuthLoginService {
     private final UserRepository userRepository;
     private final AuthTokensGenerator authTokensGenerator;
     private final RequestOAuthInfoService requestOAuthInfoService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public AuthTokens login(KakaoLoginParams params) {
         OAuthInfoResponse oAuthInfoResponse = requestOAuthInfoService.request(params);
@@ -101,5 +104,12 @@ public class OAuthLoginService {
         return "logout success";
     }
 
-
+    @Transactional
+    public String signOut(JwtUser jwtUser) {
+        User user = userRepository.findById(jwtUser.getId())
+                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_EXCEPTION));
+        user.delete();
+        eventPublisher.publishEvent(DeletedUserEvent.of(user));
+        return user.getName() + " sign out success";
+    }
 }

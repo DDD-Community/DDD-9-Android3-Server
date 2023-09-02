@@ -40,4 +40,10 @@ public class AuthController {
     public ResponseEntity<ApiResponse<String>> logout(@LoginUser JwtUser user) {
         return ApiResponse.success(SuccessCode.LOGOUT_SUCCESS, oAuthLoginService.logout(user));
     }
+
+    @Operation(summary = "회원 탈퇴")
+    @PostMapping("/sign-out")
+    public ResponseEntity<ApiResponse<String>> signOut(@LoginUser JwtUser user) {
+        return ApiResponse.success(SuccessCode.SIGNOUT_SUCCESS, oAuthLoginService.signOut(user));
+    }
 }
