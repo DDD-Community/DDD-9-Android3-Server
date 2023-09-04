@@ -1,5 +1,7 @@
 package com.nexters.buyornot.module.archive.application;
 
+import com.nexters.buyornot.global.common.codes.SuccessCode;
+import com.nexters.buyornot.global.common.response.ApiResponse;
 import com.nexters.buyornot.module.archive.api.dto.request.DeleteArchiveReq;
 import com.nexters.buyornot.module.archive.api.dto.response.ArchiveResponse;
 import com.nexters.buyornot.module.archive.dao.ArchiveRepository;
@@ -137,6 +139,6 @@ class ArchiveServiceTest {
         String result = archiveService.delete(user, deleteArchiveReq);
 
         //then
-        assertThat(result).isEqualTo(EntityStatus.DELETED);
+        assertThat(result).isEqualTo(SuccessCode.DELETE_SUCCESS.getMessage());
     }
 }

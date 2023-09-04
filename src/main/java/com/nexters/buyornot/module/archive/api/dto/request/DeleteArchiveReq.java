@@ -11,6 +11,8 @@ import java.util.List;
 public class DeleteArchiveReq {
     List<Long> ids = new ArrayList<>();
 
+    protected DeleteArchiveReq() {}
+
     public DeleteArchiveReq(List<Long> list) {
         this.ids = list;
     }

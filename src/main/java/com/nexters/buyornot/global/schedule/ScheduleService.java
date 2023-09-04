@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +63,7 @@ public class ScheduleService {
     @Transactional
     @Scheduled(cron = "0 30 10 ? * 6L")
     void delete() throws Exception {
-        log.info("start delete user scheduling: " + LocalDateTime.now());
+        log.info("start delete scheduling: " + LocalDateTime.now());
         List<User> userList = userRepository.findByEntityStatus(EntityStatus.DELETED);
         List<UUID> deleteList = userList.stream()
                 .map(User::getId)
