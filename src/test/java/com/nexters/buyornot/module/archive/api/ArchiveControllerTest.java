@@ -24,10 +24,12 @@ class ArchiveControllerTest {
     @Autowired
     ArchiveController archiveController;
 
+    private static final String PROFILE = "src/main/resources/모자.png";
+
     @Test
     @Transactional
     void likeArchive() {
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         ArchiveResponse creation = archiveController.fromWeb(user, "https://www.musinsa.com/app/goods/2028329").getBody().getResult();
 
         assertThat(creation.isLiked()).isEqualTo(false);

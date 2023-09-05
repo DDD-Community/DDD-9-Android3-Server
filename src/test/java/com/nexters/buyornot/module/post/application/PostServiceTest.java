@@ -36,11 +36,12 @@ class PostServiceTest {
     private PostRepository postRepository;
     @Autowired
     private ArchiveService archiveService;
+    private static final String PROFILE = "src/main/resources/모자.png";
 
     @Test
     @Transactional
     void 글_작성() {
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
 
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
@@ -61,7 +62,7 @@ class PostServiceTest {
     @Test
     @Transactional
     void 메인화면() {
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
 
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
@@ -88,7 +89,7 @@ class PostServiceTest {
     void get_temporaries() {
 
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
@@ -109,7 +110,7 @@ class PostServiceTest {
     void update_post() {
 
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
@@ -135,7 +136,7 @@ class PostServiceTest {
     @Transactional
     public void delete() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
@@ -155,7 +156,7 @@ class PostServiceTest {
     @Transactional
     public void 아카이브에서_글작성() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
         ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
         FromArchive dto = new FromArchive("아카이브 글 작성 테스트", "테스트", PublicStatus.PUBLIC, true);
@@ -172,7 +173,7 @@ class PostServiceTest {
     @Transactional
     public void 투표_종료() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
@@ -191,7 +192,7 @@ class PostServiceTest {
     @Transactional
     public void 내_글_목록() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
@@ -222,7 +223,7 @@ class PostServiceTest {
     @Test
     @Transactional
     public void 임시저장_개수_초과() {
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
@@ -246,7 +247,7 @@ class PostServiceTest {
     @Transactional
     public void 임시저장_출간() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
