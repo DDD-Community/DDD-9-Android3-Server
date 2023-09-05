@@ -40,7 +40,6 @@ class PostServiceTest {
     @Test
     @Transactional
     void 글_작성() {
-
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
 
         List<String> urls = new ArrayList<>();
@@ -57,6 +56,31 @@ class PostServiceTest {
         //then
         assertThat(response.getId()).isEqualTo(postRepository.findByTitle(createPostReq.getTitle()).getId());
         log.info("response ->{}", response.getPollItemResponseList().get(0).getItemUrl());
+    }
+
+    @Test
+    @Transactional
+    void 메인화면() {
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+
+        CreatePostReq createPostReq1 = CreatePostReq.of("test", "test", PublicStatus.PUBLIC, true, urls);
+        CreatePostReq createPostReq2 = CreatePostReq.of("test", "test", PublicStatus.PRIVATE, true, urls);
+        postService.create(user, createPostReq1);
+        postService.create(user, createPostReq1);
+        postService.create(user, createPostReq1);
+        postService.create(user, createPostReq2);
+
+        List<PostResponse> list = postService.getPage(user, 0, 20);
+
+        for(PostResponse response : list) {
+            log.info("Id: " + response.getId() + " title: " + response.getTitle() + " status: " + response.getPublicStatus() + " isPublished: " + response.isPublished());
+        }
+
+        assertThat(list.size()).isEqualTo(5);
     }
 
     @Test

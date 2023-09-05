@@ -1,17 +1,13 @@
 package com.nexters.buyornot.module.post.dao;
 
 import com.nexters.buyornot.module.post.domain.model.PollStatus;
-import com.nexters.buyornot.module.post.domain.poll.Participant;
 import com.nexters.buyornot.module.post.domain.post.Post;
-import com.nexters.buyornot.module.post.domain.poll.Unrecommended;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +33,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findByUserIdAndPublicStatus(UUID userId, PublicStatus publicStatus);
 
-    Page<Post> findPageByIsPublishedOrderByIdDesc(boolean isPublished, Pageable pageable);
+    Page<Post> findPageByIsPublishedAndPublicStatusOrderByIdDesc(boolean isPublished, PublicStatus publicStatus, Pageable pageable);
 
     List<Post> findByUserIdAndIsPublished(UUID id, boolean isPublished);
 }
