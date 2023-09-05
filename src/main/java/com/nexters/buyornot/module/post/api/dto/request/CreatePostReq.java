@@ -18,12 +18,14 @@ public class CreatePostReq {
     private String content;
     private PublicStatus publicStatus;
     private List<String> itemUrls = new ArrayList<>();
+    private boolean isPublished;
 
-    public static CreatePostReq of(String title, String content, PublicStatus publicStatus, List<String> itemUrls) {
+    public static CreatePostReq of(String title, String content, PublicStatus publicStatus, boolean isPublished, List<String> itemUrls) {
         return builder()
                 .title(title)
                 .content(content)
                 .publicStatus(publicStatus)
+                .isPublished(isPublished)
                 .itemUrls(itemUrls)
                 .build();
     }

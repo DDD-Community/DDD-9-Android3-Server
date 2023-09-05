@@ -7,8 +7,7 @@ import lombok.Getter;
 @Getter
 public enum PublicStatus {
     PUBLIC("전체 공개"),
-    PRIVATE("제한된 공개"),
-    TEMPORARY_STORAGE("임시 저장");
+    PRIVATE("제한된 공개");
 
     String value;
 }

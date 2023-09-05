@@ -13,4 +13,5 @@ public class FromArchive {
     private String title;
     private String content;
     private PublicStatus publicStatus;
+    private boolean isPublished;
 }

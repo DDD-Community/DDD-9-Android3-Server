@@ -1,9 +1,10 @@
 package com.nexters.buyornot.module.archive.application;
 
+import com.nexters.buyornot.global.common.codes.SuccessCode;
 import com.nexters.buyornot.module.archive.api.dto.request.DeleteArchiveReq;
 import com.nexters.buyornot.module.archive.api.dto.response.ArchiveResponse;
 import com.nexters.buyornot.module.archive.dao.ArchiveRepository;
-import com.nexters.buyornot.module.model.EntityStatus;
+import com.nexters.buyornot.module.archive.domain.Archive;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
 import com.nexters.buyornot.module.post.application.PostService;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -33,11 +35,13 @@ class ArchiveServiceTest {
     @Autowired
     PostRepository postRepository;
 
+    private static final String PROFILE = "src/main/resources/모자.png";
+
     @Test
     @Transactional
     void 웹에서_저장() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         String url = "https://www.musinsa.com/app/goods/2028329";
 
         //when
@@ -58,13 +62,13 @@ class ArchiveServiceTest {
     @Transactional
     void 게시물에서_저장() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
 
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
 
-        CreatePostReq createPostReq = CreatePostReq.of("아카이브 저장 테스트!!", "test", PublicStatus.TEMPORARY_STORAGE, urls);
+        CreatePostReq createPostReq = CreatePostReq.of("아카이브 저장 테스트!!", "test", PublicStatus.PUBLIC, true, urls);
         PostResponse postResponse = postService.create(user, createPostReq);
 
         //when
@@ -76,9 +80,10 @@ class ArchiveServiceTest {
 
     @Test
     @Transactional
+    @Rollback(value = false)
     void 좋아요() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         ArchiveResponse archive = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
 
         //when
@@ -86,13 +91,16 @@ class ArchiveServiceTest {
 
         //then
         assertThat(response.isLiked()).isEqualTo(true);
+        Archive updatedArchive = archiveRepository.findById(response.getId()).get();
+        log.info("업데이트 후: " + updatedArchive.newResponse().isLiked());
+        assertThat(updatedArchive.newResponse().isLiked()).isEqualTo(true);
     }
 
     @Test
     @Transactional
     void 아카이브_리스트() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
 
         ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
         ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
@@ -125,7 +133,7 @@ class ArchiveServiceTest {
     @Transactional
     void 아카이브_삭제() {
         //given
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@mina", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
         ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
         List<Long> list = new ArrayList<>();
@@ -134,12 +142,9 @@ class ArchiveServiceTest {
         DeleteArchiveReq deleteArchiveReq = new DeleteArchiveReq(list);
 
         //when
-        Map<Long, EntityStatus> result = archiveService.delete(user, deleteArchiveReq);
+        String result = archiveService.delete(user, deleteArchiveReq);
 
         //then
-        for(Long id : result.keySet()) {
-            log.info("id: " + id);
-            assertThat(result.get(id)).isEqualTo(EntityStatus.DELETED);
-        }
+        assertThat(result).isEqualTo(SuccessCode.DELETE_SUCCESS.getMessage());
     }
 }

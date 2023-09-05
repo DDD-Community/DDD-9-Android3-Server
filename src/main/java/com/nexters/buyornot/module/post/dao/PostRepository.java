@@ -1,9 +1,7 @@
 package com.nexters.buyornot.module.post.dao;
 
 import com.nexters.buyornot.module.post.domain.model.PollStatus;
-import com.nexters.buyornot.module.post.domain.poll.Participant;
 import com.nexters.buyornot.module.post.domain.post.Post;
-import com.nexters.buyornot.module.post.domain.poll.Unrecommended;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,8 +21,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Page<Post> findPageByPublicStatusOrderByIdDesc(PublicStatus status, Pageable pageable);
 
-    @Query("select p from Post p where p.userId = (:user_id) and p.publicStatus IN (:public_status) order by p.updatedAt DESC")
-    List<Post> findTemporaries(UUID user_id, PublicStatus public_status);
+    @Query("select p from Post p where p.userId = (:user_id) and p.isPublished = (:is_published) order by p.updatedAt DESC")
+    List<Post> findTemporaries(UUID user_id, boolean is_published);
 
 
     @Query(
@@ -34,4 +32,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findPageByUserAndPollStatus(UUID user_id, PollStatus poll_status, Pageable pageable);
 
     List<Post> findByUserIdAndPublicStatus(UUID userId, PublicStatus publicStatus);
+
+    Page<Post> findPageByIsPublishedAndPublicStatusOrderByIdDesc(boolean isPublished, PublicStatus publicStatus, Pageable pageable);
+
+    List<Post> findByUserIdAndIsPublished(UUID id, boolean isPublished);
 }

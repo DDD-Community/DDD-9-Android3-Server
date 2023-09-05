@@ -13,30 +13,25 @@ import java.util.UUID;
 public class JwtUser implements Serializable {
 
     private UUID id;
-    private String name = "non-member";
     private String nickname;
-    private String email;
+    private String profile;
     private String role = "NON_MEMBER";
 
     public static JwtUser newJwtUser(Claims claims) {
         return builder()
                 .id(UUID.fromString(claims.getSubject()))
-                .name(String.valueOf(claims.get("name")))
                 .nickname(String.valueOf(claims.get("nickname")))
-                .email(String.valueOf(claims.get("email")))
+                .profile(String.valueOf(claims.get("profile")))
                 .role(String.valueOf(claims.get("role")))
                 .build();
     }
 
-    public static JwtUser fromUser(UUID id, String name, String nickname, String email, String role) {
+    public static JwtUser fromUser(UUID id, String nickname, String role, String profile) {
         return JwtUser.builder()
                 .id(id)
-                .name(name)
                 .nickname(nickname)
-                .email(email)
+                .profile(profile)
                 .role(role)
                 .build();
     }
-
-
 }

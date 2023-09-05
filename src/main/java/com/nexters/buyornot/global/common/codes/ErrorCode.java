@@ -70,6 +70,9 @@ public enum ErrorCode {
 
     UNAUTHORIZED_USER_EXCEPTION(403, "B100", "권한이 없는 사용자입니다."),
     STORAGE_COUNT_EXCEEDED(403, "B101", "저장 가능한 임시저장 개수를 초과했습니다."),
+    INVALID_REFRESH_TOKEN_EXCEPTION(403, "B102", "유효하지 않은 리프레시 토큰입니다."),
+    EXPIRED_REFRESH_TOKEN_EXCEPTION(403, "B103", "만료된 리프레시 토큰입니다."),
+    INCONSISTENT_REFRESH_TOKEN_EXCEPTION(403, "B104", "일치하지 않는 리프레시 토큰입니다."),
 
     // 유저가 존재하지 않음
     NOT_FOUND_USER_EXCEPTION(404, "B200", "존재하지 않는 유저입니다."),

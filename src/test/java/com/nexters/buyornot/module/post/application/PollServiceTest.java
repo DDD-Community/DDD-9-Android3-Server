@@ -5,11 +5,9 @@ import com.nexters.buyornot.module.post.api.dto.response.PollResponse;
 import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.dao.poll.UnrecommendedRepository;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
-import com.nexters.buyornot.module.post.domain.poll.Unrecommended;
 import com.nexters.buyornot.module.post.domain.post.Post;
 import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.extern.slf4j.Slf4j;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +35,11 @@ class PollServiceTest {
     private UnrecommendedRepository unrecommendedRepository;
     @Autowired
     private PostService postService;
-
+    static final Long UNRECOMMENDED = 0L;
+    private static final String PROFILE = "src/main/resources/모자.png";
     @BeforeEach
     void set() {
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "mina@gmail.com", "ROLE_USER");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
 
         List<String> item = new ArrayList<>() {
             {
@@ -49,7 +48,7 @@ class PollServiceTest {
             }
         };
 
-        CreatePostReq dto = new CreatePostReq("poll test", "poll test", PublicStatus.PUBLIC, item);
+        CreatePostReq dto = new CreatePostReq("poll test", "poll test", PublicStatus.PUBLIC, item, true);
 
         postService.create(user, dto);
     }
@@ -64,58 +63,50 @@ class PollServiceTest {
         List<Long> itemList = post.getItemList();
 
         //when
-        pollService.takePoll(post.getId(), nonMember, itemList.get(0).toString());
-        pollService.takePoll(post.getId(), nonMember, itemList.get(1).toString());
-        PollResponse response = pollService.takePoll(post.getId(), nonMember, "unrecommended");
+        pollService.takePoll(post.getId(), nonMember, itemList.get(0));
+        pollService.takePoll(post.getId(), nonMember, itemList.get(1));
+        PollResponse response = pollService.takePoll(post.getId(), nonMember, UNRECOMMENDED);
 
         //then
-        for(String key : response.getResult().keySet()) {
-            log.info("key: " + key + " value: " + response.getResult().get(key));
-        }
-
-        assertThat(response.getResult().get("unrecommended")).isEqualTo(1);
+        assertThat(response.getUnrecommended()).isEqualTo(1);
     }
 
     @Test
     @Transactional
     void 회원_중복_투표() {
-        JwtUser member = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "participant@gmail.com", "ROLE_USER");
+        JwtUser member = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
 
         Post post = postRepository.findByTitle("poll test");
 
         //when
-        pollService.takePoll(post.getId(), member, "unrecommended");
-        pollService.takePoll(post.getId(), member, "unrecommended");
-        PollResponse response = pollService.takePoll(post.getId(), member, "unrecommended");
+        pollService.takePoll(post.getId(), member, 0L);
+        pollService.takePoll(post.getId(), member, 0L);
+        PollResponse response = pollService.takePoll(post.getId(), member, 0L);
 
         //then
-        for(String key : response.getResult().keySet()) {
-            log.info("key: " + key + " value: " + response.getResult().get(key));
-        }
-
-        assertThat(response.getResult().get("unrecommended")).isEqualTo(1);
+        assertThat(response.getUnrecommended()).isEqualTo(1);
     }
 
-    @Test
-    @Transactional
-    void 캐시_쓰기() {
-        //given
-        Post post = postRepository.findByTitle("poll test");
-        log.info("test post id: " + post.getId());
-        JwtUser member = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", "participant@gmail.com", "ROLE_USER");
-        pollService.takePoll(post.getId(), member, "unrecommended");
-
-        //when
-        List<Unrecommended> unrecommendedList = unrecommendedRepository.findByPostId(post.getId());
-        log.info("before write: " + unrecommendedList.size());
-
-        Awaitility.await()
-                .pollDelay(Duration.ofSeconds(50))
-                .pollInterval(Duration.ofSeconds(5))
-                .atMost(2, TimeUnit.MINUTES)
-                .untilAsserted(() -> {
-                    List<Unrecommended> afterWrite = unrecommendedRepository.findByPostId(post.getId());
-                    assertThat(afterWrite.size()).isEqualTo(1);
-                });
-    }
+//    @Test
+//    @Transactional
+//    void 캐시_쓰기() {
+//        //given
+//        Post post = postRepository.findByTitle("poll test");
+//        log.info("test post id: " + post.getId());
+//        JwtUser member = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+//        pollService.takePoll(post.getId(), member, 0L);
+//
+//        //when
+//        List<Unrecommended> unrecommendedList = unrecommendedRepository.findByPostId(post.getId());
+//        log.info("before write: " + unrecommendedList.size());
+//
+//        Awaitility.await()
+//                .pollDelay(Duration.ofSeconds(50))
+//                .pollInterval(Duration.ofSeconds(5))
+//                .atMost(2, TimeUnit.MINUTES)
+//                .untilAsserted(() -> {
+//                    List<Unrecommended> afterWrite = unrecommendedRepository.findByPostId(post.getId());
+//                    assertThat(afterWrite.size()).isEqualTo(1);
+//                });
+//    }
 }

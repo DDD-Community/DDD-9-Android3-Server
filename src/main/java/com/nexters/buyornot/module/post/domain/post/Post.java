@@ -14,11 +14,10 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Where;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 @Entity
@@ -37,6 +36,7 @@ public class Post extends BaseEntity {
     private UUID userId;
 
     private String nickname;
+    private String profile;
 
     @NotNull(message = "제목을 입력해주세요.")
     private String title;
@@ -47,6 +47,10 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PublicStatus publicStatus = PublicStatus.PUBLIC;
 
+    @ColumnDefault("true")
+    @Column(columnDefinition = "TINYINT(1)")
+    private boolean isPublished;
+
     @Enumerated(EnumType.STRING)
     private PollStatus pollStatus = PollStatus.ONGOING;
 
@@ -56,10 +60,13 @@ public class Post extends BaseEntity {
     private Post(JwtUser user, CreatePostReq dto, List<PollItem> pollItems) {
         this.userId = user.getId();
         this.nickname = user.getNickname();
+        this.profile = user.getProfile();
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.publicStatus = dto.getPublicStatus();
+        this.isPublished = dto.isPublished();
         this.pollItems = pollItems;
+        if(!isPublished) pollStatus = PollStatus.TEMPORARY;
 
         for(PollItem pollItem : pollItems) {
             pollItem.belong(this);
@@ -69,10 +76,13 @@ public class Post extends BaseEntity {
     private Post(JwtUser user, FromArchive dto, List<PollItem> pollItems) {
         this.userId = user.getId();
         this.nickname = user.getNickname();
+        this.profile = user.getProfile();
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.publicStatus = dto.getPublicStatus();
+        this.isPublished = dto.isPublished();
         this.pollItems = pollItems;
+        if(!isPublished) pollStatus = PollStatus.TEMPORARY;
 
         for(PollItem item : pollItems) {
             item.belong(this);
@@ -93,7 +103,7 @@ public class Post extends BaseEntity {
             PollItemResponse response = pollItem.newPollItemResponse();
             pollItemResponseList.add(response);
         }
-        return new PostResponse(id, userId.toString(), nickname, title, content, publicStatus.name(), pollStatus.name(), pollItemResponseList);
+        return new PostResponse(id, userId.toString(), nickname, profile, title, content, publicStatus, isPublished, pollStatus, pollItemResponseList, getUpdatedAt());
     }
 
     public Long getId() {
@@ -110,6 +120,7 @@ public class Post extends BaseEntity {
         this.content = dto.getContent();
         this.publicStatus = dto.getPublicStatus();
         this.pollItems = pollItems;
+        this.isPublished = dto.isPublished();
     }
 
     public List<Long> getItemList() {
@@ -129,5 +140,13 @@ public class Post extends BaseEntity {
 
     public void endPoll() {
         this.pollStatus = PollStatus.CLOSED;
+    }
+
+    public void publish(CreatePostReq dto, List<PollItem> pollItems) {
+        this.title = dto.getTitle();
+        this.content = dto.getContent();
+        this.publicStatus = dto.getPublicStatus();
+        this.pollItems = pollItems;
+        this.isPublished = dto.isPublished();
     }
 }

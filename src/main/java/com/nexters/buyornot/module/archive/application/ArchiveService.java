@@ -1,5 +1,6 @@
 package com.nexters.buyornot.module.archive.application;
 
+import com.nexters.buyornot.global.common.codes.SuccessCode;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.archive.api.dto.request.DeleteArchiveReq;
 import com.nexters.buyornot.module.archive.api.dto.response.ArchiveResponse;
@@ -11,6 +12,7 @@ import com.nexters.buyornot.module.item.event.SavedItemEvent;
 import com.nexters.buyornot.module.model.EntityStatus;
 import com.nexters.buyornot.module.model.Role;
 import com.nexters.buyornot.module.post.dao.PostRepository;
+import com.nexters.buyornot.module.user.domain.User;
 import com.nexters.buyornot.module.user.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +86,7 @@ public class ArchiveService {
         return response;
     }
 
+    @Transactional
     public ArchiveResponse likeArchive(JwtUser user, Long archiveId) {
         if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
         Archive archive = archiveRepository.findById(archiveId)
@@ -122,10 +125,8 @@ public class ArchiveService {
     }
 
     @Transactional
-    public Map<Long, EntityStatus> delete(JwtUser user, DeleteArchiveReq deleteArchiveReq) {
+    public String delete(JwtUser user, DeleteArchiveReq deleteArchiveReq) {
         if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
-
-        Map<Long, EntityStatus> map = new HashMap<>();
 
         for(Long id : deleteArchiveReq.getIds()) {
             Archive archive = archiveRepository.findByIdAndUserId(id, user.getId().toString())
@@ -135,9 +136,12 @@ public class ArchiveService {
                 archive.delete();
             }
             archiveRepository.save(archive);
-            map.put(archive.getId(), archive.getEntityStatus());
         }
+        return SuccessCode.DELETE_SUCCESS.getMessage();
+    }
 
-        return map;
+    @Transactional
+    public void deleteAll(String userId) {
+        archiveRepository.deleteAllByUserId(userId);
     }
 }

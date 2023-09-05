@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_FOUND_POST_EXCEPTION;
+import static com.nexters.buyornot.global.common.constant.RedisKey.POLL_DEFAULT;
+import static com.nexters.buyornot.global.common.constant.RedisKey.POLL_UPDATE;
 
 @Service
 @Slf4j
@@ -32,20 +34,18 @@ public class PollService {
     private final ParticipantRepository participantRepository;
     private final UnrecommendedRepository unrecommendedRepository;
     private final RedisUtil redis;
-    protected static final String nonMember = "non-member";
-    protected static final String unRecommend = "unrecommended";
+    protected static final String NON_MEMBER = "non-member";
+    protected static final Long UNRECOMMENDED = 0L;
     protected static long uniqueNum = 0;
     protected static final long duration = 3600*2; //2시간
-    protected static final String keyPrefix = "bon:poll:";
-    protected static final String keyUpdate = "key:update";
 
     @Transactional
-    public PollResponse takePoll(Long postId, JwtUser user, String poll) {
-        String key = String.format(keyPrefix + "%s", postId);
+    public PollResponse takePoll(Long postId, JwtUser user, Long poll) {
+        String key = String.format(POLL_DEFAULT + "%s", postId);
         String userId;
 
         //비회원
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = postId + nonMember + uniqueNum++ +  LocalDateTime.now();
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = postId + NON_MEMBER + uniqueNum++ +  LocalDateTime.now();
         else userId = user.getId().toString();
 
         //item id
@@ -58,46 +58,45 @@ public class PollService {
 
         //투표 안했다면
         if(!redis.alreadyPolled(key, userId)) {
-            log.info(userId + " haven't polled");
+            log.info(userId + " takes a poll to " + poll);
             redis.addPoll(key, userId, poll);
             redis.expire(key, duration);
         }
 
         //업데이트 정보 저장
-        redis.sAdd(keyUpdate, postId);
+        redis.sAdd(POLL_UPDATE, postId);
         redis.expire(key, duration);
 
         //choices
-        List<String> polls = redis.getPollsByPost(key);
+        List<Long> polls = redis.getPollsByPost(key);
         log.info("poll size: " + polls.size());
 
         //choice : num
-        Map<String, Integer> status = new HashMap<>();
+        Map<Long, Integer> status = new TreeMap<>();
 
         for(Long id : pollItemList) {
-            int count = Collections.frequency(polls, id.toString());
-            status.put(id.toString(), count);
+            int count = Collections.frequency(polls, id);
+            status.put(id, count);
         }
+        status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
 
-        status.put(unRecommend, Collections.frequency(polls, unRecommend));
-
-        return new PollResponse(status);
+        return new PollResponse(status.values());
     }
 
     public void DBtoCache(Long postId, List<Long> pollItemList) {
-        String key = String.format(keyPrefix + "%s", postId);
+        String key = String.format(POLL_DEFAULT + "%s", postId);
 
         for(Long itemId : pollItemList) {
             List<Participant> participants = participantRepository.findByPollItemId(itemId);
             for(Participant participant : participants) {
-                redis.getPoll(key, participant.getUserId(), itemId.toString());
+                redis.getPoll(key, participant.getUserId(), itemId);
             }
         }
 
         List<Unrecommended> unrecommendedList = unrecommendedRepository.findByPostId(postId);
 
         for(Unrecommended unrecommended : unrecommendedList)
-            redis.getPoll(key, unrecommended.getUserId(), unRecommend);
+            redis.getPoll(key, unrecommended.getUserId(), UNRECOMMENDED);
 
         redis.expire(key, duration);
     }
@@ -120,7 +119,7 @@ public class PollService {
 
             log.info("투표자: " + userId + " choice: " + choice);
 
-            if(choice.equals(unRecommend)) {
+            if(choice.equals(UNRECOMMENDED)) {
                 Unrecommended unrecommended = Unrecommended.newPoll(post, userId);
                 unrecommendedRepository.save(unrecommended);
             } else {

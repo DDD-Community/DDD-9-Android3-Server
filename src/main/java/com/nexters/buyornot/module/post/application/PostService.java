@@ -13,11 +13,11 @@ import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.dao.poll.ParticipantRepository;
 import com.nexters.buyornot.module.post.dao.poll.UnrecommendedRepository;
 import com.nexters.buyornot.module.post.domain.model.PollStatus;
+import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.domain.poll.Participant;
 import com.nexters.buyornot.module.post.domain.poll.Unrecommended;
 import com.nexters.buyornot.module.post.domain.post.PollItem;
 import com.nexters.buyornot.module.post.domain.post.Post;
-import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
 import com.nexters.buyornot.module.user.dto.JwtUser;
@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.nexters.buyornot.global.common.codes.ErrorCode.*;
+import static com.nexters.buyornot.global.common.constant.RedisKey.POLL_DEFAULT;
 import static com.nexters.buyornot.module.post.application.PollService.*;
 
 @Slf4j
@@ -52,9 +53,8 @@ public class PostService {
     public PostResponse create(JwtUser jwtUser, CreatePostReq dto) {
 
         if(jwtUser.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
-
-        if(dto.getPublicStatus().equals(PublicStatus.TEMPORARY_STORAGE)) {
-            List<Post> temporaryList = postRepository.findByUserIdAndPublicStatus(jwtUser.getId(), PublicStatus.TEMPORARY_STORAGE);
+        if(!dto.isPublished()) {
+            List<Post> temporaryList = postRepository.findByUserIdAndIsPublished(jwtUser.getId(), false);
             if(temporaryList.size() >= 5) {
                 throw new BusinessExceptionHandler(STORAGE_COUNT_EXCEEDED);
             }
@@ -70,7 +70,19 @@ public class PostService {
         Post savedPost = postRepository.save(post);
         PostResponse postResponse = savedPost.newPostResponse();
         return postResponse;
+    }
 
+    @Transactional
+    public PostResponse publish(JwtUser user, Long postId, CreatePostReq dto) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
+
+        if (!post.checkValidity(user.getId())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        PostResponse response = create(user, dto);
+        deletePost(user, postId);
+
+        return response;
     }
 
     private List<PollItem> addPollItem(List<String> itemUrls) {
@@ -89,10 +101,10 @@ public class PostService {
     public PostResponse getPost(JwtUser user, Long postId) {
         String userId;
         //비회원
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = postId + nonMember + LocalDateTime.now();
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = postId + NON_MEMBER + LocalDateTime.now();
         else userId = user.getId().toString();
 
-        String key = String.format(keyPrefix + "%s", postId);
+        String key = String.format(POLL_DEFAULT + "%s", postId);
 
         PostResponse response = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION))
@@ -100,62 +112,62 @@ public class PostService {
 
         if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
 
-        List<String> polls = redis.getPollsByPost(key);
+        List<Long> polls = redis.getPollsByPost(key);
 
         if(redis.alreadyPolled(key, userId)) {
-            Map<String, Integer> status = new HashMap<>();
+            Map<Long, Integer> status = new HashMap<>();
 
             for(PollItemResponse item : response.getPollItemResponseList()) {
                 int count = Collections.frequency(polls, item.getId().toString());
-                status.put(item.getId().toString(), count);
+                status.put(item.getId(), count);
             }
-            status.put(unRecommend, Collections.frequency(polls, unRecommend));
-            response.addPollResponse(new PollResponse(status));
+            status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
+            response.addPollResponse(new PollResponse(status.values()));
         }
         return response;
     }
 
     @Transactional
-    public PostResponse endPoll(JwtUser user, Long postId) {
+    public String endPoll(JwtUser user, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
         if(!post.checkValidity(user.getId())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
 
         post.endPoll();
-        Post savedPost = postRepository.save(post);
-        return savedPost.newPostResponse();
+        postRepository.save(post);
+        return PollStatus.CLOSED.name();
     }
 
     //전체 공개 포스트만
     public List<PostResponse> getPage(JwtUser user, final int page, final int count) {
         String userId;
         //비회원
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = nonMember + LocalDateTime.now();
+        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = NON_MEMBER + LocalDateTime.now();
         else userId = user.getId().toString();
 
-        List<PostResponse> responseList = postRepository.findPageByPublicStatusOrderByIdDesc(PublicStatus.PUBLIC, PageRequest.of(page, count))
+        List<PostResponse> responseList = postRepository.findPageByIsPublishedAndPublicStatusOrderByIdDesc(true, PublicStatus.PUBLIC, PageRequest.of(page, count))
                 .stream()
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
         for(PostResponse response : responseList) {
             Long postId = response.getId();
-            String key = String.format(keyPrefix + "%s", postId);
+            String key = String.format(POLL_DEFAULT + "%s", postId);
 
             if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
 
-            List<String> polls = redis.getPollsByPost(key);
+            List<Long> polls = redis.getPollsByPost(key);
 
             if(redis.alreadyPolled(key, userId)) {
-                Map<String, Integer> status = new HashMap<>();
+                Map<Long, Integer> status = new HashMap<>();
 
                 for(PollItemResponse item : response.getPollItemResponseList()) {
-                    int pollCount = Collections.frequency(polls, item.getId().toString());
-                    status.put(item.getId().toString(), pollCount);
+                    int pollCount = Collections.frequency(polls, item.getId());
+                    status.put(item.getId(), pollCount);
                 }
 
-                status.put(unRecommend, Collections.frequency(polls, unRecommend));
-                response.addPollResponse(new PollResponse(status));
+                status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
+                response.addPollResponse(new PollResponse(status.values()));
             }
         }
         return responseList;
@@ -181,7 +193,7 @@ public class PostService {
 
     public List<PostResponse> getTemporaries(JwtUser user) {
 
-        List<PostResponse> responseList = postRepository.findTemporaries(user.getId(), PublicStatus.TEMPORARY_STORAGE)
+        List<PostResponse> responseList = postRepository.findTemporaries(user.getId(), false)
                 .stream()
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
@@ -191,7 +203,6 @@ public class PostService {
 
     @Transactional
     public PostResponse updatePost(JwtUser user, Long postId, CreatePostReq dto) {
-
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION));
 
@@ -204,6 +215,7 @@ public class PostService {
         List<PollItem> pollItems = addPollItem(dto.getItemUrls());
 
         post.update(dto, pollItems);
+        postRepository.save(post);
 
         return post.newPostResponse();
     }
@@ -222,19 +234,19 @@ public class PostService {
     }
 
     public void DBtoCache(Long postId, List<Long> pollItemList) {
-        String key = String.format(keyPrefix + "%s", postId);
+        String key = String.format(POLL_DEFAULT + "%s", postId);
 
         for(Long itemId : pollItemList) {
             List<Participant> participants = participantRepository.findByPollItemId(itemId);
             for(Participant participant : participants) {
-                redis.getPoll(key, participant.getUserId(), itemId.toString());
+                redis.getPoll(key, participant.getUserId(), itemId);
             }
         }
 
         List<Unrecommended> unrecommendedList = unrecommendedRepository.findByPostId(postId);
 
         for(Unrecommended unrecommended : unrecommendedList)
-            redis.getPoll(key, unrecommended.getUserId(), unRecommend);
+            redis.getPoll(key, unrecommended.getUserId(), UNRECOMMENDED);
 
         redis.expire(key, duration);
     }

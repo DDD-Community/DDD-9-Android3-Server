@@ -31,6 +31,12 @@ public class PostController {
         return ApiResponse.success(SuccessCode.INSERT_SUCCESS, postService.create(user, dto));
     }
 
+    @Operation(summary = "임시저장 글 출간")
+    @PostMapping("/publish-post/{postId}")
+    public ResponseEntity<ApiResponse<PostResponse>> publish(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId, @RequestBody CreatePostReq dto) {
+        return ApiResponse.success(SuccessCode.INSERT_SUCCESS, postService.publish(user, postId, dto));
+    }
+
     @Operation(summary = "아카이브에서 글 작성")
     @PostMapping("/from-archive")
     public ResponseEntity<ApiResponse<PostResponse>> createFromArchive(@LoginUser JwtUser user, @RequestParam Long itemId1, @RequestParam Long itemId2, @Validated @RequestBody FromArchive dto) {
@@ -80,8 +86,8 @@ public class PostController {
     }
 
     @Operation(summary = "투표 종료")
-    @PatchMapping("{/postId}/end-poll")
-    public ResponseEntity<ApiResponse<PostResponse>> endPoll(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId) {
+    @PatchMapping("{postId}/end-poll")
+    public ResponseEntity<ApiResponse<String>> endPoll(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId) {
         return ApiResponse.success(SuccessCode.UPDATE_SUCCESS, postService.endPoll(user, postId));
     }
 }
