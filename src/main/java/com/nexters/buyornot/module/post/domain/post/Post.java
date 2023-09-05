@@ -60,6 +60,7 @@ public class Post extends BaseEntity {
     private Post(JwtUser user, CreatePostReq dto, List<PollItem> pollItems) {
         this.userId = user.getId();
         this.nickname = user.getNickname();
+        this.profile = user.getProfile();
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.publicStatus = dto.getPublicStatus();
