@@ -42,6 +42,7 @@ public class JwtTokenProvider {
         String accessToken = Jwts.builder()
                 .setSubject(jwtUser.getId().toString())
                 .claim("nickname", jwtUser.getNickname())
+                .claim("profile", jwtUser.getProfile())
                 .claim("role", jwtUser.getRole())
                 .setExpiration(accessTokenExpiredAt)
                 .signWith(key, SignatureAlgorithm.HS512)

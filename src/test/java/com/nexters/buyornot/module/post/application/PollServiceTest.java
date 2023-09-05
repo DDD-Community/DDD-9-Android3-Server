@@ -36,10 +36,10 @@ class PollServiceTest {
     @Autowired
     private PostService postService;
     static final Long UNRECOMMENDED = 0L;
-
+    private static final String PROFILE = "src/main/resources/모자.png";
     @BeforeEach
     void set() {
-        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
 
         List<String> item = new ArrayList<>() {
             {
@@ -74,7 +74,7 @@ class PollServiceTest {
     @Test
     @Transactional
     void 회원_중복_투표() {
-        JwtUser member = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
+        JwtUser member = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
 
         Post post = postRepository.findByTitle("poll test");
 

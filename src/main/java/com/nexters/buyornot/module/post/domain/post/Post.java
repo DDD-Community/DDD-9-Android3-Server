@@ -36,6 +36,7 @@ public class Post extends BaseEntity {
     private UUID userId;
 
     private String nickname;
+    private String profile;
 
     @NotNull(message = "제목을 입력해주세요.")
     private String title;
@@ -74,6 +75,7 @@ public class Post extends BaseEntity {
     private Post(JwtUser user, FromArchive dto, List<PollItem> pollItems) {
         this.userId = user.getId();
         this.nickname = user.getNickname();
+        this.profile = user.getProfile();
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.publicStatus = dto.getPublicStatus();
@@ -100,7 +102,7 @@ public class Post extends BaseEntity {
             PollItemResponse response = pollItem.newPollItemResponse();
             pollItemResponseList.add(response);
         }
-        return new PostResponse(id, userId.toString(), nickname, title, content, publicStatus, isPublished, pollStatus, pollItemResponseList, getUpdatedAt());
+        return new PostResponse(id, userId.toString(), nickname, profile, title, content, publicStatus, isPublished, pollStatus, pollItemResponseList, getUpdatedAt());
     }
 
     public Long getId() {
