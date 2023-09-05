@@ -20,6 +20,7 @@ public class PostResponse {
     private Long id;
     private String userId;
     private String userNickname;
+    private String userProfile;
     private String title;
     private String content;
     private PublicStatus publicStatus;
@@ -32,10 +33,11 @@ public class PostResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
 
-    public PostResponse(Long id, String userId, String userNickname, String title, String content, PublicStatus publicStatus, boolean isPublished, PollStatus pollStatus, List<PollItemResponse> pollItems, LocalDateTime updatedAt) {
+    public PostResponse(Long id, String userId, String userNickname, String profile, String title, String content, PublicStatus publicStatus, boolean isPublished, PollStatus pollStatus, List<PollItemResponse> pollItems, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
         this.userNickname = userNickname;
+        this.userProfile = profile;
         this.title = title;
         this.content = content;
         this.publicStatus = publicStatus;
