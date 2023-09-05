@@ -40,7 +40,7 @@ public class ArchiveController {
     @Operation(summary = "아카이브 좋아요")
     @PatchMapping("/pick/{archiveId}")
     public ResponseEntity<ApiResponse<ArchiveResponse>> likeArchive(@LoginUser JwtUser user, @PathVariable(name = "archiveId") Long archiveId) {
-        return ApiResponse.success(SuccessCode.UPDATE_SUCCESS, archiveService.likeArchive(user, archiveId));
+        return ApiResponse.success(SuccessCode.INSERT_SUCCESS, archiveService.likeArchive(user, archiveId));
     }
 
     @Operation(summary = "내 아카이브함")
