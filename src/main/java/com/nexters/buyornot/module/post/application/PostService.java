@@ -13,11 +13,11 @@ import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.dao.poll.ParticipantRepository;
 import com.nexters.buyornot.module.post.dao.poll.UnrecommendedRepository;
 import com.nexters.buyornot.module.post.domain.model.PollStatus;
+import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.domain.poll.Participant;
 import com.nexters.buyornot.module.post.domain.poll.Unrecommended;
 import com.nexters.buyornot.module.post.domain.post.PollItem;
 import com.nexters.buyornot.module.post.domain.post.Post;
-import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
 import com.nexters.buyornot.module.user.dto.JwtUser;
@@ -145,7 +145,7 @@ public class PostService {
         if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = NON_MEMBER + LocalDateTime.now();
         else userId = user.getId().toString();
 
-        List<PostResponse> responseList = postRepository.findPageByIsPublishedOrderByIdDesc(true, PageRequest.of(page, count))
+        List<PostResponse> responseList = postRepository.findPageByIsPublishedAndPublicStatusOrderByIdDesc(true, PublicStatus.PUBLIC, PageRequest.of(page, count))
                 .stream()
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
