@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum PollStatus {
-    ONGOING, CLOSED
+    TEMPORARY, ONGOING, CLOSED
 }

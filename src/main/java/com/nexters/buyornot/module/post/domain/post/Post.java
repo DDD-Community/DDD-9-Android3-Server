@@ -64,6 +64,7 @@ public class Post extends BaseEntity {
         this.publicStatus = dto.getPublicStatus();
         this.isPublished = dto.isPublished();
         this.pollItems = pollItems;
+        if(!isPublished) pollStatus = PollStatus.TEMPORARY;
 
         for(PollItem pollItem : pollItems) {
             pollItem.belong(this);
@@ -78,6 +79,7 @@ public class Post extends BaseEntity {
         this.publicStatus = dto.getPublicStatus();
         this.isPublished = dto.isPublished();
         this.pollItems = pollItems;
+        if(!isPublished) pollStatus = PollStatus.TEMPORARY;
 
         for(PollItem item : pollItems) {
             item.belong(this);

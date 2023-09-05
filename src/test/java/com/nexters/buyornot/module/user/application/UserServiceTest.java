@@ -1,15 +1,17 @@
 package com.nexters.buyornot.module.user.application;
 
+import com.nexters.buyornot.module.auth.application.OAuthLoginService;
+import com.nexters.buyornot.module.user.dao.UserRepository;
 import com.nexters.buyornot.module.user.domain.Nickname;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
