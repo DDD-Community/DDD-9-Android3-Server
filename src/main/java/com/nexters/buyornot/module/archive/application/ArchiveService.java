@@ -86,6 +86,7 @@ public class ArchiveService {
         return response;
     }
 
+    @Transactional
     public ArchiveResponse likeArchive(JwtUser user, Long archiveId) {
         if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
         Archive archive = archiveRepository.findById(archiveId)
