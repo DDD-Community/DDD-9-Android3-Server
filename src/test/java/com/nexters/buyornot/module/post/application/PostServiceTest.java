@@ -76,6 +76,8 @@ class PostServiceTest {
 
         //then
         assertThat(postResponse.getTitle()).isEqualTo("temporary1");
+        assertThat(postService.getTemporaries(user).size()).isEqualTo(1);
+        assertThat(postResponse.getPollStatus()).isEqualTo(PollStatus.TEMPORARY);
     }
 
     @Test
