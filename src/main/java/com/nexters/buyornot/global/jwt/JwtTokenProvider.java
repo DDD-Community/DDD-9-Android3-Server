@@ -58,6 +58,7 @@ public class JwtTokenProvider {
         redisTemplate.opsForValue()
                 .set(RedisKey.REFRESH_TOKEN + jwtUser.getId(), refreshToken, REFRESH_TOKEN_EXPIRE_TIME, TimeUnit.MILLISECONDS);
 
+        log.info("user: " + jwtUser.getNickname() + " access token: " + accessToken);
         return AuthTokens.of(accessToken, refreshToken, BEARER_TYPE, ACCESS_TOKEN_EXPIRE_TIME / 1000L);
 
     }
