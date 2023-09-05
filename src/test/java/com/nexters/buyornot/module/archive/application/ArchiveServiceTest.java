@@ -1,11 +1,10 @@
 package com.nexters.buyornot.module.archive.application;
 
 import com.nexters.buyornot.global.common.codes.SuccessCode;
-import com.nexters.buyornot.global.common.response.ApiResponse;
 import com.nexters.buyornot.module.archive.api.dto.request.DeleteArchiveReq;
 import com.nexters.buyornot.module.archive.api.dto.response.ArchiveResponse;
 import com.nexters.buyornot.module.archive.dao.ArchiveRepository;
-import com.nexters.buyornot.module.model.EntityStatus;
+import com.nexters.buyornot.module.archive.domain.Archive;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
 import com.nexters.buyornot.module.post.application.PostService;
@@ -16,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -78,6 +78,7 @@ class ArchiveServiceTest {
 
     @Test
     @Transactional
+    @Rollback(value = false)
     void 좋아요() {
         //given
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina");
@@ -88,6 +89,9 @@ class ArchiveServiceTest {
 
         //then
         assertThat(response.isLiked()).isEqualTo(true);
+        Archive updatedArchive = archiveRepository.findById(response.getId()).get();
+        log.info("업데이트 후: " + updatedArchive.newResponse().isLiked());
+        assertThat(updatedArchive.newResponse().isLiked()).isEqualTo(true);
     }
 
     @Test
