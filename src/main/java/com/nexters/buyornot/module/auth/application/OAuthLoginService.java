@@ -24,7 +24,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class OAuthLoginService {
 
-    private static final String path = "resources/profile";
+    private static final String path = "https://buyornot.shop";
     private static final String EXTENSION = ".png";
     private static final String PREFIX = "익명의";
 
