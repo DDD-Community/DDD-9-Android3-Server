@@ -1,20 +1,18 @@
 package com.nexters.buyornot.module.post.api.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nexters.buyornot.module.post.domain.model.PollStatus;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.domain.post.Post;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import org.checkerframework.checker.formatter.qual.Format;
+import lombok.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
+@Setter
 @AllArgsConstructor
 public class PostResponse {
     private Long id;
@@ -29,11 +27,13 @@ public class PostResponse {
     private List<PollItemResponse> pollItemResponseList;
     private boolean participateStatus = false;
     private PollResponse pollResponse;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
+    private LocalDateTime now;
 
-    public PostResponse(Long id, String userId, String userNickname, String profile, String title, String content, PublicStatus publicStatus, boolean isPublished, PollStatus pollStatus, List<PollItemResponse> pollItems, LocalDateTime updatedAt) {
+    int years, months, days;
+    long hours, minutes, seconds;
+
+    public PostResponse(Long id, String userId, String userNickname, String profile, String title, String content, PublicStatus publicStatus, boolean isPublished, PollStatus pollStatus, List<PollItemResponse> pollItems, LocalDateTime updatedAt, LocalDateTime now, int years, int months, int days, long hours, long minutes, long seconds) {
         this.id = id;
         this.userId = userId;
         this.userNickname = userNickname;
@@ -45,10 +45,13 @@ public class PostResponse {
         this.pollStatus = pollStatus;
         this.pollItemResponseList = pollItems;
         this.updatedAt = updatedAt;
-    }
-
-    public PostResponse(Post post) {
-        this.id = post.getId();
+        this.now = now;
+        this.years = years;
+        this.months = months;
+        this.days = days;
+        this.hours = hours;
+        this.minutes = minutes;
+        this.seconds = seconds;
     }
 
     public void addPollResponse(PollResponse pollResponse) {

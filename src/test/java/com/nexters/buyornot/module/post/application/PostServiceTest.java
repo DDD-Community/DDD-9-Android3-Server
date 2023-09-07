@@ -52,8 +52,6 @@ class PostServiceTest {
         //when
         PostResponse response = postService.create(user, createPostReq);
 
-        log.info("compare");
-
         //then
         assertThat(response.getId()).isEqualTo(postRepository.findByTitle(createPostReq.getTitle()).getId());
         log.info("response ->{}", response.getPollItemResponseList().get(0).getItemUrl());
@@ -268,5 +266,30 @@ class PostServiceTest {
         assertThat(response.getTitle()).isEqualTo("임시 저장 출간 테스트");
         assertThat(response.isPublished()).isEqualTo(true);
         assertThat(postResponse.getId()).isLessThan(response.getId());
+    }
+
+    @Test
+    @Transactional
+    void 시간() {
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
+
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+
+        CreatePostReq createPostReq = CreatePostReq.of("test", "test", PublicStatus.PUBLIC, true, urls);
+
+        //when
+        PostResponse response = postService.create(user, createPostReq);
+        log.info("updatedAT: " + response.getUpdatedAt());
+        log.info("now: " + response.getNow());
+        log.info("diff years: " + response.getYears());
+        log.info("diff months: " + response.getMonths());
+        log.info("diff days: " + response.getDays());
+        log.info("diff hours: " + response.getHours());
+        log.info("diff minutes: " + response.getMinutes());
+        log.info("diff seconds: " + response.getSeconds());
+
+        assertThat(response.getMinutes()).isLessThan(1);
     }
 }
