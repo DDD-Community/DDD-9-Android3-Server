@@ -15,10 +15,13 @@ public class PollResponse {
     int secondItem;
     int unrecommended;
 
-    public PollResponse(Collection<Integer> values) {
+    long polled;
+
+    public PollResponse(Collection<Integer> values, long polled) {
         List<Integer> list = values.stream().collect(Collectors.toList());
         this.unrecommended = list.get(0);
         this.firstItem = list.get(1);
         this.secondItem = list.get(2);
+        this.polled = polled;
     }
 }

@@ -79,8 +79,8 @@ public class PollService {
             status.put(id, count);
         }
         status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
-
-        return new PollResponse(status.values());
+        long polled = redis.getItem(key, userId);
+        return new PollResponse(status.values(), polled);
     }
 
     public void DBtoCache(Long postId, List<Long> pollItemList) {

@@ -64,6 +64,10 @@ public class RedisUtil {
         return false;
     }
 
+    public int getItem(String key, String userId) {
+        return (int) redisTemplate.opsForHash().get(key, userId);
+    }
+
     public void addPoll(String key, String userId, Long choice) {
         redisTemplate.opsForHash().put(key, userId, choice);
     }

@@ -73,17 +73,19 @@ class PollServiceTest {
 
     @Test
     @Transactional
-    void 회원_중복_투표() {
+    void 중복투표() {
         JwtUser member = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
 
         Post post = postRepository.findByTitle("poll test");
 
         //when
         pollService.takePoll(post.getId(), member, 0L);
-        pollService.takePoll(post.getId(), member, 0L);
-        PollResponse response = pollService.takePoll(post.getId(), member, 0L);
+        pollService.takePoll(post.getId(), member, 1L);
+        PollResponse response = pollService.takePoll(post.getId(), member, 1L);
 
         //then
+        log.info("투표: " + response.getPolled());
+        assertThat(response.getPolled()).isEqualTo(0L);
         assertThat(response.getUnrecommended()).isEqualTo(1);
     }
 
