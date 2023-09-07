@@ -8,7 +8,7 @@ import com.nexters.buyornot.module.auth.application.OAuthLoginService;
 import com.nexters.buyornot.module.auth.api.dto.request.KakaoLoginParams;
 import com.nexters.buyornot.module.auth.api.dto.response.AuthTokens;
 import com.nexters.buyornot.module.auth.application.TokenService;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

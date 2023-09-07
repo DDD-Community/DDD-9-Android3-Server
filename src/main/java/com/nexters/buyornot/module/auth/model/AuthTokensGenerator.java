@@ -1,16 +1,13 @@
 package com.nexters.buyornot.module.auth.model;
 
-import com.nexters.buyornot.global.common.constant.RedisKey;
 import com.nexters.buyornot.global.jwt.JwtTokenProvider;
 import com.nexters.buyornot.module.auth.api.dto.response.AuthTokens;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
