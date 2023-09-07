@@ -17,6 +17,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Where;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.*;
 
 
@@ -103,7 +106,18 @@ public class Post extends BaseEntity {
             PollItemResponse response = pollItem.newPollItemResponse();
             pollItemResponseList.add(response);
         }
-        return new PostResponse(id, userId.toString(), nickname, profile, title, content, publicStatus, isPublished, pollStatus, pollItemResponseList, getUpdatedAt());
+
+        LocalDateTime now = LocalDateTime.now();
+        Period period = Period.between(this.getUpdatedAt().toLocalDate(), now.toLocalDate());
+        Duration duration = Duration.between(this.getUpdatedAt().toLocalTime(), now.toLocalTime());
+        int years = period.getYears();
+        int months = period.getMonths();
+        int days = period.getDays();
+        long hours = duration.toHours();
+        long minutes = duration.toMinutes() - hours * 60;
+        long seconds = duration.getSeconds() - hours * 60 * 60 - minutes * 60;
+
+        return new PostResponse(id, userId.toString(), nickname, profile, title, content, publicStatus, isPublished, pollStatus, pollItemResponseList, getUpdatedAt(), now, years, months, days, hours, minutes, seconds);
     }
 
     public Long getId() {
