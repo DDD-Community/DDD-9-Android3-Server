@@ -4,9 +4,9 @@ import com.nexters.buyornot.module.auth.model.oauth.OAuthProvider;
 import com.nexters.buyornot.module.model.BaseEntity;
 import com.nexters.buyornot.module.model.Gender;
 import com.nexters.buyornot.module.model.Role;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.ProfileResponse;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -66,5 +66,9 @@ public class User extends BaseEntity {
 
     public User(String name) {
         this.name = name;
+    }
+
+    public ProfileResponse getProfileResponse() {
+        return new ProfileResponse(email, name, nickname, profile);
     }
 }

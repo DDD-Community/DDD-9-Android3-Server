@@ -12,7 +12,7 @@ import com.nexters.buyornot.module.model.Role;
 import com.nexters.buyornot.module.user.dao.UserRepository;
 import com.nexters.buyornot.module.user.domain.Nickname;
 import com.nexters.buyornot.module.user.domain.User;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

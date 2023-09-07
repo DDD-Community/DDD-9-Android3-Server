@@ -6,8 +6,7 @@ import com.nexters.buyornot.global.config.resolver.LoginUser;
 import com.nexters.buyornot.module.archive.api.dto.request.DeleteArchiveReq;
 import com.nexters.buyornot.module.archive.api.dto.response.ArchiveResponse;
 import com.nexters.buyornot.module.archive.application.ArchiveService;
-import com.nexters.buyornot.module.model.EntityStatus;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @Tag(name = "archive", description = "아카이브 API")

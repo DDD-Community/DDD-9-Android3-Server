@@ -3,7 +3,7 @@ package com.nexters.buyornot.global.config.resolver;
 import com.nexters.buyornot.global.common.codes.ErrorCode;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.global.jwt.JwtTokenProvider;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

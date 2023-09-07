@@ -1,15 +1,10 @@
 package com.nexters.buyornot.module.post.domain.poll;
 
 import com.nexters.buyornot.module.model.BaseEntity;
-import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
-import com.nexters.buyornot.module.post.domain.post.PollItem;
 import com.nexters.buyornot.module.post.domain.post.Post;
-import com.nexters.buyornot.module.user.dto.JwtUser;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

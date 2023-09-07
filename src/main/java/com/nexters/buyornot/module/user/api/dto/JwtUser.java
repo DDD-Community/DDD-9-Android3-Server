@@ -1,4 +1,4 @@
-package com.nexters.buyornot.module.user.dto;
+package com.nexters.buyornot.module.user.api.dto;
 
 import io.jsonwebtoken.Claims;
 import lombok.*;
