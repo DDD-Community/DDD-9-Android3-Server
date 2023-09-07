@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,7 +66,9 @@ public class RedisUtil {
     }
 
     public int getItem(String key, String userId) {
-        return (int) redisTemplate.opsForHash().get(key, userId);
+        Object object = redisTemplate.opsForHash().get(key, userId);
+        if(object == null) return -1;
+        return (int) object;
     }
 
     public void addPoll(String key, String userId, Long choice) {
