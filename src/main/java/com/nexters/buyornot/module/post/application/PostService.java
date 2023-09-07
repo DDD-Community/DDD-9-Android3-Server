@@ -114,7 +114,7 @@ public class PostService {
 
         List<Long> polls = redis.getPollsByPost(key);
 
-        if(redis.alreadyPolled(key, userId)) {
+        if(redis.alreadyPolled(key, userId) || response.getUserId().equals(userId)) {
             Map<Long, Integer> status = new HashMap<>();
 
             for(PollItemResponse item : response.getPollItemResponseList()) {
@@ -122,7 +122,8 @@ public class PostService {
                 status.put(item.getId(), count);
             }
             status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
-            response.addPollResponse(new PollResponse(status.values()));
+            long polled = redis.getItem(key, userId);
+            response.addPollResponse(new PollResponse(status.values(), polled));
         }
         return response;
     }
@@ -158,16 +159,16 @@ public class PostService {
 
             List<Long> polls = redis.getPollsByPost(key);
 
-            if(redis.alreadyPolled(key, userId)) {
+            if(redis.alreadyPolled(key, userId) || response.getUserId().equals(userId)) {
                 Map<Long, Integer> status = new HashMap<>();
-
                 for(PollItemResponse item : response.getPollItemResponseList()) {
                     int pollCount = Collections.frequency(polls, item.getId());
                     status.put(item.getId(), pollCount);
                 }
-
                 status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
-                response.addPollResponse(new PollResponse(status.values()));
+                long polled = redis.getItem(key, userId);
+
+                response.addPollResponse(new PollResponse(status.values(), polled));
             }
         }
         return responseList;
