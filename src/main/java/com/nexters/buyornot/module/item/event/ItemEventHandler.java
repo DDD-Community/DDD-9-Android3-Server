@@ -21,6 +21,6 @@ public class ItemEventHandler {
         urls.add(event.getItemUrl());
         urls.addAll(event.getItemUrls());
 
-        itemService.create(urls);
+        itemService.getInfo(urls);
     }
 }
