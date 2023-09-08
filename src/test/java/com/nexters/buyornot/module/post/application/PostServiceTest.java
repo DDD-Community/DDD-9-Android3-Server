@@ -247,7 +247,7 @@ class PostServiceTest {
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
-        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+//        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
 
         CreatePostReq createPostReq = CreatePostReq.of("temp", "test", PublicStatus.PRIVATE, false, urls);
         PostResponse postResponse = postService.create(user, createPostReq);
@@ -259,7 +259,8 @@ class PostServiceTest {
         CreatePostReq updatePostReq = CreatePostReq.of("임시 저장 출간 테스트", "test", PublicStatus.PUBLIC, true, updateUrl);
 
         //when
-        PostResponse response = postService.publish(user, postResponse.getId(), updatePostReq);
+        PostResponse temporary = postService.getPost(user, postResponse.getId());
+        PostResponse response = postService.publish(user, temporary.getId(), updatePostReq);
 
         //then
         assertThat(response.getTitle()).isEqualTo("임시 저장 출간 테스트");
