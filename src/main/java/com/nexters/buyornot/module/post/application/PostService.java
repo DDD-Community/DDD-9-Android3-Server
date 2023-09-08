@@ -180,6 +180,25 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
+        for(PostResponse response : responseList) {
+            Long postId = response.getId();
+            String key = String.format(POLL_DEFAULT + "%s", postId);
+
+            if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
+
+            List<Long> polls = redis.getPollsByPost(key);
+
+            Map<Long, Integer> status = new HashMap<>();
+            for(PollItemResponse item : response.getPollItemResponseList()) {
+                int pollCount = Collections.frequency(polls, item.getId());
+                status.put(item.getId(), pollCount);
+            }
+            status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
+            long polled = redis.getItem(key, user.getId().toString());
+
+            response.addPollResponse(new PollResponse(status.values(), polled));
+        }
+
         return responseList;
     }
 
@@ -188,6 +207,25 @@ public class PostService {
                 .stream()
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
+
+        for(PostResponse response : responseList) {
+            Long postId = response.getId();
+            String key = String.format(POLL_DEFAULT + "%s", postId);
+
+            if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
+
+            List<Long> polls = redis.getPollsByPost(key);
+
+            Map<Long, Integer> status = new HashMap<>();
+            for(PollItemResponse item : response.getPollItemResponseList()) {
+                int pollCount = Collections.frequency(polls, item.getId());
+                status.put(item.getId(), pollCount);
+            }
+            status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
+            long polled = redis.getItem(key, user.getId().toString());
+
+            response.addPollResponse(new PollResponse(status.values(), polled));
+        }
 
         return responseList;
     }
