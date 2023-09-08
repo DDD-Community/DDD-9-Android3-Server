@@ -114,7 +114,7 @@ public class PostService {
 
         List<Long> polls = redis.getPollsByPost(key);
 
-        if(redis.alreadyPolled(key, userId) || response.getUserId().equals(userId)) {
+        if(redis.alreadyPolled(key, userId) || response.getUserId().equals(userId) && response.isPublished()) {
             Map<Long, Integer> status = new HashMap<>();
 
             for(PollItemResponse item : response.getPollItemResponseList()) {

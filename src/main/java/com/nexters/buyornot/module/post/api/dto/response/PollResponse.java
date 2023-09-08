@@ -16,11 +16,9 @@ public class PollResponse {
 
     public PollResponse(Collection<Integer> values, long polled) {
         List<Integer> list = values.stream().collect(Collectors.toList());
-        if(!list.isEmpty()) {
-            this.unrecommended = list.get(0);
-            this.firstItem = list.get(1);
-            this.secondItem = list.get(2);
-            this.polled = polled;
-        }
+        this.unrecommended = list.get(0);
+        this.firstItem = list.get(1);
+        this.secondItem = list.get(2);
+        this.polled = polled;
     }
 }
