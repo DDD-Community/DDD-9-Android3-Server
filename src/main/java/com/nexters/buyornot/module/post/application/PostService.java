@@ -72,6 +72,19 @@ public class PostService {
         return postResponse;
     }
 
+    private List<PollItem> addPollItem(List<String> itemUrls) {
+
+        List<PollItem> pollItems = new ArrayList<>();
+
+        for(String url : itemUrls) {
+            Item item = itemRepository.findByItemUrl(url)
+                    .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ITEM_EXCEPTION));
+
+            pollItems.add(item.createPollItem());
+        }
+        return pollItems;
+    }
+
     @Transactional
     public PostResponse publish(JwtUser user, Long postId, CreatePostReq dto) {
         Post post = postRepository.findById(postId)
@@ -83,19 +96,6 @@ public class PostService {
         deletePost(user, postId);
 
         return response;
-    }
-
-    private List<PollItem> addPollItem(List<String> itemUrls) {
-
-        List<PollItem> pollItems = new ArrayList<>();
-
-        for(String url : itemUrls) {
-            Item item = itemRepository.findByItemUrl(url)
-                    .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ITEM_EXCEPTION));
-            pollItems.add(item.createPollItem());
-        }
-
-        return pollItems;
     }
 
     public PostResponse getPost(JwtUser user, Long postId) {

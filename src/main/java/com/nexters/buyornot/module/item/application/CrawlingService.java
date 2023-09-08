@@ -2,8 +2,10 @@ package com.nexters.buyornot.module.item.application;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.item.domain.ItemProvider;
-import com.nexters.buyornot.module.item.dto.ItemDto;
+import com.nexters.buyornot.module.item.api.request.ItemRequest;
+import org.checkerframework.checker.units.qual.A;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -11,27 +13,35 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
+import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_SUPPORTED_CRAWLING_EXCEPTION;
+
 @Service
 public class CrawlingService {
+    private static final String MUSINSA = "musinsa";
+    private static final String ZIGZAG = "zigzag";
+    private static final String TWENTYNINCECM = "29cm";
+    private static final String WCONCEPT = "wconcept";
+    private static final String ABLY = "a-bly";
+    private static final String CLIENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15";
+    public ItemRequest of(String url) throws IOException {
 
-    public ItemDto of(String url) throws IOException {
+        if(url.contains(MUSINSA)) return getMusinsa(url);
+        if(url.contains(ZIGZAG)) return getZigzag(url);
+        if(url.contains(TWENTYNINCECM)) return get29cm(url);
+        if(url.contains(WCONCEPT)) return getWConcept(url);
+        if(url.contains(ABLY)) return getAbly(url);
+        else throw new BusinessExceptionHandler(NOT_SUPPORTED_CRAWLING_EXCEPTION);
 
-        if(url.contains("musinsa")) return getMusinsa(url);
-        if(url.contains("zigzag")) return getZigzag(url);
-        if(url.contains("29cm")) return get29cm(url);
-        if(url.contains("wconcept")) return getWConcept(url);
-        if(url.contains("a-bly")) return getAbly(url);
-
-        return ItemDto.defaultConfig();
+//        return ItemRequest.defaultConfig();
     }
 
-    public ItemDto getMusinsa(String url) throws IOException {
+    public ItemRequest getMusinsa(String url) throws IOException {
 
         String brand, itemName, imgUrl, originPrice, discountRate;
         double discountedPrice;
 
         Document document = Jsoup.connect(url)
-                .header("userAgent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15")
+                .header("userAgent", CLIENT)
                 .get();
 
         //상품 이미지
@@ -58,15 +68,15 @@ public class CrawlingService {
         Elements brandBlock = document.getElementsByClass("product_article_contents");
         brand = brandBlock.select("a").get(0).html();
 
-        return ItemDto.newItemDto(ItemProvider.MUSINSA, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
+        return ItemRequest.newItemDto(ItemProvider.MUSINSA, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
 
     }
 
-    public ItemDto get29cm(String url) throws IOException {
+    public ItemRequest get29cm(String url) throws IOException {
         String brand, itemName, imgUrl, originPrice, discountRate, discountedPrice;
 
         Document document = Jsoup.connect(url)
-                .header("userAgent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15")
+                .header("userAgent", CLIENT)
                 .get();
 
         imgUrl = document.getElementsByClass("css-122y91a ewptmlp4").select("img").attr("src");
@@ -90,15 +100,15 @@ public class CrawlingService {
             discountedPrice = discountedPrice.replace("원", "");
         }
 
-        return ItemDto.newItemDto(ItemProvider.ZIGZAG, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
+        return ItemRequest.newItemDto(ItemProvider.ZIGZAG, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
 
     }
 
-    public ItemDto getZigzag(String url) throws IOException {
+    public ItemRequest getZigzag(String url) throws IOException {
         String brand, itemName, imgUrl, originPrice, discountRate, discountedPrice;
 
         Document document = Jsoup.connect(url)
-                .header("userAgent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15")
+                .header("userAgent", CLIENT)
                 .get();
 
         Elements elements = document.getAllElements();
@@ -119,14 +129,14 @@ public class CrawlingService {
         discountedPrice = discountedPrice.replace(",", "");
         discountedPrice = discountedPrice.replace("원", "");
 
-        return ItemDto.newItemDto(ItemProvider.APLUSB, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
+        return ItemRequest.newItemDto(ItemProvider.APLUSB, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
     }
 
-    public ItemDto getWConcept(String url) throws IOException {
+    public ItemRequest getWConcept(String url) throws IOException {
         String brand, itemName, imgUrl, originPrice, discountRate, discountedPrice;
 
         Document document = Jsoup.connect(url)
-                .header("userAgent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15")
+                .header("userAgent", CLIENT)
                 .get();
 
         brand = document.getElementsByClass("brand").first().text();
@@ -149,15 +159,15 @@ public class CrawlingService {
 
         imgUrl = "https:" + document.getElementsByClass("img_area").select("img").attr("src");
 
-        return ItemDto.newItemDto(ItemProvider.WCONCEPT, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
+        return ItemRequest.newItemDto(ItemProvider.WCONCEPT, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
     }
 
     //가격 정보 추가 필요
-    public ItemDto getAbly(String url) throws IOException {
+    public ItemRequest getAbly(String url) throws IOException {
         String brand, itemName, imgUrl, originPrice = "0", discountRate, discountedPrice;
 
         Document document = Jsoup.connect(url)
-                .header("userAgent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15")
+                .header("userAgent", CLIENT)
                 .get();
 
         brand = document.getElementsByClass("AblyText_text___0rpe AblyText_text--gray70__OFZAj AblyText_text--subtitle2__RGq0D AblyText_text--subtitle2__fixed__XhWOS").text();
@@ -168,7 +178,7 @@ public class CrawlingService {
         discountRate = "0";
         discountedPrice = "0";
 
-        return ItemDto.newItemDto(ItemProvider.ABLY, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
+        return ItemRequest.newItemDto(ItemProvider.ABLY, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
     }
 
     private double calculatePrice(String originPrice, String discountRate) {

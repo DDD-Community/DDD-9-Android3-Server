@@ -1,14 +1,16 @@
 package com.nexters.buyornot.module.item.application;
 
+import com.nexters.buyornot.module.item.api.response.ItemResponse;
 import com.nexters.buyornot.module.item.dao.ItemRepository;
 import com.nexters.buyornot.module.item.domain.Item;
-import com.nexters.buyornot.module.item.dto.ItemDto;
+import com.nexters.buyornot.module.item.api.request.ItemRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,27 +24,30 @@ public class ItemService {
     private final CrawlingService crawlingService;
 
     @Transactional
-    public void create(List<String> itemUrls) throws IOException {
-
+    public void getInfo(List<String> itemUrls) throws IOException {
         for(String url: itemUrls) {
             if(url == null) continue;
 
-            Optional<Item> item = itemRepository.findByItemUrl(url);
-
-            if(item.isEmpty()) {
-                log.info("해당 url의 상품은 존재하지 않습니다. " + url);
-                Item newItem = Item.newItem(crawlingService.of(url));
-                itemRepository.save(newItem);
-            } else {
-                /**
-                 * 이미 존재한다면 상품 정보 update
-                 */
-                log.info("해당 url의 상품 정보를 업데이트합니다. " + url);
-
-                ItemDto newData = crawlingService.of(url);
-                item.get().update(newData);
-                itemRepository.save(item.get());
+            Item item = itemRepository.findByItemUrl(url)
+                    .orElse(Item.newItem(crawlingService.of(url)));
+            itemRepository.save(item);
             }
+    }
+
+    @Transactional
+    public ItemResponse create(String url) throws IOException {
+        Item item = itemRepository.findByItemUrl(url)
+                .orElse(Item.newItem(crawlingService.of(url)));
+
+        itemRepository.save(item);
+
+        if(item.getUpdatedAt().compareTo(LocalDateTime.now()) > 7) {
+            log.info("상품 정보를 업데이트합니다. " + url);
+            ItemRequest newData = crawlingService.of(url);
+            item.update(newData);
         }
+
+        itemRepository.save(item);
+        return item.newItemResponse();
     }
 }
