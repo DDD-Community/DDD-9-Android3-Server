@@ -1,7 +1,8 @@
 package com.nexters.buyornot.module.item.domain;
 
 import com.nexters.buyornot.module.archive.domain.Archive;
-import com.nexters.buyornot.module.item.dto.ItemDto;
+import com.nexters.buyornot.module.item.api.request.ItemRequest;
+import com.nexters.buyornot.module.item.api.response.ItemResponse;
 import com.nexters.buyornot.module.item.dto.UpdatedInfo;
 import com.nexters.buyornot.module.model.BaseEntity;
 import com.nexters.buyornot.module.model.Price;
@@ -43,7 +44,7 @@ public class Item extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ItemProvider itemProvider;
 
-    public static Item newItem(ItemDto dto) {
+    public static Item newItem(ItemRequest dto) {
 
         BigDecimal originalPrice = BigDecimal.valueOf(Double.valueOf(dto.getOriginalPrice()));
         BigDecimal discountedPrice = BigDecimal.valueOf(dto.getDiscountedPrice());
@@ -68,7 +69,7 @@ public class Item extends BaseEntity {
         return Archive.newArchive(userId, this.itemUrl, this.id, this.brand, this.name, this.imgUrl, this.price);
     }
 
-    public void update(ItemDto item) {
+    public void update(ItemRequest item) {
         BigDecimal originalPrice = BigDecimal.valueOf(Double.valueOf(item.getOriginalPrice()));
         BigDecimal discountedPrice = BigDecimal.valueOf(item.getDiscountedPrice());
 
@@ -80,5 +81,9 @@ public class Item extends BaseEntity {
 
     public UpdatedInfo getUpdatedInfo() {
         return UpdatedInfo.updatedInfo(this.brand, this.name, this.imgUrl, this.price.getValue().toString(), String.valueOf(this.price.getDiscountRate()), this.price.getDiscountedPrice().doubleValue());
+    }
+
+    public ItemResponse newItemResponse() {
+        return new ItemResponse(id, brand, name, imgUrl, itemUrl, getUpdatedAt());
     }
 }

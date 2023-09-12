@@ -20,7 +20,7 @@ import com.nexters.buyornot.module.post.domain.post.PollItem;
 import com.nexters.buyornot.module.post.domain.post.Post;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -72,6 +72,19 @@ public class PostService {
         return postResponse;
     }
 
+    private List<PollItem> addPollItem(List<String> itemUrls) {
+
+        List<PollItem> pollItems = new ArrayList<>();
+
+        for(String url : itemUrls) {
+            Item item = itemRepository.findByItemUrl(url)
+                    .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ITEM_EXCEPTION));
+
+            pollItems.add(item.createPollItem());
+        }
+        return pollItems;
+    }
+
     @Transactional
     public PostResponse publish(JwtUser user, Long postId, CreatePostReq dto) {
         Post post = postRepository.findById(postId)
@@ -83,19 +96,6 @@ public class PostService {
         deletePost(user, postId);
 
         return response;
-    }
-
-    private List<PollItem> addPollItem(List<String> itemUrls) {
-
-        List<PollItem> pollItems = new ArrayList<>();
-
-        for(String url : itemUrls) {
-            Item item = itemRepository.findByItemUrl(url)
-                    .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ITEM_EXCEPTION));
-            pollItems.add(item.createPollItem());
-        }
-
-        return pollItems;
     }
 
     public PostResponse getPost(JwtUser user, Long postId) {
@@ -114,7 +114,7 @@ public class PostService {
 
         List<Long> polls = redis.getPollsByPost(key);
 
-        if(redis.alreadyPolled(key, userId)) {
+        if(redis.alreadyPolled(key, userId) || response.getUserId().equals(userId) && response.isPublished()) {
             Map<Long, Integer> status = new HashMap<>();
 
             for(PollItemResponse item : response.getPollItemResponseList()) {
@@ -122,7 +122,8 @@ public class PostService {
                 status.put(item.getId(), count);
             }
             status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
-            response.addPollResponse(new PollResponse(status.values()));
+            long polled = redis.getItem(key, userId);
+            response.addPollResponse(new PollResponse(status.values(), polled));
         }
         return response;
     }
@@ -158,16 +159,16 @@ public class PostService {
 
             List<Long> polls = redis.getPollsByPost(key);
 
-            if(redis.alreadyPolled(key, userId)) {
+            if(redis.alreadyPolled(key, userId) || response.getUserId().equals(userId)) {
                 Map<Long, Integer> status = new HashMap<>();
-
                 for(PollItemResponse item : response.getPollItemResponseList()) {
                     int pollCount = Collections.frequency(polls, item.getId());
                     status.put(item.getId(), pollCount);
                 }
-
                 status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
-                response.addPollResponse(new PollResponse(status.values()));
+                long polled = redis.getItem(key, userId);
+
+                response.addPollResponse(new PollResponse(status.values(), polled));
             }
         }
         return responseList;
@@ -179,6 +180,25 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
+        for(PostResponse response : responseList) {
+            Long postId = response.getId();
+            String key = String.format(POLL_DEFAULT + "%s", postId);
+
+            if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
+
+            List<Long> polls = redis.getPollsByPost(key);
+
+            Map<Long, Integer> status = new HashMap<>();
+            for(PollItemResponse item : response.getPollItemResponseList()) {
+                int pollCount = Collections.frequency(polls, item.getId());
+                status.put(item.getId(), pollCount);
+            }
+            status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
+            long polled = redis.getItem(key, user.getId().toString());
+
+            response.addPollResponse(new PollResponse(status.values(), polled));
+        }
+
         return responseList;
     }
 
@@ -187,6 +207,25 @@ public class PostService {
                 .stream()
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
+
+        for(PostResponse response : responseList) {
+            Long postId = response.getId();
+            String key = String.format(POLL_DEFAULT + "%s", postId);
+
+            if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
+
+            List<Long> polls = redis.getPollsByPost(key);
+
+            Map<Long, Integer> status = new HashMap<>();
+            for(PollItemResponse item : response.getPollItemResponseList()) {
+                int pollCount = Collections.frequency(polls, item.getId());
+                status.put(item.getId(), pollCount);
+            }
+            status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
+            long polled = redis.getItem(key, user.getId().toString());
+
+            response.addPollResponse(new PollResponse(status.values(), polled));
+        }
 
         return responseList;
     }

@@ -1,4 +1,4 @@
-package com.nexters.buyornot.module.item.dto;
+package com.nexters.buyornot.module.item.api.request;
 
 import com.nexters.buyornot.module.item.domain.ItemProvider;
 import jakarta.persistence.EnumType;
@@ -10,7 +10,7 @@ import lombok.*;
 @Getter
 @Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ItemDto {
+public class ItemRequest {
 
     private String brand;
 
@@ -29,12 +29,12 @@ public class ItemDto {
     @Enumerated(EnumType.STRING)
     private ItemProvider itemProvider;
 
-    public static ItemDto defaultConfig() {
+    public static ItemRequest defaultConfig() {
         return builder()
                 .build();
     }
 
-    public static ItemDto newItemDto(ItemProvider itemProvider, String brand, String itemName, String itemUrl, String imgUrl, String originPrice, String discountRate, double discountedPrice) {
+    public static ItemRequest newItemDto(ItemProvider itemProvider, String brand, String itemName, String itemUrl, String imgUrl, String originPrice, String discountRate, double discountedPrice) {
         return builder()
                 .itemProvider(itemProvider)
                 .brand(brand)
@@ -47,7 +47,7 @@ public class ItemDto {
                 .build();
     }
 
-    public static ItemDto updatedInfo(String brand, String name,String imgUrl, String originalPrice, String discountRate, double discountedPrice) {
+    public static ItemRequest updatedInfo(String brand, String name, String imgUrl, String originalPrice, String discountRate, double discountedPrice) {
         return builder()
                 .brand(brand)
                 .name(name)

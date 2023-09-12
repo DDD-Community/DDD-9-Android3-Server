@@ -7,7 +7,7 @@ import com.nexters.buyornot.module.post.api.dto.request.FromArchive;
 import com.nexters.buyornot.module.post.application.PostService;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

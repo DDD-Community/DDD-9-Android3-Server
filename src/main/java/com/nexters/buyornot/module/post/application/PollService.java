@@ -11,7 +11,7 @@ import com.nexters.buyornot.module.post.domain.poll.Participant;
 import com.nexters.buyornot.module.post.domain.poll.Unrecommended;
 import com.nexters.buyornot.module.post.domain.post.PollItem;
 import com.nexters.buyornot.module.post.domain.post.Post;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -79,8 +79,8 @@ public class PollService {
             status.put(id, count);
         }
         status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
-
-        return new PollResponse(status.values());
+        long polled = redis.getItem(key, userId);
+        return new PollResponse(status.values(), polled);
     }
 
     public void DBtoCache(Long postId, List<Long> pollItemList) {

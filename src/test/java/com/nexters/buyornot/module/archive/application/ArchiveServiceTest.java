@@ -10,7 +10,7 @@ import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
 import com.nexters.buyornot.module.post.application.PostService;
 import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

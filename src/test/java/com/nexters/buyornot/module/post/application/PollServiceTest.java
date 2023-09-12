@@ -6,7 +6,7 @@ import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.dao.poll.UnrecommendedRepository;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.domain.post.Post;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,14 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @SpringBootTest
@@ -73,17 +70,19 @@ class PollServiceTest {
 
     @Test
     @Transactional
-    void 회원_중복_투표() {
+    void 중복투표() {
         JwtUser member = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
 
         Post post = postRepository.findByTitle("poll test");
 
         //when
         pollService.takePoll(post.getId(), member, 0L);
-        pollService.takePoll(post.getId(), member, 0L);
-        PollResponse response = pollService.takePoll(post.getId(), member, 0L);
+        pollService.takePoll(post.getId(), member, 1L);
+        PollResponse response = pollService.takePoll(post.getId(), member, 1L);
 
         //then
+        log.info("투표: " + response.getPolled());
+        assertThat(response.getPolled()).isEqualTo(0L);
         assertThat(response.getUnrecommended()).isEqualTo(1);
     }
 

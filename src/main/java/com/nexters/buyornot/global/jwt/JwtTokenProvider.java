@@ -2,7 +2,7 @@ package com.nexters.buyornot.global.jwt;
 
 import com.nexters.buyornot.global.common.constant.RedisKey;
 import com.nexters.buyornot.module.auth.api.dto.response.AuthTokens;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.DecodingException;

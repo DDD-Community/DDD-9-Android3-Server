@@ -12,12 +12,11 @@ import com.nexters.buyornot.module.post.domain.post.Post;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
-import com.nexters.buyornot.module.user.dto.JwtUser;
+import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -51,8 +50,6 @@ class PostServiceTest {
 
         //when
         PostResponse response = postService.create(user, createPostReq);
-
-        log.info("compare");
 
         //then
         assertThat(response.getId()).isEqualTo(postRepository.findByTitle(createPostReq.getTitle()).getId());
@@ -250,7 +247,7 @@ class PostServiceTest {
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
-        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+//        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
 
         CreatePostReq createPostReq = CreatePostReq.of("temp", "test", PublicStatus.PRIVATE, false, urls);
         PostResponse postResponse = postService.create(user, createPostReq);
@@ -262,11 +259,37 @@ class PostServiceTest {
         CreatePostReq updatePostReq = CreatePostReq.of("임시 저장 출간 테스트", "test", PublicStatus.PUBLIC, true, updateUrl);
 
         //when
-        PostResponse response = postService.publish(user, postResponse.getId(), updatePostReq);
+        PostResponse temporary = postService.getPost(user, postResponse.getId());
+        PostResponse response = postService.publish(user, temporary.getId(), updatePostReq);
 
         //then
         assertThat(response.getTitle()).isEqualTo("임시 저장 출간 테스트");
         assertThat(response.isPublished()).isEqualTo(true);
         assertThat(postResponse.getId()).isLessThan(response.getId());
+    }
+
+    @Test
+    @Transactional
+    void 시간() {
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
+
+        List<String> urls = new ArrayList<>();
+        urls.add("https://zigzag.kr/catalog/products/113607837");
+        urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+
+        CreatePostReq createPostReq = CreatePostReq.of("test", "test", PublicStatus.PUBLIC, true, urls);
+
+        //when
+        PostResponse response = postService.create(user, createPostReq);
+        log.info("updatedAT: " + response.getUpdatedAt());
+        log.info("now: " + response.getNow());
+        log.info("diff years: " + response.getYears());
+        log.info("diff months: " + response.getMonths());
+        log.info("diff days: " + response.getDays());
+        log.info("diff hours: " + response.getHours());
+        log.info("diff minutes: " + response.getMinutes());
+        log.info("diff seconds: " + response.getSeconds());
+
+        assertThat(response.getMinutes()).isLessThan(1);
     }
 }
