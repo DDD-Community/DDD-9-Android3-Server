@@ -114,19 +114,20 @@ class ArchiveServiceTest {
         archiveService.likeArchive(user, archiveResponse3.getId());
         archiveService.likeArchive(user, archiveResponse4.getId());
         archiveService.likeArchive(user, archiveResponse5.getId());
-        List<ArchiveResponse> responseList = archiveService.getAll(user, 0, 3);
-        List<ArchiveResponse> likeList = archiveService.getLikes(user, 0, 3);
+        List<ArchiveResponse> beforeDelete = archiveService.getAll(user, 0, 5);
+        List<ArchiveResponse> likeList = archiveService.getLikes(user, 0, 5);
 
-        for(ArchiveResponse response : responseList) {
-            log.info("get all archive response: " + response.getId());
-        }
-        for(ArchiveResponse response : likeList) {
-            log.info("likes list: " + response.getId());
-        }
+        assertThat(beforeDelete.size()).isEqualTo(5);
+
+        List<Long> deleteList = new ArrayList<>();
+        deleteList.add(archiveResponse1.getId());
+        deleteList.add(archiveResponse2.getId());
+        archiveService.delete(user, new DeleteArchiveReq(deleteList));
 
         //then
-        assertThat(responseList.size()).isEqualTo(3);
-        assertThat(likeList.size()).isEqualTo(3);
+        List<ArchiveResponse> afterDelete = archiveService.getAll(user, 0, 3);
+        assertThat(afterDelete.size()).isEqualTo(3);
+        assertThat(likeList.size()).isEqualTo(5);
     }
 
     @Test
