@@ -40,6 +40,7 @@ public class CrawlingService {
     public ItemRequest getMusinsa(String url) throws IOException {
 
         String brand, itemName, imgUrl, originPrice, discountRate;
+        discountRate = "0";
         double discountedPrice;
 
         Document document = Jsoup.connect(url)
@@ -52,15 +53,12 @@ public class CrawlingService {
         imgUrl = "https:" + imageBlock.get(0).select("img").attr("src");
 
         //가격
-        originPrice = document.getElementById("normal_price").text();
-        discountRate = document.getElementsByClass("txt_kor_discount").text();
+        originPrice = document.getElementById("normal_price").text().replaceAll("[^0-9]", "");
+        discountRate = document.getElementsByClass("txt_kor_discount").text().replaceAll("[^0-9]", "");
 
         if (!discountRate.isEmpty()) {
-            int discountIdx = discountRate.indexOf("%");
-            discountRate = discountRate.substring(0, discountIdx);
             discountedPrice = calculatePrice(originPrice, discountRate);
         } else {
-            discountRate = "0";
             discountedPrice = Double.parseDouble(originPrice);
         }
 
@@ -86,24 +84,24 @@ public class CrawlingService {
         brand = document.getElementsByClass("css-ehtr91 e1lehz0e2").text();
         itemName = document.select("title").html();
 
-        discountRate = document.getElementsByClass("css-pnhbjr ent7twr2").text();
-        discountRate = discountRate.replace("%", "");
+        discountRate = document.getElementsByClass("css-pnhbjr ent7twr2").text().replaceAll("[^0-9]", "");
 
         if (discountRate.isEmpty()) {
-            discountRate = "0";
-            originPrice = document.getElementsByClass("css-4bcxzt ent7twr4").text();
-            originPrice = originPrice.replace(",", "");
-            originPrice = originPrice.replace("원", "");
+            originPrice = document.getElementsByClass("css-4bcxzt ent7twr4").text().replaceAll("[^0-9]", "");
             discountedPrice = Double.parseDouble(originPrice);
         } else {
             originPrice = document.getElementsByClass("css-1bci2fm ent7twr1").html();
-            originPrice = originPrice.replace(",", "");
-//            discountedPrice = document.getElementsByClass("css-4bcxzt ent7twr4").text();
-//            discountedPrice = discountedPrice.replace(",", "");
-//            discountedPrice = discountedPrice.replace("원", "");
-            int originPriceInt = Integer.parseInt(originPrice);
-            double discountRateDouble = discountRate.isBlank() ? 0 : Double.parseDouble(discountRate);
-            discountedPrice = originPriceInt * (100.0 - discountRateDouble);
+            originPrice = originPrice.replaceAll("[^0-9]", "");
+
+            String dp = document.getElementsByClass("css-4bcxzt ent7twr4").text();
+            dp = dp.replaceAll("[^0-9]", "");
+
+            // discountPrice 크롤링 구문
+            if (!dp.isBlank()) {
+                discountedPrice = calculatePrice(originPrice, dp);
+            } else {
+                discountedPrice = calculatePrice(originPrice, discountRate);
+            }
         }
 
         return ItemRequest.newItemDto(ItemProvider.ZIGZAG, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
@@ -132,19 +130,21 @@ public class CrawlingService {
         originPrice = product_price.get("original_price").toString();
         discountRate = product_price.get("discount_rate").toString();
 
-//        discountedPrice = document.getElementsByClass(" css-15ex2ru e1v14k971").text();
-//        discountedPrice = discountedPrice.replace(",", "");
-//        discountedPrice = discountedPrice.replace("원", "");
+        String dp = document.getElementsByClass(" css-15ex2ru e1v14k971").text();
+        dp = dp.replaceAll("[^0-9]", "");
 
-        int originPriceInt = Integer.parseInt(originPrice);
-        double discountRateDouble = discountRate.isBlank() ? 0 : Double.parseDouble(discountRate);
-        discountedPrice = originPriceInt * (100.0 - discountRateDouble);
+        // discountPrice 크롤링 구문
+        if (!dp.isBlank()) {
+            discountedPrice = calculatePrice(originPrice, dp);
+        } else {
+            discountedPrice = calculatePrice(originPrice, discountRate);
+        }
 
         return ItemRequest.newItemDto(ItemProvider.APLUSB, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
     }
 
     public ItemRequest getWConcept(String url) throws IOException {
-        String brand, itemName, imgUrl, originPrice, discountRate, discountedPrice;
+        String brand, itemName, imgUrl, originPrice, discountRate = "0", discountedPrice;
 
         Document document = Jsoup.connect(url)
                 .header("userAgent", CLIENT)
@@ -157,15 +157,14 @@ public class CrawlingService {
         originPrice = originPrice.replace(",", "");
 
         if (originPrice.isEmpty()) {
-            discountRate = "0";
             originPrice = document.getElementsByClass("sale").select("em").text();
-            originPrice = originPrice.replace(",", "");
+            originPrice = originPrice.replaceAll("[^0-9]", "");
             discountedPrice = originPrice;
         } else {
             discountRate = document.getElementsByClass("discount_percent").text();
-            discountRate = discountRate.replace("%", "");
+            discountRate = discountRate.replaceAll("[^0-9]", "");
             discountedPrice = document.getElementsByClass("sale").select("em").text();
-            discountedPrice = discountedPrice.replace(",", "");
+            discountedPrice = discountedPrice.replaceAll("[^0-9]", "");
         }
 
         imgUrl = "https:" + document.getElementsByClass("img_area").select("img").attr("src");
@@ -194,7 +193,8 @@ public class CrawlingService {
 
     private double calculatePrice(String originPrice, String discountRate) {
         double price = Double.parseDouble(originPrice);
-        double discount = price * (Double.parseDouble(discountRate) / 100.0);
+        double rate = discountRate.isBlank() ? 0.0 : Double.parseDouble(discountRate);
+        double discount = price * (rate / 100.0);
         return price - discount;
     }
 }
