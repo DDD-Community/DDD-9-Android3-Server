@@ -60,6 +60,7 @@ class ArchiveServiceTest {
 
     @Test
     @Transactional
+    @Rollback(value = false)
     void 게시물에서_저장() {
         //given
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);

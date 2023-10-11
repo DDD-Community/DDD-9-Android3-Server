@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
@@ -31,7 +32,6 @@ class ArchiveControllerTest {
         ArchiveResponse creation = archiveController.fromWeb(user, "https://www.musinsa.com/app/goods/2028329").getBody().getResult();
 
         assertThat(creation.isLiked()).isEqualTo(false);
-
         ArchiveResponse response1 = archiveController.likeArchive(user, creation.getId()).getBody().getResult();
         log.info("like: " + response1.isLiked());
         assertThat(response1.isLiked()).isEqualTo(true);

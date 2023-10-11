@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.item.domain.ItemProvider;
 import com.nexters.buyornot.module.item.api.request.ItemRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.units.qual.A;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,13 +24,14 @@ public class CrawlingService {
     private static final String WCONCEPT = "wconcept";
     private static final String ABLY = "a-bly";
     private static final String CLIENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.1 Safari/605.1.15";
+
     public ItemRequest of(String url) throws IOException {
 
-        if(url.contains(MUSINSA)) return getMusinsa(url);
-        if(url.contains(ZIGZAG)) return getZigzag(url);
-        if(url.contains(TWENTYNINCECM)) return get29cm(url);
-        if(url.contains(WCONCEPT)) return getWConcept(url);
-        if(url.contains(ABLY)) return getAbly(url);
+        if (url.contains(MUSINSA)) return getMusinsa(url);
+        if (url.contains(ZIGZAG)) return getZigzag(url);
+        if (url.contains(TWENTYNINCECM)) return get29cm(url);
+        if (url.contains(WCONCEPT)) return getWConcept(url);
+        if (url.contains(ABLY)) return getAbly(url);
         else throw new BusinessExceptionHandler(NOT_SUPPORTED_CRAWLING_EXCEPTION);
 
 //        return ItemRequest.defaultConfig();
@@ -53,7 +55,7 @@ public class CrawlingService {
         originPrice = document.getElementById("normal_price").text();
         discountRate = document.getElementsByClass("txt_kor_discount").text();
 
-        if(!discountRate.isEmpty()) {
+        if (!discountRate.isEmpty()) {
             int discountIdx = discountRate.indexOf("%");
             discountRate = discountRate.substring(0, discountIdx);
             discountedPrice = calculatePrice(originPrice, discountRate);
@@ -73,7 +75,8 @@ public class CrawlingService {
     }
 
     public ItemRequest get29cm(String url) throws IOException {
-        String brand, itemName, imgUrl, originPrice, discountRate, discountedPrice;
+        String brand, itemName, imgUrl, originPrice, discountRate;
+        double discountedPrice;
 
         Document document = Jsoup.connect(url)
                 .header("userAgent", CLIENT)
@@ -86,26 +89,30 @@ public class CrawlingService {
         discountRate = document.getElementsByClass("css-pnhbjr ent7twr2").text();
         discountRate = discountRate.replace("%", "");
 
-        if(discountRate.isEmpty()) {
+        if (discountRate.isEmpty()) {
             discountRate = "0";
             originPrice = document.getElementsByClass("css-4bcxzt ent7twr4").text();
             originPrice = originPrice.replace(",", "");
             originPrice = originPrice.replace("원", "");
-            discountedPrice = originPrice;
+            discountedPrice = Double.parseDouble(originPrice);
         } else {
             originPrice = document.getElementsByClass("css-1bci2fm ent7twr1").html();
             originPrice = originPrice.replace(",", "");
-            discountedPrice = document.getElementsByClass("css-4bcxzt ent7twr4").text();
-            discountedPrice = discountedPrice.replace(",", "");
-            discountedPrice = discountedPrice.replace("원", "");
+//            discountedPrice = document.getElementsByClass("css-4bcxzt ent7twr4").text();
+//            discountedPrice = discountedPrice.replace(",", "");
+//            discountedPrice = discountedPrice.replace("원", "");
+            int originPriceInt = Integer.parseInt(originPrice);
+            double discountRateDouble = discountRate.isBlank() ? 0 : Double.parseDouble(discountRate);
+            discountedPrice = originPriceInt * (100.0 - discountRateDouble);
         }
 
-        return ItemRequest.newItemDto(ItemProvider.ZIGZAG, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
+        return ItemRequest.newItemDto(ItemProvider.ZIGZAG, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
 
     }
 
     public ItemRequest getZigzag(String url) throws IOException {
-        String brand, itemName, imgUrl, originPrice, discountRate, discountedPrice;
+        String brand, itemName, imgUrl, originPrice, discountRate;
+        double discountedPrice;
 
         Document document = Jsoup.connect(url)
                 .header("userAgent", CLIENT)
@@ -125,11 +132,15 @@ public class CrawlingService {
         originPrice = product_price.get("original_price").toString();
         discountRate = product_price.get("discount_rate").toString();
 
-        discountedPrice = document.getElementsByClass(" css-15ex2ru e1v14k971").text();
-        discountedPrice = discountedPrice.replace(",", "");
-        discountedPrice = discountedPrice.replace("원", "");
+//        discountedPrice = document.getElementsByClass(" css-15ex2ru e1v14k971").text();
+//        discountedPrice = discountedPrice.replace(",", "");
+//        discountedPrice = discountedPrice.replace("원", "");
 
-        return ItemRequest.newItemDto(ItemProvider.APLUSB, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
+        int originPriceInt = Integer.parseInt(originPrice);
+        double discountRateDouble = discountRate.isBlank() ? 0 : Double.parseDouble(discountRate);
+        discountedPrice = originPriceInt * (100.0 - discountRateDouble);
+
+        return ItemRequest.newItemDto(ItemProvider.APLUSB, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
     }
 
     public ItemRequest getWConcept(String url) throws IOException {
@@ -145,7 +156,7 @@ public class CrawlingService {
         originPrice = document.getElementsByClass("normal").select("em").text();
         originPrice = originPrice.replace(",", "");
 
-        if(originPrice.isEmpty()) {
+        if (originPrice.isEmpty()) {
             discountRate = "0";
             originPrice = document.getElementsByClass("sale").select("em").text();
             originPrice = originPrice.replace(",", "");
