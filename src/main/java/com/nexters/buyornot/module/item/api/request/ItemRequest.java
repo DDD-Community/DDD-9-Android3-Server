@@ -18,7 +18,7 @@ public class ItemRequest {
 
     private String originalPrice;
 
-    private String discountRate = "0";
+    private String discountRate;
 
     private double discountedPrice;
 
@@ -42,7 +42,7 @@ public class ItemRequest {
                 .itemUrl(itemUrl)
                 .imageUrl(imgUrl)
                 .originalPrice(originPrice)
-                .discountRate(discountRate)
+                .discountRate(discountRate.isEmpty() ? "0" : discountRate)
                 .discountedPrice(discountedPrice)
                 .build();
     }
@@ -57,5 +57,4 @@ public class ItemRequest {
                 .discountedPrice(discountedPrice)
                 .build();
     }
-
 }
