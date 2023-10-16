@@ -132,7 +132,6 @@ class ArchiveServiceTest {
     }
 
     @Test
-    @Transactional
     void 아카이브_삭제() {
         //given
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
