@@ -40,7 +40,6 @@ public class CrawlingService {
     public ItemRequest getMusinsa(String url) throws IOException {
 
         String brand, itemName, imgUrl, originPrice, discountRate;
-        discountRate = "0";
         double discountedPrice;
 
         Document document = Jsoup.connect(url)
@@ -55,13 +54,8 @@ public class CrawlingService {
         //가격
         originPrice = document.getElementById("normal_price").text().replaceAll("[^0-9]", "");
         discountRate = document.getElementsByClass("txt_kor_discount").text().replaceAll("[^0-9]", "");
-
-        if (!discountRate.isEmpty()) {
-            discountRate = "0";
-            discountedPrice = calculatePrice(originPrice, discountRate);
-        } else {
-            discountedPrice = Double.parseDouble(originPrice);
-        }
+        discountRate = discountRate.isEmpty() ? "0" : discountRate;
+        discountedPrice = calculatePrice(originPrice, discountRate);
 
         //브랜드, 상품명
         Elements infoBlock = document.getElementsByClass("product_title");

@@ -80,6 +80,13 @@ class ArchiveServiceTest {
     }
 
     @Test
+    void 게시물_저장_부하테스트() {
+        for (int i = 0; i < 100; i++) {
+            게시물에서_저장();
+        }
+    }
+
+    @Test
     @Transactional
     @Rollback(value = false)
     void 좋아요() {
