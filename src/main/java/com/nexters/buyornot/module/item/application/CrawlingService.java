@@ -57,6 +57,7 @@ public class CrawlingService {
         discountRate = document.getElementsByClass("txt_kor_discount").text().replaceAll("[^0-9]", "");
 
         if (!discountRate.isEmpty()) {
+            discountRate = "0";
             discountedPrice = calculatePrice(originPrice, discountRate);
         } else {
             discountedPrice = Double.parseDouble(originPrice);
