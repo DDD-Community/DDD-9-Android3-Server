@@ -61,7 +61,7 @@ public class ArchiveService {
         return response;
     }
 
-//    @Transactional
+    @Transactional
     public ArchiveResponse saveFromPost(JwtUser user, Long itemId) {
         if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
 
