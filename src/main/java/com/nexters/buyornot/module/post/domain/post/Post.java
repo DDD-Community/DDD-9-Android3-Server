@@ -48,17 +48,17 @@ public class Post extends BaseEntity {
     private String content;
 
     @Enumerated(EnumType.STRING)
-    private PublicStatus publicStatus = PublicStatus.PUBLIC;
+    private PublicStatus publicStatus;
 
     @ColumnDefault("true")
     @Column(columnDefinition = "TINYINT(1)")
     private boolean isPublished;
 
     @Enumerated(EnumType.STRING)
-    private PollStatus pollStatus = PollStatus.ONGOING;
+    private PollStatus pollStatus;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<PollItem> pollItems = new ArrayList<>();
+    private List<PollItem> pollItems;
 
     private Post(JwtUser user, CreatePostReq dto, List<PollItem> pollItems) {
         this.userId = user.getId();
@@ -66,12 +66,13 @@ public class Post extends BaseEntity {
         this.profile = user.getProfile();
         this.title = dto.getTitle();
         this.content = dto.getContent();
-        this.publicStatus = dto.getPublicStatus();
+        this.publicStatus = Objects.nonNull(dto.getPublicStatus()) ? dto.getPublicStatus() : PublicStatus.PUBLIC;
         this.isPublished = dto.isPublished();
-        this.pollItems = pollItems;
-        if(!isPublished) pollStatus = PollStatus.TEMPORARY;
+        this.pollItems = Objects.nonNull(pollItems) ? pollItems : List.of();
+        if (!isPublished) this.pollStatus = PollStatus.TEMPORARY;
+        else this.pollStatus = PollStatus.ONGOING;
 
-        for(PollItem pollItem : pollItems) {
+        for (PollItem pollItem : pollItems) {
             pollItem.belong(this);
         }
     }
@@ -82,12 +83,13 @@ public class Post extends BaseEntity {
         this.profile = user.getProfile();
         this.title = dto.getTitle();
         this.content = dto.getContent();
-        this.publicStatus = dto.getPublicStatus();
+        this.publicStatus = Objects.nonNull(dto.getPublicStatus()) ? dto.getPublicStatus() : PublicStatus.PUBLIC;
         this.isPublished = dto.isPublished();
-        this.pollItems = pollItems;
-        if(!isPublished) pollStatus = PollStatus.TEMPORARY;
+        this.pollItems = Objects.nonNull(pollItems) ? pollItems : List.of();
+        if (!isPublished) this.pollStatus = PollStatus.TEMPORARY;
+        else this.pollStatus = PollStatus.ONGOING;
 
-        for(PollItem item : pollItems) {
+        for (PollItem item : pollItems) {
             item.belong(this);
         }
     }
@@ -102,7 +104,7 @@ public class Post extends BaseEntity {
 
     public PostResponse newPostResponse() {
         List<PollItemResponse> pollItemResponseList = new ArrayList<>();
-        for(PollItem pollItem : pollItems) {
+        for (PollItem pollItem : pollItems) {
             PollItemResponse response = pollItem.newPollItemResponse();
             pollItemResponseList.add(response);
         }
@@ -125,7 +127,7 @@ public class Post extends BaseEntity {
     }
 
     public boolean checkValidity(UUID userId) {
-        if(this.userId.equals(userId)) return true;
+        if (this.userId.equals(userId)) return true;
         return false;
     }
 
@@ -139,14 +141,14 @@ public class Post extends BaseEntity {
 
     public List<Long> getItemList() {
         List<Long> itemList = new ArrayList<>();
-        for(PollItem pollItem : pollItems) itemList.add(pollItem.getId());
+        for (PollItem pollItem : pollItems) itemList.add(pollItem.getId());
         return itemList;
     }
 
     public PollItem getPollItem(Long itemId) {
         PollItem pollItem = null;
-        for(PollItem item : pollItems) {
-            if(item.getId().equals(itemId)) pollItem = item;
+        for (PollItem item : pollItems) {
+            if (item.getId().equals(itemId)) pollItem = item;
         }
 
         return pollItem;
