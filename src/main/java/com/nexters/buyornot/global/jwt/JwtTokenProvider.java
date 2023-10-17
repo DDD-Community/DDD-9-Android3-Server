@@ -40,8 +40,6 @@ public class JwtTokenProvider {
         Date accessTokenExpiredAt = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
         Date refreshTokenExpiredAt = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
 
-        log.info("access token expired at: " + accessTokenExpiredAt);
-
         //access token
         String accessToken = Jwts.builder()
                 .setSubject(jwtUser.getId().toString())
@@ -57,6 +55,7 @@ public class JwtTokenProvider {
                 .setSubject(jwtUser.getId().toString())
                 .setExpiration(accessTokenExpiredAt)
                 .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(refreshTokenExpiredAt)
                 .compact();
 
         redisTemplate.opsForValue()
