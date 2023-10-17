@@ -33,7 +33,7 @@ public class TokenService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_EXCEPTION));
 
-        if(!jwtTokenProvider.validateToken(request.getRefreshToken())) {
+        if(!jwtTokenProvider.validateToken(request.getRefreshToken()).equals(JwtTokenProvider.JwtCode.ACCESS)) {
             throw new BusinessExceptionHandler(ErrorCode.INVALID_REFRESH_TOKEN_EXCEPTION);
         }
 
