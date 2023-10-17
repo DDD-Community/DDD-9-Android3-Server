@@ -39,6 +39,9 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
         } catch (NullPointerException e) {
             jwtUser = new JwtUser();
             log.info("비회원입니다. " + jwtUser.getRole());
+        } catch (BusinessExceptionHandler b) {
+            log.info("JWT Exception: {}", b);
+            throw b;
         } catch (Exception e) {
             log.error("권한이 없는 사용자입니다.");
             throw new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_EXCEPTION);

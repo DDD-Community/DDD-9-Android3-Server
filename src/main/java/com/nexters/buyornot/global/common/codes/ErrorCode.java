@@ -74,6 +74,7 @@ public enum ErrorCode {
     EXPIRED_REFRESH_TOKEN_EXCEPTION(403, "B103", "만료된 리프레시 토큰입니다."),
     INCONSISTENT_REFRESH_TOKEN_EXCEPTION(403, "B104", "일치하지 않는 리프레시 토큰입니다."),
     NOT_SUPPORTED_CRAWLING_EXCEPTION(403, "B105", "지원하지 않는 사이트입니다."),
+    EXPIRED_ACCESS_TOKEN_EXCEPTION(403, "B106", "만료된 액세스 토큰입니다."),
 
     // 유저가 존재하지 않음
     NOT_FOUND_USER_EXCEPTION(404, "B200", "존재하지 않는 유저입니다."),
