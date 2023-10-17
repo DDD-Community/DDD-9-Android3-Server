@@ -49,6 +49,7 @@ public class TokenService {
         }
 
         AuthTokens tokens = jwtTokenProvider.generate(user.toJwtUser());
+        redisTemplate.delete(refreshToken);
         return tokens;
     }
 
