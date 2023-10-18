@@ -3,16 +3,16 @@ package com.nexters.buyornot.module.post.api;
 import com.nexters.buyornot.global.common.codes.SuccessCode;
 import com.nexters.buyornot.global.common.response.ApiResponse;
 import com.nexters.buyornot.global.config.resolver.LoginUser;
-import com.nexters.buyornot.module.post.api.dto.request.FromArchive;
-import com.nexters.buyornot.module.post.application.PostService;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
+import com.nexters.buyornot.module.post.api.dto.request.FromArchive;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
+import com.nexters.buyornot.module.post.application.PostService;
 import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,19 +27,19 @@ public class PostController {
 
     @Operation(summary = "게시물 등록")
     @PostMapping("/new")
-    public ResponseEntity<ApiResponse<PostResponse>> create(@LoginUser JwtUser user, @Validated @RequestBody CreatePostReq dto) {
+    public ResponseEntity<ApiResponse<PostResponse>> create(@LoginUser JwtUser user, @Valid @RequestBody CreatePostReq dto) {
         return ApiResponse.success(SuccessCode.INSERT_SUCCESS, postService.create(user, dto));
     }
 
     @Operation(summary = "임시저장 글 출간")
     @PostMapping("/publish-post/{postId}")
-    public ResponseEntity<ApiResponse<PostResponse>> publish(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId, @RequestBody CreatePostReq dto) {
+    public ResponseEntity<ApiResponse<PostResponse>> publish(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId, @Valid @RequestBody CreatePostReq dto) {
         return ApiResponse.success(SuccessCode.INSERT_SUCCESS, postService.publish(user, postId, dto));
     }
 
     @Operation(summary = "아카이브에서 글 작성")
     @PostMapping("/from-archive")
-    public ResponseEntity<ApiResponse<PostResponse>> createFromArchive(@LoginUser JwtUser user, @RequestParam Long itemId1, @RequestParam Long itemId2, @Validated @RequestBody FromArchive dto) {
+    public ResponseEntity<ApiResponse<PostResponse>> createFromArchive(@LoginUser JwtUser user, @RequestParam Long itemId1, @RequestParam Long itemId2, @Valid @RequestBody FromArchive dto) {
         return ApiResponse.success(SuccessCode.INSERT_SUCCESS, postService.createFromArchive(user, itemId1, itemId2, dto));
     }
 
@@ -75,7 +75,7 @@ public class PostController {
 
     @Operation(summary = "글 수정")
     @PatchMapping("/{postId}/modification")
-    public ResponseEntity<ApiResponse<PostResponse>> modifyPost(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId, @RequestBody CreatePostReq dto) {
+    public ResponseEntity<ApiResponse<PostResponse>> modifyPost(@LoginUser JwtUser user, @PathVariable(name = "postId") Long postId, @Valid @RequestBody CreatePostReq dto) {
         return ApiResponse.success(SuccessCode.UPDATE_SUCCESS, postService.updatePost(user, postId, dto));
     }
 
