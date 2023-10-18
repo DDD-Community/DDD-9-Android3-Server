@@ -15,14 +15,14 @@ public class JwtUser implements Serializable {
     private UUID id;
     private String nickname;
     private String profile;
-    private String role = "NON_MEMBER";
+    private String role;
 
     public static JwtUser newJwtUser(Claims claims) {
         return builder()
                 .id(UUID.fromString(claims.getSubject()))
                 .nickname(String.valueOf(claims.get("nickname")))
                 .profile(String.valueOf(claims.get("profile")))
-                .role(String.valueOf(claims.get("role")))
+                .role(String.valueOf(claims.get("role")).isEmpty() ? "NON_MEMBER" : String.valueOf(claims.get("role")))
                 .build();
     }
 
@@ -31,7 +31,7 @@ public class JwtUser implements Serializable {
                 .id(id)
                 .nickname(nickname)
                 .profile(profile)
-                .role(role)
+                .role(role.isEmpty() ? "NON_MEMBER" : role)
                 .build();
     }
 }
