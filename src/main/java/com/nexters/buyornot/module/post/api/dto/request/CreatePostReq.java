@@ -18,8 +18,7 @@ public class CreatePostReq {
     private String title;
     private String content;
     private PublicStatus publicStatus;
-    @NotNull
-    private List<@NotBlank String> itemUrls;
+    private List<String> itemUrls;
     private boolean isPublished;
 
     public static CreatePostReq of(String title, String content, PublicStatus publicStatus, boolean isPublished, List<String> itemUrls) {
