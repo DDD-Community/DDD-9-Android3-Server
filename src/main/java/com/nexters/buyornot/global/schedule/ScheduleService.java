@@ -62,7 +62,7 @@ public class ScheduleService {
 
     @Transactional
     @Scheduled(cron = "0 30 10 ? * 6L")
-    void delete() throws Exception {
+    public void delete() throws Exception {
         log.info("start delete scheduling: " + LocalDateTime.now());
         List<User> userList = userRepository.findByEntityStatus(EntityStatus.DELETED);
         List<UUID> deleteList = userList.stream()
@@ -71,6 +71,4 @@ public class ScheduleService {
 
         userRepository.deleteAllById(deleteList);
     }
-
-
 }

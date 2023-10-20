@@ -25,13 +25,13 @@ public class ItemService {
 
     @Transactional
     public void getInfo(List<String> itemUrls) throws IOException {
-        for(String url: itemUrls) {
-            if(url == null) continue;
+        for (String url : itemUrls) {
+            if (url == null) continue;
 
             Item item = itemRepository.findByItemUrl(url)
                     .orElse(Item.newItem(crawlingService.of(url)));
             itemRepository.save(item);
-            }
+        }
     }
 
     @Transactional
@@ -41,7 +41,7 @@ public class ItemService {
 
         itemRepository.save(item);
 
-        if(item.getUpdatedAt().compareTo(LocalDateTime.now()) > 7) {
+        if (item.getUpdatedAt().compareTo(LocalDateTime.now()) > 7) {
             log.info("상품 정보를 업데이트합니다. " + url);
             ItemRequest newData = crawlingService.of(url);
             item.update(newData);

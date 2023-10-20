@@ -60,6 +60,7 @@ class ArchiveServiceTest {
 
     @Test
     @Transactional
+    @Rollback(value = false)
     void 게시물에서_저장() {
         //given
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
@@ -76,6 +77,13 @@ class ArchiveServiceTest {
 
         //then
         assertThat(response.getItemUrl()).isEqualTo(postResponse.getPollItemResponseList().get(0).getItemUrl());
+    }
+
+    @Test
+    void 게시물_저장_부하테스트() {
+        for (int i = 0; i < 100; i++) {
+            게시물에서_저장();
+        }
     }
 
     @Test
@@ -131,7 +139,6 @@ class ArchiveServiceTest {
     }
 
     @Test
-    @Transactional
     void 아카이브_삭제() {
         //given
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);

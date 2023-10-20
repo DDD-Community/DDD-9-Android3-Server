@@ -48,7 +48,7 @@ public class ArchiveService {
 
         Optional<Archive> oldArchive = archiveRepository.findByUserAndUrl(user.getId().toString(), itemUrl);
 
-        if(oldArchive.isPresent()) {
+        if (oldArchive.isPresent()) {
             log.info("이미 저장된 상품입니다. 상품 정보를 업데이트합니다.");
             oldArchive.get().update(item.getUpdatedInfo());
             log.info("업데이트 완료");
@@ -65,11 +65,12 @@ public class ArchiveService {
     public ArchiveResponse saveFromPost(JwtUser user, Long itemId) {
         if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
 
-        Item item = itemRepository.findById(itemId).orElseThrow( () -> new BusinessExceptionHandler(NOT_FOUND_ITEM_EXCEPTION));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ITEM_EXCEPTION));
 
         Optional<Archive> oldArchive = archiveRepository.findByUserAndItem(user.getId().toString(), itemId);
 
-        if(oldArchive.isPresent()) {
+        // TODO: 변경 데이터 감지
+        if (oldArchive.isPresent()) {
             log.info("이미 저장된 상품입니다. 상품 정보를 업데이트합니다.");
             oldArchive.get().update(item.getUpdatedInfo());
             log.info("업데이트 완료");
@@ -78,13 +79,14 @@ public class ArchiveService {
 
         Archive archive = item.newArchive(user.getId().toString());
         Archive savedArchive = archiveRepository.save(archive);
-        ArchiveResponse response = savedArchive.newResponse();
+        ArchiveResponse response = savedArchive.newResponse(); // TODO: save transaction 타이밍
         return response;
     }
 
     @Transactional
     public ArchiveResponse likeArchive(JwtUser user, Long archiveId) {
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        if (user.getRole().equals(Role.NON_MEMBER.getValue()))
+            throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
         Archive archive = archiveRepository.findById(archiveId)
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ARCHIVE_EXCEPTION));
 
@@ -95,7 +97,8 @@ public class ArchiveService {
     }
 
     public List<ArchiveResponse> getAll(JwtUser user, final int page, final int count) {
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        if (user.getRole().equals(Role.NON_MEMBER.getValue()))
+            throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
 
         String userId = user.getId().toString();
 
@@ -108,7 +111,8 @@ public class ArchiveService {
     }
 
     public List<ArchiveResponse> getLikes(JwtUser user, final int page, final int count) {
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        if (user.getRole().equals(Role.NON_MEMBER.getValue()))
+            throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
 
         String userId = user.getId().toString();
 
@@ -122,13 +126,14 @@ public class ArchiveService {
 
     @Transactional
     public String delete(JwtUser user, DeleteArchiveReq deleteArchiveReq) {
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        if (user.getRole().equals(Role.NON_MEMBER.getValue()))
+            throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
 
-        for(Long id : deleteArchiveReq.getIds()) {
+        for (Long id : deleteArchiveReq.getIds()) {
             Archive archive = archiveRepository.findByIdAndUserId(id, user.getId().toString())
                     .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ARCHIVE_EXCEPTION));
 
-            if(archive.verifyValidity(user.getId().toString())) {
+            if (archive.verifyValidity(user.getId().toString())) {
                 archive.delete();
             }
             archiveRepository.save(archive);

@@ -31,7 +31,6 @@ class ArchiveControllerTest {
         ArchiveResponse creation = archiveController.fromWeb(user, "https://www.musinsa.com/app/goods/2028329").getBody().getResult();
 
         assertThat(creation.isLiked()).isEqualTo(false);
-
         ArchiveResponse response1 = archiveController.likeArchive(user, creation.getId()).getBody().getResult();
         log.info("like: " + response1.isLiked());
         assertThat(response1.isLiked()).isEqualTo(true);
