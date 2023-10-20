@@ -1,6 +1,8 @@
 package com.nexters.buyornot.global.jwt;
 
+import com.nexters.buyornot.global.common.codes.ErrorCode;
 import com.nexters.buyornot.global.common.constant.RedisKey;
+import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.auth.api.dto.response.AuthTokens;
 import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import io.jsonwebtoken.*;
@@ -53,6 +55,7 @@ public class JwtTokenProvider {
                 .setSubject(jwtUser.getId().toString())
                 .setExpiration(accessTokenExpiredAt)
                 .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(refreshTokenExpiredAt)
                 .compact();
 
         redisTemplate.opsForValue()
@@ -87,25 +90,33 @@ public class JwtTokenProvider {
         }
     }
 
-    public boolean validateToken(String token) {
+    public JwtCode validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
+            return JwtCode.ACCESS;
+        }  catch (ExpiredJwtException e) {
+            log.warn("Expired JWT Token", e);
+            return JwtCode.EXPIRED;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException | DecodingException e) {
             log.warn("Invalid JWT Token", e);
-        } catch (ExpiredJwtException e) {
-            log.warn("Expired JWT Token", e);
-        } catch (UnsupportedJwtException e) {
+        }
+        catch (UnsupportedJwtException e) {
             log.warn("Unsupported JWT Token", e);
         } catch (IllegalArgumentException e) {
             log.warn("JWT claims string is empty.", e);
         } catch (Exception e) {
             log.error("Unhandled JWT exception", e);
         }
-        return false;
+        return JwtCode.DENIED;
     }
 
     public JwtUser getJwtUser(String token) {
+
+        if(!token.isEmpty() && token.startsWith("Bearer ")) token = token.substring(7);
+
+        if(!validateToken(token).equals(JwtCode.ACCESS)) {
+            throw new BusinessExceptionHandler(ErrorCode.EXPIRED_ACCESS_TOKEN_EXCEPTION);
+        }
         Claims claims = parseClaims(token);
         return JwtUser.newJwtUser(claims);
     }
