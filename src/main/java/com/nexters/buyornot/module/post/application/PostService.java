@@ -151,27 +151,8 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
-        for(PostResponse response : responseList) {
-            Long postId = response.getId();
-            String key = String.format(POLL_DEFAULT + "%s", postId);
-
-            if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
-
-            List<Long> polls = redis.getPollsByPost(key);
-
-            if(redis.alreadyPolled(key, userId) || response.getUserId().equals(userId)) {
-                Map<Long, Integer> status = new HashMap<>();
-                for(PollItemResponse item : response.getPollItemResponseList()) {
-                    int pollCount = Collections.frequency(polls, item.getId());
-                    status.put(item.getId(), pollCount);
-                }
-                status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
-                long polled = redis.getItem(key, userId);
-
-                response.addPollResponse(new PollResponse(status.values(), polled));
-            }
-        }
-        return responseList;
+        List<PostResponse> listAddedPollStatus = addItemSelectedByUser(user, responseList);
+        return listAddedPollStatus;
     }
 
     public List<PostResponse> getOngoing(JwtUser user, final int page, final int count) {
@@ -180,26 +161,8 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
-        for(PostResponse response : responseList) {
-            Long postId = response.getId();
-            String key = String.format(POLL_DEFAULT + "%s", postId);
-
-            if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
-
-            List<Long> polls = redis.getPollsByPost(key);
-
-            Map<Long, Integer> status = new HashMap<>();
-            for(PollItemResponse item : response.getPollItemResponseList()) {
-                int pollCount = Collections.frequency(polls, item.getId());
-                status.put(item.getId(), pollCount);
-            }
-            status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
-            long polled = redis.getItem(key, user.getId().toString());
-
-            response.addPollResponse(new PollResponse(status.values(), polled));
-        }
-
-        return responseList;
+        List<PostResponse> listAddedPollStatus = addItemSelectedByUser(user, responseList);
+        return listAddedPollStatus;
     }
 
     public List<PostResponse> getClosed(JwtUser user, final int page, final int count) {
@@ -208,6 +171,11 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
+        List<PostResponse> listAddedPollStatus = addItemSelectedByUser(user, responseList);
+        return listAddedPollStatus;
+    }
+
+    private List<PostResponse> addItemSelectedByUser(JwtUser user, List<PostResponse> responseList) {
         for(PostResponse response : responseList) {
             Long postId = response.getId();
             String key = String.format(POLL_DEFAULT + "%s", postId);
@@ -226,7 +194,6 @@ public class PostService {
 
             response.addPollResponse(new PollResponse(status.values(), polled));
         }
-
         return responseList;
     }
 
