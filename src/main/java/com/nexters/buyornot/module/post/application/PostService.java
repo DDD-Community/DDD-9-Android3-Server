@@ -2,6 +2,7 @@ package com.nexters.buyornot.module.post.application;
 
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.global.utils.RedisUtil;
+import com.nexters.buyornot.module.archive.dao.ArchiveRepository;
 import com.nexters.buyornot.module.item.dao.ItemRepository;
 import com.nexters.buyornot.module.item.domain.Item;
 import com.nexters.buyornot.module.item.event.SavedItemEvent;
@@ -44,6 +45,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final ItemRepository itemRepository;
+    private final ArchiveRepository archiveRepository;
     private final ParticipantRepository participantRepository;
     private final UnrecommendedRepository unrecommendedRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -111,11 +113,20 @@ public class PostService {
                 .newPostResponse();
 
         response = addPollStatusByUser(userId, key, postId, response);
+        response = addArchiveStatusByUser(userId, response);
         return response;
     }
 
-    private void addArchiveStatusByUser() {
+    private PostResponse addArchiveStatusByUser(String userId, PostResponse postResponse) {
+        List<PollItemResponse> pollItemResponses = postResponse.getPollItemResponseList();
+        for(PollItemResponse pollItem : pollItemResponses) {
+            if(archiveRepository.findByUserAndItem(userId, pollItem.getItemId()).isPresent()) {
+                pollItem.addArchiveStatus();
+            }
+        }
 
+        postResponse.addArchiveStatusByItem(pollItemResponses);
+        return postResponse;
     }
 
     private PostResponse addPollStatusByUser(String userId, String key, Long postId, PostResponse response) {
@@ -161,8 +172,9 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
-        List<PostResponse> listAddedPollStatus = addItemSelectedByUser(userId, responseList);
-        return listAddedPollStatus;
+        responseList = addItemSelectedByUser(userId, responseList);
+        responseList = addArchiveStatusByUser(user.getId().toString(), responseList);
+        return responseList;
     }
 
     public List<PostResponse> getOngoing(JwtUser user, final int page, final int count) {
@@ -171,8 +183,9 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
-        List<PostResponse> listAddedPollStatus = addItemSelectedByUser(user.getId().toString(), responseList);
-        return listAddedPollStatus;
+        responseList = addItemSelectedByUser(user.getId().toString(), responseList);
+        responseList = addArchiveStatusByUser(user.getId().toString(), responseList);
+        return responseList;
     }
 
     public List<PostResponse> getClosed(JwtUser user, final int page, final int count) {
@@ -181,8 +194,24 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
-        List<PostResponse> listAddedPollStatus = addItemSelectedByUser(user.getId().toString(), responseList);
-        return listAddedPollStatus;
+        responseList = addItemSelectedByUser(user.getId().toString(), responseList);
+        responseList = addArchiveStatusByUser(user.getId().toString(), responseList);
+        return responseList;
+    }
+
+    private List<PostResponse> addArchiveStatusByUser(String userId, List<PostResponse> responseList) {
+
+        for(PostResponse postResponse : responseList) {
+            List<PollItemResponse> pollItemResponses = postResponse.getPollItemResponseList();
+            for(PollItemResponse pollItem : pollItemResponses) {
+                if(archiveRepository.findByUserAndItem(userId, pollItem.getItemId()).isPresent()) {
+                    pollItem.addArchiveStatus();
+                }
+            }
+            postResponse.addArchiveStatusByItem(pollItemResponses);
+        }
+
+        return responseList;
     }
 
     private List<PostResponse> addItemSelectedByUser(String userId, List<PostResponse> responseList) {
