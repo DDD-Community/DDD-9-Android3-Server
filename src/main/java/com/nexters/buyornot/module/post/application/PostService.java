@@ -110,6 +110,15 @@ public class PostService {
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION))
                 .newPostResponse();
 
+        response = addPollStatusByUser(userId, key, postId, response);
+        return response;
+    }
+
+    private void addArchiveStatusByUser() {
+
+    }
+
+    private PostResponse addPollStatusByUser(String userId, String key, Long postId, PostResponse response) {
         if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
 
         List<Long> polls = redis.getPollsByPost(key);
@@ -127,6 +136,7 @@ public class PostService {
         }
         return response;
     }
+
 
     @Transactional
     public String endPoll(JwtUser user, Long postId) {
@@ -151,7 +161,7 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
-        List<PostResponse> listAddedPollStatus = addItemSelectedByUser(user, responseList);
+        List<PostResponse> listAddedPollStatus = addItemSelectedByUser(userId, responseList);
         return listAddedPollStatus;
     }
 
@@ -161,7 +171,7 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
-        List<PostResponse> listAddedPollStatus = addItemSelectedByUser(user, responseList);
+        List<PostResponse> listAddedPollStatus = addItemSelectedByUser(user.getId().toString(), responseList);
         return listAddedPollStatus;
     }
 
@@ -171,11 +181,11 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
-        List<PostResponse> listAddedPollStatus = addItemSelectedByUser(user, responseList);
+        List<PostResponse> listAddedPollStatus = addItemSelectedByUser(user.getId().toString(), responseList);
         return listAddedPollStatus;
     }
 
-    private List<PostResponse> addItemSelectedByUser(JwtUser user, List<PostResponse> responseList) {
+    private List<PostResponse> addItemSelectedByUser(String userId, List<PostResponse> responseList) {
         for(PostResponse response : responseList) {
             Long postId = response.getId();
             String key = String.format(POLL_DEFAULT + "%s", postId);
@@ -190,7 +200,7 @@ public class PostService {
                 status.put(item.getId(), pollCount);
             }
             status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
-            long polled = redis.getItem(key, user.getId().toString());
+            long polled = redis.getItem(key, userId);
 
             response.addPollResponse(new PollResponse(status.values(), polled));
         }
