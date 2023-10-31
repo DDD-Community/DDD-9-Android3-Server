@@ -58,4 +58,8 @@ public class PostResponse {
         this.pollResponse = pollResponse;
         participateStatus = true;
     }
+
+    public void addArchiveStatusByItem(List<PollItemResponse> pollItemResponses) {
+        this.pollItemResponseList = pollItemResponses;
+    }
 }
