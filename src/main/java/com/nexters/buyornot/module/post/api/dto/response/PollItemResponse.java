@@ -15,11 +15,6 @@ public class PollItemResponse {
     private int originalPrice;
     private int discountedRate;
     private int discountedPrice;
-    private boolean isLiked;
-
-    public PollItemResponse() {
-        this.isLiked = false;
-    }
 
     public PollItemResponse (Long id, Long itemId, String brand, String itemUrl, String itemName, String imgUrl, BigDecimal originalPrice, int discountedRate, BigDecimal discountedPrice) {
         this.id = id;
@@ -33,7 +28,4 @@ public class PollItemResponse {
         this.discountedPrice = discountedPrice.intValue();
     }
 
-    public void addArchiveStatus() {
-        isLiked = true;
-    }
 }
