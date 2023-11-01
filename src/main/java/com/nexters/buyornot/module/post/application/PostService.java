@@ -2,7 +2,6 @@ package com.nexters.buyornot.module.post.application;
 
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.global.utils.RedisUtil;
-import com.nexters.buyornot.module.archive.dao.ArchiveRepository;
 import com.nexters.buyornot.module.item.dao.ItemRepository;
 import com.nexters.buyornot.module.item.domain.Item;
 import com.nexters.buyornot.module.item.event.SavedItemEvent;
@@ -45,7 +44,6 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final ItemRepository itemRepository;
-    private final ArchiveRepository archiveRepository;
     private final ParticipantRepository participantRepository;
     private final UnrecommendedRepository unrecommendedRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -112,24 +110,6 @@ public class PostService {
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_POST_EXCEPTION))
                 .newPostResponse();
 
-        response = addPollStatusByUser(userId, key, postId, response);
-        response = addArchiveStatusByUser(userId, response);
-        return response;
-    }
-
-    private PostResponse addArchiveStatusByUser(String userId, PostResponse postResponse) {
-        List<PollItemResponse> pollItemResponses = postResponse.getPollItemResponseList();
-        for(PollItemResponse pollItem : pollItemResponses) {
-            if(archiveRepository.findByUserAndItem(userId, pollItem.getItemId()).isPresent()) {
-                pollItem.addArchiveStatus();
-            }
-        }
-
-        postResponse.addArchiveStatusByItem(pollItemResponses);
-        return postResponse;
-    }
-
-    private PostResponse addPollStatusByUser(String userId, String key, Long postId, PostResponse response) {
         if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
 
         List<Long> polls = redis.getPollsByPost(key);
@@ -147,7 +127,6 @@ public class PostService {
         }
         return response;
     }
-
 
     @Transactional
     public String endPoll(JwtUser user, Long postId) {
@@ -172,8 +151,26 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
-        responseList = addItemSelectedByUser(userId, responseList);
-        responseList = addArchiveStatusByUser(user.getId().toString(), responseList);
+        for(PostResponse response : responseList) {
+            Long postId = response.getId();
+            String key = String.format(POLL_DEFAULT + "%s", postId);
+
+            if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
+
+            List<Long> polls = redis.getPollsByPost(key);
+
+            if(redis.alreadyPolled(key, userId) || response.getUserId().equals(userId)) {
+                Map<Long, Integer> status = new HashMap<>();
+                for(PollItemResponse item : response.getPollItemResponseList()) {
+                    int pollCount = Collections.frequency(polls, item.getId());
+                    status.put(item.getId(), pollCount);
+                }
+                status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
+                long polled = redis.getItem(key, userId);
+
+                response.addPollResponse(new PollResponse(status.values(), polled));
+            }
+        }
         return responseList;
     }
 
@@ -183,38 +180,6 @@ public class PostService {
                 .map(Post::newPostResponse)
                 .collect(Collectors.toList());
 
-        responseList = addItemSelectedByUser(user.getId().toString(), responseList);
-        responseList = addArchiveStatusByUser(user.getId().toString(), responseList);
-        return responseList;
-    }
-
-    public List<PostResponse> getClosed(JwtUser user, final int page, final int count) {
-        List<PostResponse> responseList = postRepository.findPageByUserAndPollStatus(user.getId(), PollStatus.CLOSED, PageRequest.of(page, count))
-                .stream()
-                .map(Post::newPostResponse)
-                .collect(Collectors.toList());
-
-        responseList = addItemSelectedByUser(user.getId().toString(), responseList);
-        responseList = addArchiveStatusByUser(user.getId().toString(), responseList);
-        return responseList;
-    }
-
-    private List<PostResponse> addArchiveStatusByUser(String userId, List<PostResponse> responseList) {
-
-        for(PostResponse postResponse : responseList) {
-            List<PollItemResponse> pollItemResponses = postResponse.getPollItemResponseList();
-            for(PollItemResponse pollItem : pollItemResponses) {
-                if(archiveRepository.findByUserAndItem(userId, pollItem.getItemId()).isPresent()) {
-                    pollItem.addArchiveStatus();
-                }
-            }
-            postResponse.addArchiveStatusByItem(pollItemResponses);
-        }
-
-        return responseList;
-    }
-
-    private List<PostResponse> addItemSelectedByUser(String userId, List<PostResponse> responseList) {
         for(PostResponse response : responseList) {
             Long postId = response.getId();
             String key = String.format(POLL_DEFAULT + "%s", postId);
@@ -229,10 +194,39 @@ public class PostService {
                 status.put(item.getId(), pollCount);
             }
             status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
-            long polled = redis.getItem(key, userId);
+            long polled = redis.getItem(key, user.getId().toString());
 
             response.addPollResponse(new PollResponse(status.values(), polled));
         }
+
+        return responseList;
+    }
+
+    public List<PostResponse> getClosed(JwtUser user, final int page, final int count) {
+        List<PostResponse> responseList = postRepository.findPageByUserAndPollStatus(user.getId(), PollStatus.CLOSED, PageRequest.of(page, count))
+                .stream()
+                .map(Post::newPostResponse)
+                .collect(Collectors.toList());
+
+        for(PostResponse response : responseList) {
+            Long postId = response.getId();
+            String key = String.format(POLL_DEFAULT + "%s", postId);
+
+            if(!redis.exists(key)) DBtoCache(postId, postRepository.findById(postId).get().getItemList());
+
+            List<Long> polls = redis.getPollsByPost(key);
+
+            Map<Long, Integer> status = new HashMap<>();
+            for(PollItemResponse item : response.getPollItemResponseList()) {
+                int pollCount = Collections.frequency(polls, item.getId());
+                status.put(item.getId(), pollCount);
+            }
+            status.put(UNRECOMMENDED, Collections.frequency(polls, UNRECOMMENDED));
+            long polled = redis.getItem(key, user.getId().toString());
+
+            response.addPollResponse(new PollResponse(status.values(), polled));
+        }
+
         return responseList;
     }
 
