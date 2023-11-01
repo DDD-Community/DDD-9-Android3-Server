@@ -17,36 +17,9 @@ class CrawlingServiceTest {
     CrawlingService crawlingService;
 
     @Test
+    @DisplayName("29cm 크롤링 테스트")
     @Transactional
-    void crawling() throws IOException, URISyntaxException {
-        System.out.println("==================start=======================");
-
-        /**
-         * 지그재그
-         */
-        ItemRequest zigzag = crawlingService.of("https://zigzag.kr/catalog/products/113607837");
-        System.out.println("brand: " + zigzag.getBrand() + " name: " + zigzag.getName());
-        System.out.println("originalPrice: " + zigzag.getOriginalPrice() + " discountRate: " + zigzag.getDiscountRate() + " discountedPrice: " + zigzag.getDiscountedPrice());
-        System.out.println("imgUrl: " + zigzag.getImageUrl());
-        System.out.println("from: " + zigzag.getItemProvider().getValue());
-
-        System.out.println("=========================================");
-
-        /**
-         * 무신사
-         */
-        ItemRequest musinsa = crawlingService.of("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
-        System.out.println("brand: " + musinsa.getBrand() + " name: " + musinsa.getName());
-        System.out.println("originalPrice: " + musinsa.getOriginalPrice() + " discountRate: " + musinsa.getDiscountRate() + " discountedPrice: " + musinsa.getDiscountedPrice());
-        System.out.println("imgUrl: " + musinsa.getImageUrl());
-        System.out.println("from: " + musinsa.getItemProvider().getValue());
-
-        System.out.println("=========================================");
-
-        /**
-         * 29cm
-         */
-
+    public void aplusb() throws IOException, URISyntaxException {
         ItemRequest aplusb = crawlingService.of("https://product.29cm.co.kr/catalog/2142915");
         System.out.println("brand: " + aplusb.getBrand() + " name: " + aplusb.getName());
         System.out.println("originalPrice: " + aplusb.getOriginalPrice() + " discountRate: " + aplusb.getDiscountRate() + " discountedPrice: " + aplusb.getDiscountedPrice());
@@ -57,21 +30,36 @@ class CrawlingServiceTest {
     }
 
     @Test
+    @DisplayName("무신사 크롤링 테스트")
     @Transactional
-    void wconcept() throws IOException, URISyntaxException {
-
-        //할인 O
-        ItemRequest onSale = crawlingService.of("https://www.wconcept.co.kr/Product/303147448");
-
-        System.out.println("brand: " + onSale.getBrand() + " name: " + onSale.getName());
-        System.out.println("originalPrice: " + onSale.getOriginalPrice() + " discountRate: " + onSale.getDiscountRate() + " discountedPrice: " + onSale.getDiscountedPrice());
-        System.out.println("imgUrl: " + onSale.getImageUrl());
-        System.out.println("from: " + onSale.getItemProvider().getValue());
+    public void musinsa() throws IOException, URISyntaxException {
+        ItemRequest musinsa = crawlingService.of("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+        System.out.println("brand: " + musinsa.getBrand() + " name: " + musinsa.getName());
+        System.out.println("originalPrice: " + musinsa.getOriginalPrice() + " discountRate: " + musinsa.getDiscountRate() + " discountedPrice: " + musinsa.getDiscountedPrice());
+        System.out.println("imgUrl: " + musinsa.getImageUrl());
+        System.out.println("from: " + musinsa.getItemProvider().getValue());
 
         System.out.println("=========================================");
+    }
 
-        //할인 X
+    @Test
+    @DisplayName("Zigzag 크롤링 테스트")
+    @Transactional
+    public void zigzag() throws IOException, URISyntaxException {
+        ItemRequest zigzag = crawlingService.of("https://zigzag.kr/catalog/products/113607837");
+        System.out.println("brand: " + zigzag.getBrand() + " name: " + zigzag.getName());
+        System.out.println("originalPrice: " + zigzag.getOriginalPrice() + " discountRate: " + zigzag.getDiscountRate() + " discountedPrice: " + zigzag.getDiscountedPrice());
+        System.out.println("imgUrl: " + zigzag.getImageUrl());
+        System.out.println("from: " + zigzag.getItemProvider().getValue());
 
+        System.out.println("=========================================");
+    }
+
+    @Test
+    @DisplayName("Wconcept 크롤링 테스트")
+    @Transactional
+    void wconcept() throws IOException, URISyntaxException {
+        // 할인 유무 상관 없음
         ItemRequest w = crawlingService.of("https://www.wconcept.co.kr/Product/303137901");
 
         System.out.println("brand: " + w.getBrand() + " name: " + w.getName());
@@ -82,6 +70,7 @@ class CrawlingServiceTest {
     }
 
     @Test
+    @DisplayName("Ably 크롤링 테스트")
     @Transactional
     void ably() throws IOException, URISyntaxException {
         ItemRequest item = crawlingService.of("https://m.a-bly.com/goods/8167148");
@@ -90,5 +79,43 @@ class CrawlingServiceTest {
         System.out.println("originalPrice: " + item.getOriginalPrice() + " discountRate: " + item.getDiscountRate() + " discountedPrice: " + item.getDiscountedPrice());
         System.out.println("imgUrl: " + item.getImageUrl());
         System.out.println("from: " + item.getItemProvider().getValue());
+    }
+
+    @Test
+    @DisplayName("Wconcept 부하 테스트")
+    @Transactional
+    void WconceptPlus() throws URISyntaxException, IOException {
+        int TIME = 50;
+
+        String uri = "https://www.wconcept.co.kr/Product/303137901";
+        // Html 파싱 기반
+        long beforeTime1 = System.currentTimeMillis();
+
+        for (int i = 0; i < TIME; i++) {
+            crawlingService.getWConcept(uri);
+        }
+
+        long afterTime1 = System.currentTimeMillis();
+        long secDiffTime1 = afterTime1 - beforeTime1;
+
+        System.out.println("HTML 파싱");
+        System.out.println("시간차이(m) : " + secDiffTime1);
+
+        System.out.println("----------------------------------");
+        // Json 기반
+        long beforeTime2 = System.currentTimeMillis();
+
+        for (int i = 0; i < TIME; i++) {
+            crawlingService.getWConceptJson(uri);
+        }
+
+        long afterTime2 = System.currentTimeMillis();
+        long secDiffTime2 = afterTime2 - beforeTime2;
+        System.out.println("Json 파싱");
+        System.out.println("시간차이(m) : " + secDiffTime2);
+        System.out.println("----------------------------------");
+        System.out.println("HTML / Json %: " + secDiffTime1 / secDiffTime2 * 100);
+
+
     }
 }
