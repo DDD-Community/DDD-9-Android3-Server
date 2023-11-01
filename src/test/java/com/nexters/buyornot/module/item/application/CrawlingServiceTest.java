@@ -1,12 +1,14 @@
 package com.nexters.buyornot.module.item.application;
 
 import com.nexters.buyornot.module.item.api.request.ItemRequest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 @SpringBootTest
 class CrawlingServiceTest {
@@ -16,7 +18,7 @@ class CrawlingServiceTest {
 
     @Test
     @Transactional
-    void crawling() throws IOException {
+    void crawling() throws IOException, URISyntaxException {
         System.out.println("==================start=======================");
 
         /**
@@ -56,7 +58,7 @@ class CrawlingServiceTest {
 
     @Test
     @Transactional
-    void wconcept() throws IOException {
+    void wconcept() throws IOException, URISyntaxException {
 
         //할인 O
         ItemRequest onSale = crawlingService.of("https://www.wconcept.co.kr/Product/303147448");
@@ -81,12 +83,44 @@ class CrawlingServiceTest {
 
     @Test
     @Transactional
-    void ably() throws IOException {
+    void ably() throws IOException, URISyntaxException {
         ItemRequest item = crawlingService.of("https://m.a-bly.com/goods/8167148");
 
         System.out.println("brand: " + item.getBrand() + " name: " + item.getName());
         System.out.println("originalPrice: " + item.getOriginalPrice() + " discountRate: " + item.getDiscountRate() + " discountedPrice: " + item.getDiscountedPrice());
         System.out.println("imgUrl: " + item.getImageUrl());
         System.out.println("from: " + item.getItemProvider().getValue());
+    }
+
+    @Test
+    @DisplayName("Ably Crawling Test")
+    public void testAblyJson() {
+        // given
+        String url = "https://m.a-bly.com/goods/11145152?param1=value1&param2=value2";
+        // when
+
+        // then
+        try {
+            var result = crawlingService.getAblyJson(url);
+            System.out.println(result.toString());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @DisplayName("Wconcept Crawling Test")
+    public void testWconceptJson() {
+        // given
+        String url = "https://www.wconcept.co.kr/Product/303804583";
+        // when
+
+        // then
+        try {
+            var result = crawlingService.getWConceptJson(url);
+            System.out.println(result.toString());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
