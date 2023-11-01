@@ -12,6 +12,7 @@ import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,7 +61,6 @@ class ArchiveServiceTest {
 
     @Test
     @Transactional
-    @Rollback(value = false)
     void 게시물에서_저장() {
         //given
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
@@ -68,6 +68,26 @@ class ArchiveServiceTest {
         List<String> urls = new ArrayList<>();
         urls.add("https://zigzag.kr/catalog/products/113607837");
         urls.add("https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+
+        CreatePostReq createPostReq = CreatePostReq.of("아카이브 저장 테스트!!", "test", PublicStatus.PUBLIC, true, urls);
+        PostResponse postResponse = postService.create(user, createPostReq);
+
+        //when
+        ArchiveResponse response = archiveService.saveFromPost(user, postResponse.getPollItemResponseList().get(0).getItemId());
+
+        //then
+        assertThat(response.getItemUrl()).isEqualTo(postResponse.getPollItemResponseList().get(0).getItemUrl());
+    }
+    @Test
+    @DisplayName("Ably & Wconcept 게시물 저장 테스트")
+    @Transactional
+    void 게시물에서_저장_W_A() {
+        //given
+        JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
+
+        List<String> urls = new ArrayList<>();
+        urls.add("https://m.a-bly.com/goods/11145152?param1=value1&param2=value2");
+        urls.add("https://www.wconcept.co.kr/Product/303804583");
 
         CreatePostReq createPostReq = CreatePostReq.of("아카이브 저장 테스트!!", "test", PublicStatus.PUBLIC, true, urls);
         PostResponse postResponse = postService.create(user, createPostReq);
