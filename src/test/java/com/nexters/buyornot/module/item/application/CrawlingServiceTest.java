@@ -93,7 +93,7 @@ class CrawlingServiceTest {
     }
 
     @Test
-    @DisplayName("Ably Crawling Test")
+    @DisplayName("Ably Json Crawling Test")
     public void testAblyJson() {
         // given
         String url = "https://m.a-bly.com/goods/11145152?param1=value1&param2=value2";
@@ -109,7 +109,7 @@ class CrawlingServiceTest {
     }
 
     @Test
-    @DisplayName("Wconcept Crawling Test")
+    @DisplayName("Wconcept Json Crawling Test")
     public void testWconceptJson() {
         // given
         String url = "https://www.wconcept.co.kr/Product/303804583";
@@ -120,6 +120,23 @@ class CrawlingServiceTest {
             var result = crawlingService.getWConceptJson(url);
             System.out.println(result.toString());
         } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @DisplayName("29cm Json Crawling Test")
+    public void test29CMJson() {
+        // given
+        String uri = "https://product.29cm.co.kr/catalog/1696690?source=collection&source_content_no=1552&source_content_title=29CM%EC%97%90%EC%84%9C+%EC%B2%98%EC%9D%8C+%EB%A7%8C%EB%82%98%EB%8A%94+%EB%8B%B9%EC%8B%A0%EC%9D%98+%EC%B7%A8%ED%96%A5";
+
+        // when
+
+        // then
+        try {
+            var result = crawlingService.get29cmJson(uri);
+            System.out.println(result);
+        } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
