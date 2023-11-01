@@ -47,7 +47,6 @@ public class CrawlingService {
     }
 
     public ItemRequest getMusinsa(String url) throws IOException {
-
         String brand, itemName, imgUrl, originPrice, discountRate;
         double discountedPrice;
 
@@ -56,9 +55,7 @@ public class CrawlingService {
                 .get();
 
         //상품 이미지
-        Elements imageBlock = document.getElementsByClass("product-img");
-
-        imgUrl = "https:" + imageBlock.get(0).select("img").attr("src");
+        imgUrl = "https:" + Objects.requireNonNull(document.getElementById("bigimg")).attr("src");
 
         //가격
         originPrice = document.getElementById("normal_price").text().replaceAll("[^0-9]", "");
@@ -103,42 +100,6 @@ public class CrawlingService {
                 url, imageUrl, consumerPrice, saleRate, sellPrice);
     }
 
-    public ItemRequest get29cm(String url) throws IOException {
-        String brand, itemName, imgUrl, originPrice, discountRate;
-        double discountedPrice;
-
-        Document document = Jsoup.connect(url)
-                .header("userAgent", CLIENT)
-                .get();
-
-        imgUrl = document.getElementsByClass("css-122y91a ewptmlp4").select("img").attr("src");
-        brand = document.getElementsByClass("css-ehtr91 e1lehz0e2").text();
-        itemName = document.select("title").html();
-
-        discountRate = document.getElementsByClass("css-pnhbjr ent7twr2").text().replaceAll("[^0-9]", "");
-
-        if (discountRate.isEmpty()) {
-            originPrice = document.getElementsByClass("css-4bcxzt ent7twr4").text().replaceAll("[^0-9]", "");
-            discountedPrice = Double.parseDouble(originPrice);
-        } else {
-            originPrice = document.getElementsByClass("css-1bci2fm ent7twr1").html();
-            originPrice = originPrice.replaceAll("[^0-9]", "");
-
-            String dp = document.getElementsByClass("css-4bcxzt ent7twr4").text();
-            dp = dp.replaceAll("[^0-9]", "");
-
-            // discountPrice 크롤링 구문
-            if (!dp.isBlank()) {
-                discountedPrice = calculatePrice(originPrice, dp);
-            } else {
-                discountedPrice = calculatePrice(originPrice, discountRate);
-            }
-        }
-
-        return ItemRequest.newItemDto(ItemProvider.ZIGZAG, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
-
-    }
-
     public ItemRequest getZigzag(String url) throws IOException {
         String brand, itemName, imgUrl, originPrice, discountRate;
         double discountedPrice;
@@ -172,35 +133,6 @@ public class CrawlingService {
         }
 
         return ItemRequest.newItemDto(ItemProvider.APLUSB, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
-    }
-
-    public ItemRequest getWConcept(String url) throws IOException {
-        String brand, itemName, imgUrl, originPrice, discountRate = "0", discountedPrice;
-
-        Document document = Jsoup.connect(url)
-                .header("userAgent", CLIENT)
-                .get();
-
-        brand = document.getElementsByClass("brand").first().text();
-        itemName = document.getElementsByClass("product cottonusa").text();
-
-        originPrice = document.getElementsByClass("normal").select("em").text();
-        originPrice = originPrice.replace(",", "");
-
-        if (originPrice.isEmpty()) {
-            originPrice = document.getElementsByClass("sale").select("em").text();
-            originPrice = originPrice.replaceAll("[^0-9]", "");
-            discountedPrice = originPrice;
-        } else {
-            discountRate = document.getElementsByClass("discount_percent").text();
-            discountRate = discountRate.replaceAll("[^0-9]", "");
-            discountedPrice = document.getElementsByClass("sale").select("em").text();
-            discountedPrice = discountedPrice.replaceAll("[^0-9]", "");
-        }
-
-        imgUrl = "https:" + document.getElementsByClass("img_area").select("img").attr("src");
-
-        return ItemRequest.newItemDto(ItemProvider.WCONCEPT, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
     }
 
     public ItemRequest getWConceptJson(String url) throws URISyntaxException {
@@ -278,5 +210,72 @@ public class CrawlingService {
         double rate = discountRate.isBlank() ? 0.0 : Double.parseDouble(discountRate);
         double discount = price * (rate / 100.0);
         return price - discount;
+    }
+
+    @Deprecated
+    public ItemRequest get29cm(String url) throws IOException {
+        String brand, itemName, imgUrl, originPrice, discountRate;
+        double discountedPrice;
+
+        Document document = Jsoup.connect(url)
+                .header("userAgent", CLIENT)
+                .get();
+
+        imgUrl = document.getElementsByClass("css-122y91a ewptmlp4").select("img").attr("src");
+        brand = document.getElementsByClass("css-ehtr91 e1lehz0e2").text();
+        itemName = document.select("title").html();
+
+        discountRate = document.getElementsByClass("css-pnhbjr ent7twr2").text().replaceAll("[^0-9]", "");
+
+        if (discountRate.isEmpty()) {
+            originPrice = document.getElementsByClass("css-4bcxzt ent7twr4").text().replaceAll("[^0-9]", "");
+            discountedPrice = Double.parseDouble(originPrice);
+        } else {
+            originPrice = document.getElementsByClass("css-1bci2fm ent7twr1").html();
+            originPrice = originPrice.replaceAll("[^0-9]", "");
+
+            String dp = document.getElementsByClass("css-4bcxzt ent7twr4").text();
+            dp = dp.replaceAll("[^0-9]", "");
+
+            // discountPrice 크롤링 구문
+            if (!dp.isBlank()) {
+                discountedPrice = calculatePrice(originPrice, dp);
+            } else {
+                discountedPrice = calculatePrice(originPrice, discountRate);
+            }
+        }
+
+        return ItemRequest.newItemDto(ItemProvider.ZIGZAG, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
+
+    }
+
+    @Deprecated
+    public ItemRequest getWConcept(String url) throws IOException {
+        String brand, itemName, imgUrl, originPrice, discountRate = "0", discountedPrice;
+
+        Document document = Jsoup.connect(url)
+                .header("userAgent", CLIENT)
+                .get();
+
+        brand = document.getElementsByClass("brand").first().text();
+        itemName = document.getElementsByClass("product cottonusa").text();
+
+        originPrice = document.getElementsByClass("normal").select("em").text();
+        originPrice = originPrice.replace(",", "");
+
+        if (originPrice.isEmpty()) {
+            originPrice = document.getElementsByClass("sale").select("em").text();
+            originPrice = originPrice.replaceAll("[^0-9]", "");
+            discountedPrice = originPrice;
+        } else {
+            discountRate = document.getElementsByClass("discount_percent").text();
+            discountRate = discountRate.replaceAll("[^0-9]", "");
+            discountedPrice = document.getElementsByClass("sale").select("em").text();
+            discountedPrice = discountedPrice.replaceAll("[^0-9]", "");
+        }
+
+        imgUrl = "https:" + document.getElementsByClass("img_area").select("img").attr("src");
+
+        return ItemRequest.newItemDto(ItemProvider.WCONCEPT, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
     }
 }
