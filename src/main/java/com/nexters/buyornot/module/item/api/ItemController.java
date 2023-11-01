@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 @RestController
 @Tag(name = "item", description = "상품 API")
@@ -24,7 +25,7 @@ public class ItemController {
 
     @Operation(summary = "상품 정보")
     @GetMapping
-    public ResponseEntity<ApiResponse<ItemResponse>> create(@RequestParam("url") String url) throws IOException {
+    public ResponseEntity<ApiResponse<ItemResponse>> create(@RequestParam("url") String url) throws IOException, URISyntaxException {
         return ApiResponse.success(SuccessCode.INSERT_SUCCESS, itemService.create(url));
     }
 
