@@ -132,7 +132,7 @@ public class CrawlingService {
             discountedPrice = calculatePrice(originPrice, discountRate);
         }
 
-        return ItemRequest.newItemDto(ItemProvider.APLUSB, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
+        return ItemRequest.newItemDto(ItemProvider.ZIGZAG, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
     }
 
     public ItemRequest getWConceptJson(String url) throws URISyntaxException {
