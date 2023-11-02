@@ -114,8 +114,6 @@ class CrawlingServiceTest {
         System.out.println("Json 파싱");
         System.out.println("시간차이(m) : " + secDiffTime2);
         System.out.println("----------------------------------");
-        System.out.println("HTML / Json %: " + secDiffTime1 / secDiffTime2 * 100);
-
-
+        System.out.println("HTML / Json %: " + secDiffTime1 * 100 / secDiffTime2);
     }
 }
