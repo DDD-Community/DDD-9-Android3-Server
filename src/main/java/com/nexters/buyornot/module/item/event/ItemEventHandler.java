@@ -6,6 +6,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class ItemEventHandler {
     List<String> urls = new ArrayList<>();
 
     @EventListener
-    public void saveItem(SavedItemEvent event) throws IOException {
+    public void saveItem(SavedItemEvent event) throws IOException, URISyntaxException {
         urls.add(event.getItemUrl());
         urls.addAll(event.getItemUrls());
 

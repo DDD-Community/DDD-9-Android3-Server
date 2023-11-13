@@ -25,7 +25,7 @@ public class PostResponse {
     private boolean isPublished;
     private PollStatus pollStatus;
     private List<PollItemResponse> pollItemResponseList;
-    private boolean participateStatus = false;
+    private boolean participateStatus;
     private PollResponse pollResponse;
     private LocalDateTime updatedAt;
     private LocalDateTime now;

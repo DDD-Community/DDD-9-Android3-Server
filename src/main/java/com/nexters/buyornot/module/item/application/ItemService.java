@@ -1,18 +1,18 @@
 package com.nexters.buyornot.module.item.application;
 
+import com.nexters.buyornot.module.item.api.request.ItemRequest;
 import com.nexters.buyornot.module.item.api.response.ItemResponse;
 import com.nexters.buyornot.module.item.dao.ItemRepository;
 import com.nexters.buyornot.module.item.domain.Item;
-import com.nexters.buyornot.module.item.api.request.ItemRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -24,7 +24,7 @@ public class ItemService {
     private final CrawlingService crawlingService;
 
     @Transactional
-    public void getInfo(List<String> itemUrls) throws IOException {
+    public void getInfo(List<String> itemUrls) throws IOException, URISyntaxException {
         for (String url : itemUrls) {
             if (url == null) continue;
 
@@ -35,7 +35,7 @@ public class ItemService {
     }
 
     @Transactional
-    public ItemResponse create(String url) throws IOException {
+    public ItemResponse create(String url) throws IOException, URISyntaxException {
         Item item = itemRepository.findByItemUrl(url)
                 .orElse(Item.newItem(crawlingService.of(url)));
 
