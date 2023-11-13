@@ -34,7 +34,6 @@ public class ArchiveService {
     private final ArchiveRepository archiveRepository;
     private final ItemRepository itemRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final PostRepository postRepository;
 
     @Transactional
     public ArchiveResponse saveFromWeb(JwtUser user, String itemUrl) {
