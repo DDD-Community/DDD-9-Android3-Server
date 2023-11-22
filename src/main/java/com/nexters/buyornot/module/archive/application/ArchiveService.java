@@ -34,7 +34,6 @@ public class ArchiveService {
     private final ArchiveRepository archiveRepository;
     private final ItemRepository itemRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final PostRepository postRepository;
 
     @Transactional
     public ArchiveResponse saveFromWeb(JwtUser user, String itemUrl) {
@@ -138,6 +137,20 @@ public class ArchiveService {
             }
             archiveRepository.save(archive);
         }
+        return SuccessCode.DELETE_SUCCESS.getMessage();
+    }
+
+    @Transactional
+    public String deleteFromPost(JwtUser user, Long itemId) {
+        if (user.getRole().equals(Role.NON_MEMBER.getValue()))
+            throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        Archive archive = archiveRepository.findByUserAndItem(user.getId().toString(), itemId)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ARCHIVE_EXCEPTION));
+
+        archive.delete();
+        archiveRepository.save(archive);
+
         return SuccessCode.DELETE_SUCCESS.getMessage();
     }
 
