@@ -141,6 +141,20 @@ public class ArchiveService {
     }
 
     @Transactional
+    public String deleteFromPost(JwtUser user, Long itemId) {
+        if (user.getRole().equals(Role.NON_MEMBER.getValue()))
+            throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+
+        Archive archive = archiveRepository.findByUserAndItem(user.getId().toString(), itemId)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ARCHIVE_EXCEPTION));
+
+        archive.delete();
+        archiveRepository.save(archive);
+
+        return SuccessCode.DELETE_SUCCESS.getMessage();
+    }
+
+    @Transactional
     public void deleteAll(String userId) {
         archiveRepository.deleteAllByUserId(userId);
     }

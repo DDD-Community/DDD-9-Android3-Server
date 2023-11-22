@@ -54,8 +54,14 @@ public class ArchiveController {
     }
 
     @Operation(summary = "아카이브 삭제")
-    @PatchMapping("/deletion")
-    public ResponseEntity<ApiResponse<String>> deleteArchive(@LoginUser JwtUser user, @RequestBody DeleteArchiveReq deleteArchiveReq) {
+    @PatchMapping("/deletions")
+    public ResponseEntity<ApiResponse<String>> deleteArchives(@LoginUser JwtUser user, @RequestBody DeleteArchiveReq deleteArchiveReq) {
         return ApiResponse.success(SuccessCode.DELETE_SUCCESS, archiveService.delete(user, deleteArchiveReq));
+    }
+
+    @Operation(summary = "게시물에서 아카이브 삭제")
+    @PatchMapping("/deletion/{itemId}")
+    public ResponseEntity<ApiResponse<String>> deleteArchive(@LoginUser JwtUser user, @PathVariable(name = "itemId") Long itemId) {
+        return ApiResponse.success(SuccessCode.DELETE_SUCCESS, archiveService.deleteFromPost(user, itemId));
     }
 }
