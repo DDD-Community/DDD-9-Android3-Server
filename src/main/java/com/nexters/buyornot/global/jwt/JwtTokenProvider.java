@@ -25,7 +25,7 @@ public class JwtTokenProvider {
     private final Key key;
     private static final String BEARER_TYPE = "Bearer ";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;            // 30분
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 30;  // 30일
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 14;  // 14일
     private static final long EXPIRED_TIME = 1L;
     private final RedisTemplate<String, Object> redisTemplate;
 
