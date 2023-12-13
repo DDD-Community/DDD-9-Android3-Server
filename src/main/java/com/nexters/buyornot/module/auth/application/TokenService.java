@@ -4,6 +4,7 @@ import com.nexters.buyornot.global.common.codes.ErrorCode;
 import com.nexters.buyornot.global.common.constant.RedisKey;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.global.jwt.JwtTokenProvider;
+import com.nexters.buyornot.global.jwt.JwtTokenProvider.JwtCode;
 import com.nexters.buyornot.module.auth.api.dto.request.ReissueTokenReq;
 import com.nexters.buyornot.module.auth.api.dto.response.AuthTokens;
 import com.nexters.buyornot.module.user.dao.UserRepository;
@@ -33,7 +34,7 @@ public class TokenService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_EXCEPTION));
 
-        if(!jwtTokenProvider.validateToken(request.getRefreshToken()).equals(JwtTokenProvider.JwtCode.ACCESS)) {
+        if(jwtTokenProvider.validateToken(request.getRefreshToken()).equals(JwtCode.DENIED)) {
             throw new BusinessExceptionHandler(ErrorCode.INVALID_REFRESH_TOKEN_EXCEPTION);
         }
 
