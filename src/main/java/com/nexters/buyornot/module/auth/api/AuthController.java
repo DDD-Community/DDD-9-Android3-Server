@@ -32,7 +32,7 @@ public class AuthController {
     @Operation(summary = "reissue refresh token")
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<AuthTokens>> reissue(@Valid @RequestBody ReissueTokenReq request) {
-        return ApiResponse.success(SuccessCode.UPDATE_SUCCESS, tokenService.reissueToken(request));
+        return ApiResponse.success(SuccessCode.REISSUE_SUCCESS, tokenService.reissueToken(request));
     }
 
     @Operation(summary = "로그아웃")
