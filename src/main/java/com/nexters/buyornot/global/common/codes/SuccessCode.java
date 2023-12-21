@@ -22,13 +22,13 @@ public enum SuccessCode {
     LOGIN_SUCCESS(200, "200", "LOGIN SUCCESS"),
     LOGOUT_SUCCESS(200, "200", "LOGOUT SUCCESS"),
     SIGNOUT_SUCCESS(200, "200", "SIGN OUT SUCCESS"),
+    REISSUE_SUCCESS(200, "200", "REISSUE SUCCESS"),
     // 삽입 성공 코드 (HTTP Response: 201 Created)
     INSERT_SUCCESS(201, "201", "INSERT SUCCESS"),
     // 수정 성공 코드 (HTTP Response: 201 Created)
     UPDATE_SUCCESS(204, "204", "UPDATE SUCCESS"),
 
     ; // End
-
     /**
      * ******************************* Success Code Constructor ***************************************
      */
