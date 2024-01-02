@@ -34,13 +34,13 @@ public class TokenService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.UNAUTHORIZED_USER_EXCEPTION));
 
-        if(jwtTokenProvider.validateToken(request.getRefreshToken()).equals(JwtCode.DENIED)) {
+        if (jwtTokenProvider.validateToken(request.getRefreshToken()).equals(JwtCode.DENIED)) {
             throw new BusinessExceptionHandler(ErrorCode.INVALID_REFRESH_TOKEN_EXCEPTION);
         }
 
         String refreshToken = (String) redisTemplate.opsForValue().get(RedisKey.REFRESH_TOKEN + userId);
 
-        if(Objects.isNull(refreshToken)) {
+        if (Objects.isNull(refreshToken)) {
             throw new BusinessExceptionHandler(ErrorCode.EXPIRED_REFRESH_TOKEN_EXCEPTION);
         }
 

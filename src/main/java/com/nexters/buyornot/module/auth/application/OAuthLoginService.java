@@ -8,6 +8,7 @@ import com.nexters.buyornot.module.auth.event.DeletedUserEvent;
 import com.nexters.buyornot.module.auth.model.AuthTokensGenerator;
 import com.nexters.buyornot.module.auth.model.oauth.OAuthInfoResponse;
 import com.nexters.buyornot.module.auth.model.oauth.RequestOAuthInfoService;
+import com.nexters.buyornot.module.model.Gender;
 import com.nexters.buyornot.module.model.Role;
 import com.nexters.buyornot.module.user.dao.UserRepository;
 import com.nexters.buyornot.module.user.domain.Nickname;
@@ -15,6 +16,7 @@ import com.nexters.buyornot.module.user.domain.User;
 import com.nexters.buyornot.module.user.api.dto.JwtUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,13 +50,15 @@ public class OAuthLoginService {
     private JwtUser newMember(OAuthInfoResponse oAuthInfoResponse) {
 
         String email = oAuthInfoResponse.getEmail();
-        if(email.isEmpty()) email = "";
 
         List<String> list = generateNickname();
         String nickname = list.get(0);
         String profile = list.get(1);
-
-        while(userRepository.existsByNickname(nickname)) {
+        String gender = oAuthInfoResponse.getGender();
+        String ageRange = oAuthInfoResponse.getAgeRange();
+        if(gender == null) gender = Gender.etc.getValue();
+        if(ageRange == null) ageRange = "";
+        while (userRepository.existsByNickname(nickname)) {
             list = generateNickname();
             nickname = list.get(0);
             profile = list.get(1);
@@ -62,11 +66,11 @@ public class OAuthLoginService {
 
         User user = User.builder()
                 .name(oAuthInfoResponse.getNickname())
-                .gender(oAuthInfoResponse.getGender())
+                .gender(gender)
                 .email(email)
                 .nickname(nickname)
                 .profile(profile)
-                .ageRange(oAuthInfoResponse.getAgeRange())
+                .ageRange(ageRange)
                 .oAuthProvider(oAuthInfoResponse.getOAuthProvider())
                 .role(Role.USER)
                 .build();
