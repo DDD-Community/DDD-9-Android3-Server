@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "ddd.buyornot",
+      "sha256_cert_fingerprints":
+        ["9B:49:01:4C:08:08:C6:8D:F0:F8:33:D7:44:27:41:de:DC:0B:E2:C5:9F:28:3C:78:47:FF:F1:26:F0:E1:47:27"]
+    }
+  }
+]
