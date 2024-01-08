@@ -1,11 +1,15 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "ddd.buyornot",
-      "sha256_cert_fingerprints":
-        ["7b:dc:6e:1c:2b:09:e1:b4:f0:ff:5e:12:83:12:c4:42:36:95:db:0f:16:c3:fd:5f:71:0b:21:32:00:e8:ed:6a"]
+      "sha256_cert_fingerprints": [
+        "7b:dc:6e:1c:2b:09:e1:b4:f0:ff:5e:12:83:12:c4:42:36:95:db:0f:16:c3:fd:5f:71:0b:21:32:00:e8:ed:6a",
+        "7B:DC:6E:1C:2B:09:E1:B4:F0:FF:5E:12:83:12:C4:42:36:95:DB:0F:16:C3:FD:5F:71:0B:21:32:00:E8:ED:6A"
+      ]
     }
   }
 ]
