@@ -101,10 +101,11 @@ public class PostService {
     }
 
     public PostResponse getPost(JwtUser user, Long postId) {
-        String userId;
-        //비회원
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = postId + NON_MEMBER + LocalDateTime.now();
-        else userId = user.getId().toString();
+        String userId = NON_MEMBER + LocalDateTime.now();
+
+        if(!user.getRole().equals(Role.NON_MEMBER.getValue())) {
+            userId = user.getId().toString();
+        }
 
         String key = String.format(POLL_DEFAULT + "%s", postId);
 
@@ -162,10 +163,11 @@ public class PostService {
 
     //전체 공개 포스트만
     public List<PostResponse> getPage(JwtUser user, final int page, final int count) {
-        String userId;
-        //비회원
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) userId = NON_MEMBER + LocalDateTime.now();
-        else userId = user.getId().toString();
+        String userId = NON_MEMBER + LocalDateTime.now();
+
+        if(!user.getRole().equals(Role.NON_MEMBER.getValue())) {
+            userId = user.getId().toString();
+        }
 
         List<PostResponse> responseList = postRepository.findPageByIsPublishedAndPublicStatusOrderByIdDesc(true, PublicStatus.PUBLIC, PageRequest.of(page, count))
                 .stream()
@@ -173,7 +175,7 @@ public class PostService {
                 .collect(Collectors.toList());
 
         responseList = addItemSelectedByUser(userId, responseList);
-        responseList = addArchiveStatusByUser(user.getId().toString(), responseList);
+        responseList = addArchiveStatusByUser(userId, responseList);
         return responseList;
     }
 

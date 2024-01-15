@@ -1,5 +1,6 @@
 package com.nexters.buyornot.module.user.api.dto;
 
+import com.nexters.buyornot.module.model.Role;
 import io.jsonwebtoken.Claims;
 import lombok.*;
 
@@ -15,7 +16,7 @@ public class JwtUser implements Serializable {
     private UUID id;
     private String nickname;
     private String profile;
-    private String role;
+    private String role = Role.NON_MEMBER.getValue();
 
     public static JwtUser newJwtUser(Claims claims) {
         return builder()
