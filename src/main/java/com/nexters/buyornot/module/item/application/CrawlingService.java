@@ -119,8 +119,9 @@ public class CrawlingService {
         JsonObject pageProps = props.get("pageProps").getAsJsonObject();
         JsonObject product = pageProps.getAsJsonObject("product");
         JsonObject product_price = product.getAsJsonObject("product_price");
+        JsonObject final_discount_info = product_price.getAsJsonObject("final_discount_info");
         originPrice = product_price.get("original_price").toString();
-        discountRate = product_price.get("discount_rate").toString();
+        discountRate = final_discount_info.get("discount_rate").toString();
 
         String dp = document.getElementsByClass(" css-15ex2ru e1v14k971").text();
         dp = dp.replaceAll("[^0-9]", "");
