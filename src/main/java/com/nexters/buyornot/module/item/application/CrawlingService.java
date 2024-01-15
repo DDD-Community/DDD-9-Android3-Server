@@ -2,12 +2,17 @@ package com.nexters.buyornot.module.item.application;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.nexters.buyornot.global.common.codes.SuccessCode;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.item.api.request.ItemRequest;
 import com.nexters.buyornot.module.item.domain.ItemProvider;
 import com.nexters.buyornot.module.item.dto.ably.AblyInfoDto;
+import com.nexters.buyornot.module.item.dto.musinsa.MusinsaInfo;
 import com.nexters.buyornot.module.item.dto.twentynine.TwentyNineInfoDto;
 import com.nexters.buyornot.module.item.dto.wconcept.WconceptInfoDto;
+import com.nexters.buyornot.module.post.domain.model.PublicStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.entity.StringEntity;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -38,7 +43,7 @@ public class CrawlingService {
     private String AblyXAnonymousToken;
 
     public ItemRequest of(String url) throws IOException, URISyntaxException {
-        if (url.contains(MUSINSA)) return getMusinsa(url);
+        if (url.contains(MUSINSA)) return getMusinsaByJson(url);
         if (url.contains(ZIGZAG)) return getZigzag(url);
         if (url.contains(TWENTYNINCECM)) return get29cmJson(url);
         if (url.contains(WCONCEPT)) return getWConceptJson(url);
@@ -46,30 +51,25 @@ public class CrawlingService {
         else throw new BusinessExceptionHandler(NOT_SUPPORTED_CRAWLING_EXCEPTION);
     }
 
-    public ItemRequest getMusinsa(String url) throws IOException {
-        String brand, itemName, imgUrl, originPrice, discountRate;
-        double discountedPrice;
+    private ItemRequest getMusinsaByJson(String url) throws IOException, URISyntaxException {
+        String productId = getProductId(url);
+        final String uri = String.format("https://goods-detail.musinsa.com/goods/%s", productId);
+        final String IMAGE_BASE = "https://image.msscdn.net";
 
-        Document document = Jsoup.connect(url)
-                .header("userAgent", CLIENT)
-                .get();
+        RestTemplate restTemplate = new RestTemplate();
+        var response = restTemplate.getForEntity(uri, MusinsaInfo.class);
+        if (response.getStatusCode() != HttpStatusCode.valueOf(200)) {
+            throw new BusinessExceptionHandler(NOT_SUPPORTED_CRAWLING_EXCEPTION);
+        }
 
-        //상품 이미지
-        imgUrl = "https:" + Objects.requireNonNull(document.getElementById("bigimg")).attr("src");
-
-        //가격
-        originPrice = document.getElementById("normal_price").text().replaceAll("[^0-9]", "");
-        discountRate = document.getElementsByClass("txt_kor_discount").text().replaceAll("[^0-9]", "");
-        discountRate = discountRate.isEmpty() ? "0" : discountRate;
-        discountedPrice = calculatePrice(originPrice, discountRate);
-
-        //브랜드, 상품명
-        Elements infoBlock = document.getElementsByClass("product_title");
-        itemName = infoBlock.select("em").html();
-        Elements brandBlock = document.getElementsByClass("product_article_contents");
-        brand = brandBlock.select("a").get(0).html();
-
-        return ItemRequest.newItemDto(ItemProvider.MUSINSA, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
+        var result = response.getBody().getData();
+        var brand = result.getBrand();
+        var name = result.getGoodsNm();
+        var img = result.getImgUrl();
+        var originPrice = result.getGoodsPrice().getOriginPrice();
+        var discountRate = result.getGoodsPrice().getDiscountRate();
+        var discountedPrice = result.getGoodsPrice().getMinPrice();
+        return ItemRequest.newItemDto(ItemProvider.MUSINSA, brand, name, url, IMAGE_BASE + img, String.valueOf(originPrice), String.valueOf(discountRate), discountedPrice);
 
     }
 
