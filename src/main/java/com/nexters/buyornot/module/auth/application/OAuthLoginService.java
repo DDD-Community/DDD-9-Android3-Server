@@ -54,10 +54,6 @@ public class OAuthLoginService {
         List<String> list = generateNickname();
         String nickname = list.get(0);
         String profile = list.get(1);
-        String gender = oAuthInfoResponse.getGender();
-        String ageRange = oAuthInfoResponse.getAgeRange();
-        if(gender == null) gender = Gender.etc.getValue();
-        if(ageRange == null) ageRange = "";
         while (userRepository.existsByNickname(nickname)) {
             list = generateNickname();
             nickname = list.get(0);
@@ -66,11 +62,11 @@ public class OAuthLoginService {
 
         User user = User.builder()
                 .name(oAuthInfoResponse.getNickname())
-                .gender(gender)
+                .gender(oAuthInfoResponse.getGender())
                 .email(email)
                 .nickname(nickname)
                 .profile(profile)
-                .ageRange(ageRange)
+                .ageRange(oAuthInfoResponse.getAgeRange())
                 .oAuthProvider(oAuthInfoResponse.getOAuthProvider())
                 .role(Role.USER)
                 .build();
