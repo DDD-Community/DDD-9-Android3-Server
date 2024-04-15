@@ -1,21 +1,27 @@
 package com.nexters.buyornot.module.item.domain;
 
+
 import com.nexters.buyornot.module.archive.domain.Archive;
 import com.nexters.buyornot.module.item.api.request.ItemRequest;
 import com.nexters.buyornot.module.item.api.response.ItemResponse;
 import com.nexters.buyornot.module.item.dto.UpdatedInfo;
 import com.nexters.buyornot.module.model.BaseEntity;
 import com.nexters.buyornot.module.model.Price;
-import com.nexters.buyornot.module.post.domain.post.PollItem;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
-
-import static com.nexters.buyornot.module.post.domain.post.PollItem.newPollItem;
+import org.checkerframework.common.aliasing.qual.Unique;
 
 @Entity
 @Builder(access = AccessLevel.PRIVATE)
@@ -36,6 +42,7 @@ public class Item extends BaseEntity {
     private Price price;
 
     @Lob
+    @Unique
     private String itemUrl;
 
     @Lob
@@ -61,8 +68,8 @@ public class Item extends BaseEntity {
                 .build();
     }
 
-    public PollItem createPollItem() {
-        return newPollItem(this.id, this.brand, this.name, this.price, this.itemUrl, this.imgUrl);
+    public ItemInfo info() {
+        return new ItemInfo(this.id, this.brand, this.name, this.price, this.itemUrl, this.imgUrl);
     }
 
     public Archive newArchive(String userId) {
@@ -80,7 +87,8 @@ public class Item extends BaseEntity {
     }
 
     public UpdatedInfo getUpdatedInfo() {
-        return UpdatedInfo.updatedInfo(this.brand, this.name, this.imgUrl, this.price.getValue().toString(), String.valueOf(this.price.getDiscountRate()), this.price.getDiscountedPrice().doubleValue());
+        return UpdatedInfo.updatedInfo(this.brand, this.name, this.imgUrl, this.price.getValue().toString(),
+                String.valueOf(this.price.getDiscountRate()), this.price.getDiscountedPrice().doubleValue());
     }
 
     public ItemResponse newItemResponse() {

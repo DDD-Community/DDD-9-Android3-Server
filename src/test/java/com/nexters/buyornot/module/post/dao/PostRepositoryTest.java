@@ -1,19 +1,16 @@
 package com.nexters.buyornot.module.post.dao;
 
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
-import com.nexters.buyornot.module.post.domain.post.Post;
-import com.nexters.buyornot.module.user.dao.UserRepository;
+import com.nexters.buyornot.module.post.dao.querydsl.dto.Entry;
+import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.util.StopWatch;
 
 @Slf4j
 @SpringBootTest
@@ -22,47 +19,42 @@ class PostRepositoryTest {
     @Autowired
     private PostRepository postRepository;
 
-    @Autowired
-    private UserRepository userRepository;
-
     @Test
-    @Transactional
-    public void fetch_join_test() {
-        List<Post> posts = postRepository.findAllFetchJoin();
+    public void 무한스크롤_테스트() {
+        //given
+        Pageable pageable = PageRequest.of(0, 5);
 
-        log.info("=================N+1==========================");
-        List<PostResponse> responseList = posts
-                .stream()
-                .map(Post::newPostResponse)
-                .collect(Collectors.toList());
+        //when
+        Slice<PostResponse> responses = postRepository.getMain(pageable);
+
+        //then
+//        assertThat(responses.getSize() == 5);
     }
 
     @Test
-    @Transactional
-    public void paging() {
+    public void 시간_비교() {
+        Pageable pageable = PageRequest.of(0, 5);
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
 
-        Page<Post> all = postRepository.findAll(PageRequest.of(0, 5));
+        postRepository.getMain(pageable);
 
-        log.info("=================N+1==========================");
+        stopWatch.stop();
+        System.out.println(stopWatch.prettyPrint());
+        System.out.println("코드 실행 시간 (s): " + stopWatch.getTotalTimeSeconds());
 
-        List<PostResponse> responseList = all
-                .stream()
-                .map(Post::newPostResponse)
-                .collect(Collectors.toList());
+        stopWatch.start();
 
-        int idx = 0;
-        for(PostResponse response : responseList) {
-            log.info(idx + " " + response.getTitle());
-            idx++;
-        }
+        postRepository.findPageByIsPublishedAndPublicStatusOrderByIdDesc(true, PublicStatus.PUBLIC, pageable);
 
-        log.info("===========================================");
+        stopWatch.stop();
+        System.out.println(stopWatch.prettyPrint());
+        System.out.println("코드 실행 시간 (s): " + stopWatch.getTotalTimeSeconds());
     }
+
     @Test
-    public void findByUserIdAndIsPublishedTest() {
-        UUID id = UUID.fromString("449e9ce4-6c4f-4c61-a9aa-2808148323e6");
-        boolean isPublished = true;
-        List<Post> result = postRepository.findByUserIdAndIsPublished(id, isPublished);
-        result.forEach(System.out::println);
+    public void 참가자() {
+        Entry entry = postRepository.getParticipants(18L);
+        log.info("[getParticipants] " + entry.toString());
     }
 }

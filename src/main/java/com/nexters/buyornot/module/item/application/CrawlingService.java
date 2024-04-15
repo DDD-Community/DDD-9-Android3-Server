@@ -1,8 +1,9 @@
 package com.nexters.buyornot.module.item.application;
 
+import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_SUPPORTED_CRAWLING_EXCEPTION;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.nexters.buyornot.global.common.codes.SuccessCode;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.item.api.request.ItemRequest;
 import com.nexters.buyornot.module.item.domain.ItemProvider;
@@ -10,28 +11,29 @@ import com.nexters.buyornot.module.item.dto.ably.AblyInfoDto;
 import com.nexters.buyornot.module.item.dto.musinsa.MusinsaInfo;
 import com.nexters.buyornot.module.item.dto.twentynine.TwentyNineInfoDto;
 import com.nexters.buyornot.module.item.dto.wconcept.WconceptInfoDto;
-import com.nexters.buyornot.module.post.domain.model.PublicStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.StringEntity;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Objects;
-
-import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_SUPPORTED_CRAWLING_EXCEPTION;
+import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 @Service
+@Slf4j
 public class CrawlingService {
     private static final String MUSINSA = "musinsa";
     private static final String ZIGZAG = "zigzag";
@@ -43,12 +45,23 @@ public class CrawlingService {
     private String AblyXAnonymousToken;
 
     public ItemRequest of(String url) throws IOException, URISyntaxException {
-        if (url.contains(MUSINSA)) return getMusinsaByJson(url);
-        if (url.contains(ZIGZAG)) return getZigzag(url);
-        if (url.contains(TWENTYNINCECM)) return get29cmJson(url);
-        if (url.contains(WCONCEPT)) return getWConceptJson(url);
-        if (url.contains(ABLY)) return getAblyJson(url);
-        else throw new BusinessExceptionHandler(NOT_SUPPORTED_CRAWLING_EXCEPTION);
+        if (url.contains(MUSINSA)) {
+            return getMusinsaByJson(url);
+        }
+        if (url.contains(ZIGZAG)) {
+            return getZigzag(url);
+        }
+        if (url.contains(TWENTYNINCECM)) {
+            return get29cmJson(url);
+        }
+        if (url.contains(WCONCEPT)) {
+            return getWConceptJson(url);
+        }
+        if (url.contains(ABLY)) {
+            return getAblyJson(url);
+        } else {
+            throw new BusinessExceptionHandler(NOT_SUPPORTED_CRAWLING_EXCEPTION);
+        }
     }
 
     private ItemRequest getMusinsaByJson(String url) throws IOException, URISyntaxException {
@@ -69,7 +82,8 @@ public class CrawlingService {
         var originPrice = result.getGoodsPrice().getOriginPrice();
         var discountRate = result.getGoodsPrice().getDiscountRate();
         var discountedPrice = result.getGoodsPrice().getMinPrice();
-        return ItemRequest.newItemDto(ItemProvider.MUSINSA, brand, name, url, IMAGE_BASE + img, String.valueOf(originPrice), String.valueOf(discountRate), discountedPrice);
+        return ItemRequest.newItemDto(ItemProvider.MUSINSA, brand, name, url, IMAGE_BASE + img,
+                String.valueOf(originPrice), String.valueOf(discountRate), discountedPrice);
 
     }
 
@@ -120,20 +134,30 @@ public class CrawlingService {
         JsonObject product = pageProps.getAsJsonObject("product");
         JsonObject product_price = product.getAsJsonObject("product_price");
         JsonObject final_discount_info = product_price.getAsJsonObject("final_discount_info");
-        originPrice = product_price.get("original_price").toString();
+        originPrice = document.getElementsByClass("BODY_14 MEDIUM css-1f02a3 e8ltq9r0").text();
+        originPrice = originPrice.replace(",", "");
+        log.info("[zigzag] originPrice: " + originPrice);
         discountRate = final_discount_info.get("discount_rate").toString();
 
-        String dp = document.getElementsByClass(" css-15ex2ru e1v14k971").text();
+        String dp = document.getElementsByClass("css-15ex2ru e1i71w5g1").text();
         dp = dp.replaceAll("[^0-9]", "");
 
         // discountPrice 크롤링 구문
         if (!dp.isBlank()) {
-            discountedPrice = calculatePrice(originPrice, dp);
+            discountedPrice = Double.parseDouble(dp);
         } else {
             discountedPrice = calculatePrice(originPrice, discountRate);
         }
 
-        return ItemRequest.newItemDto(ItemProvider.ZIGZAG, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
+        log.info("[zigzag] brand: " + brand
+                + " itemName: " + itemName
+                + " imgUrl: " + imgUrl
+                + " originPrice: " + originPrice
+                + " discountRate: " + discountRate
+                + " discountedPrice: " + discountedPrice);
+
+        return ItemRequest.newItemDto(ItemProvider.ZIGZAG, brand, itemName, url, imgUrl, originPrice, discountRate,
+                discountedPrice);
     }
 
     public ItemRequest getWConceptJson(String url) throws URISyntaxException {
@@ -178,7 +202,8 @@ public class CrawlingService {
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<AblyInfoDto> response = restTemplate.exchange(uri, HttpMethod.GET, requestEntity, AblyInfoDto.class);
+        ResponseEntity<AblyInfoDto> response = restTemplate.exchange(uri, HttpMethod.GET, requestEntity,
+                AblyInfoDto.class);
         if (response.getStatusCode() != HttpStatusCode.valueOf(200)) {
             throw new BusinessExceptionHandler(NOT_SUPPORTED_CRAWLING_EXCEPTION);
         }
@@ -246,7 +271,8 @@ public class CrawlingService {
             }
         }
 
-        return ItemRequest.newItemDto(ItemProvider.APLUSB, brand, itemName, url, imgUrl, originPrice, discountRate, discountedPrice);
+        return ItemRequest.newItemDto(ItemProvider.APLUSB, brand, itemName, url, imgUrl, originPrice, discountRate,
+                discountedPrice);
 
     }
 
@@ -277,6 +303,7 @@ public class CrawlingService {
 
         imgUrl = "https:" + document.getElementsByClass("img_area").select("img").attr("src");
 
-        return ItemRequest.newItemDto(ItemProvider.WCONCEPT, brand, itemName, url, imgUrl, originPrice, discountRate, Double.parseDouble(discountedPrice));
+        return ItemRequest.newItemDto(ItemProvider.WCONCEPT, brand, itemName, url, imgUrl, originPrice, discountRate,
+                Double.parseDouble(discountedPrice));
     }
 }

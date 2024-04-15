@@ -1,5 +1,9 @@
 package com.nexters.buyornot.module.archive.application;
 
+import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_FOUND_ARCHIVE_EXCEPTION;
+import static com.nexters.buyornot.global.common.codes.ErrorCode.NOT_FOUND_ITEM_EXCEPTION;
+import static com.nexters.buyornot.global.common.codes.ErrorCode.UNAUTHORIZED_USER_EXCEPTION;
+
 import com.nexters.buyornot.global.common.codes.SuccessCode;
 import com.nexters.buyornot.global.exception.BusinessExceptionHandler;
 import com.nexters.buyornot.module.archive.api.dto.request.DeleteArchiveReq;
@@ -10,20 +14,16 @@ import com.nexters.buyornot.module.item.dao.ItemRepository;
 import com.nexters.buyornot.module.item.domain.Item;
 import com.nexters.buyornot.module.item.event.SavedItemEvent;
 import com.nexters.buyornot.module.model.Role;
-import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.user.api.dto.JwtUser;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.nexters.buyornot.global.common.codes.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -37,7 +37,9 @@ public class ArchiveService {
 
     @Transactional
     public ArchiveResponse saveFromWeb(JwtUser user, String itemUrl) {
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        if (user.getRole().equals(Role.NON_MEMBER.getValue())) {
+            throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        }
 
         eventPublisher.publishEvent(
                 SavedItemEvent.of(itemUrl)
@@ -62,9 +64,12 @@ public class ArchiveService {
 
     @Transactional
     public ArchiveResponse saveFromPost(JwtUser user, Long itemId) {
-        if(user.getRole().equals(Role.NON_MEMBER.getValue())) throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        if (user.getRole().equals(Role.NON_MEMBER.getValue())) {
+            throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        }
 
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ITEM_EXCEPTION));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ITEM_EXCEPTION));
 
         Optional<Archive> oldArchive = archiveRepository.findByUserAndItem(user.getId().toString(), itemId);
 
@@ -84,8 +89,9 @@ public class ArchiveService {
 
     @Transactional
     public ArchiveResponse likeArchive(JwtUser user, Long archiveId) {
-        if (user.getRole().equals(Role.NON_MEMBER.getValue()))
+        if (user.getRole().equals(Role.NON_MEMBER.getValue())) {
             throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        }
         Archive archive = archiveRepository.findById(archiveId)
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ARCHIVE_EXCEPTION));
 
@@ -96,12 +102,14 @@ public class ArchiveService {
     }
 
     public List<ArchiveResponse> getAll(JwtUser user, final int page, final int count) {
-        if (user.getRole().equals(Role.NON_MEMBER.getValue()))
+        if (user.getRole().equals(Role.NON_MEMBER.getValue())) {
             throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        }
 
         String userId = user.getId().toString();
 
-        List<ArchiveResponse> list = archiveRepository.findPageByUserIdOrderByUpdatedAtDesc(userId, PageRequest.of(page, count))
+        List<ArchiveResponse> list = archiveRepository.findPageByUserIdOrderByUpdatedAtDesc(userId,
+                        PageRequest.of(page, count))
                 .stream()
                 .map(Archive::newResponse)
                 .collect(Collectors.toList());
@@ -110,12 +118,14 @@ public class ArchiveService {
     }
 
     public List<ArchiveResponse> getLikes(JwtUser user, final int page, final int count) {
-        if (user.getRole().equals(Role.NON_MEMBER.getValue()))
+        if (user.getRole().equals(Role.NON_MEMBER.getValue())) {
             throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        }
 
         String userId = user.getId().toString();
 
-        List<ArchiveResponse> list = archiveRepository.findPageByUserIdAndIsLikedOrderByUpdatedAtDesc(userId, true, PageRequest.of(page, count))
+        List<ArchiveResponse> list = archiveRepository.findPageByUserIdAndIsLikedOrderByUpdatedAtDesc(userId, true,
+                        PageRequest.of(page, count))
                 .stream()
                 .map(Archive::newResponse)
                 .collect(Collectors.toList());
@@ -125,8 +135,9 @@ public class ArchiveService {
 
     @Transactional
     public String delete(JwtUser user, DeleteArchiveReq deleteArchiveReq) {
-        if (user.getRole().equals(Role.NON_MEMBER.getValue()))
+        if (user.getRole().equals(Role.NON_MEMBER.getValue())) {
             throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        }
 
         for (Long id : deleteArchiveReq.getIds()) {
             Archive archive = archiveRepository.findByIdAndUserId(id, user.getId().toString())
@@ -142,8 +153,9 @@ public class ArchiveService {
 
     @Transactional
     public String deleteFromPost(JwtUser user, Long itemId) {
-        if (user.getRole().equals(Role.NON_MEMBER.getValue()))
+        if (user.getRole().equals(Role.NON_MEMBER.getValue())) {
             throw new BusinessExceptionHandler(UNAUTHORIZED_USER_EXCEPTION);
+        }
 
         Archive archive = archiveRepository.findByUserAndItem(user.getId().toString(), itemId)
                 .orElseThrow(() -> new BusinessExceptionHandler(NOT_FOUND_ARCHIVE_EXCEPTION));

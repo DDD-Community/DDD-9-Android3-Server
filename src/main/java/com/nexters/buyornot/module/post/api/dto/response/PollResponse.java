@@ -1,13 +1,15 @@
 package com.nexters.buyornot.module.post.api.dto.response;
 
-import lombok.*;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class PollResponse {
     int firstItem;
     int secondItem;

@@ -3,24 +3,32 @@ package com.nexters.buyornot.module.post.domain.post;
 import com.nexters.buyornot.module.model.BaseEntity;
 import com.nexters.buyornot.module.post.api.dto.request.CreatePostReq;
 import com.nexters.buyornot.module.post.api.dto.request.FromArchive;
-import com.nexters.buyornot.module.post.domain.model.PollStatus;
-import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.post.api.dto.response.PollItemResponse;
 import com.nexters.buyornot.module.post.api.dto.response.PostResponse;
+import com.nexters.buyornot.module.post.domain.model.PollStatus;
+import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.user.api.dto.JwtUser;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Where;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.util.*;
 
 
 @Entity
@@ -69,8 +77,11 @@ public class Post extends BaseEntity {
         this.publicStatus = Objects.nonNull(dto.getPublicStatus()) ? dto.getPublicStatus() : PublicStatus.PUBLIC;
         this.isPublished = dto.isPublished();
         this.pollItems = Objects.nonNull(pollItems) ? pollItems : List.of();
-        if (!isPublished) this.pollStatus = PollStatus.TEMPORARY;
-        else this.pollStatus = PollStatus.ONGOING;
+        if (!isPublished) {
+            this.pollStatus = PollStatus.TEMPORARY;
+        } else {
+            this.pollStatus = PollStatus.ONGOING;
+        }
 
         for (PollItem pollItem : pollItems) {
             pollItem.belong(this);
@@ -86,8 +97,11 @@ public class Post extends BaseEntity {
         this.publicStatus = Objects.nonNull(dto.getPublicStatus()) ? dto.getPublicStatus() : PublicStatus.PUBLIC;
         this.isPublished = dto.isPublished();
         this.pollItems = Objects.nonNull(pollItems) ? pollItems : List.of();
-        if (!isPublished) this.pollStatus = PollStatus.TEMPORARY;
-        else this.pollStatus = PollStatus.ONGOING;
+        if (!isPublished) {
+            this.pollStatus = PollStatus.TEMPORARY;
+        } else {
+            this.pollStatus = PollStatus.ONGOING;
+        }
 
         for (PollItem item : pollItems) {
             item.belong(this);
@@ -98,7 +112,7 @@ public class Post extends BaseEntity {
         return new Post(jwtUser, dto, pollItems);
     }
 
-    public static Post newPostFromArchive(JwtUser user, FromArchive dto, List<PollItem> pollItems) {
+    public static Post newPost(JwtUser user, FromArchive dto, List<PollItem> pollItems) {
         return new Post(user, dto, pollItems);
     }
 
@@ -109,17 +123,8 @@ public class Post extends BaseEntity {
             pollItemResponseList.add(response);
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        Period period = Period.between(this.getUpdatedAt().toLocalDate(), now.toLocalDate());
-        Duration duration = Duration.between(this.getUpdatedAt().toLocalTime(), now.toLocalTime());
-        int years = period.getYears();
-        int months = period.getMonths();
-        int days = period.getDays();
-        long hours = duration.toHours();
-        long minutes = duration.toMinutes() - hours * 60;
-        long seconds = duration.getSeconds() - hours * 60 * 60 - minutes * 60;
-
-        return new PostResponse(id, userId.toString(), nickname, profile, title, content, publicStatus, isPublished, pollStatus, pollItemResponseList, getUpdatedAt(), now, years, months, days, hours, minutes, seconds);
+        return new PostResponse(id, userId, nickname, profile, title, content, publicStatus, isPublished,
+                pollStatus, pollItemResponseList, getUpdatedAt());
     }
 
     public Long getId() {
@@ -127,7 +132,9 @@ public class Post extends BaseEntity {
     }
 
     public boolean checkValidity(UUID userId) {
-        if (this.userId.equals(userId)) return true;
+        if (this.userId.equals(userId)) {
+            return true;
+        }
         return false;
     }
 
@@ -141,14 +148,18 @@ public class Post extends BaseEntity {
 
     public List<Long> getItemList() {
         List<Long> itemList = new ArrayList<>();
-        for (PollItem pollItem : pollItems) itemList.add(pollItem.getId());
+        for (PollItem pollItem : pollItems) {
+            itemList.add(pollItem.getId());
+        }
         return itemList;
     }
 
     public PollItem getPollItem(Long itemId) {
         PollItem pollItem = null;
         for (PollItem item : pollItems) {
-            if (item.getId().equals(itemId)) pollItem = item;
+            if (item.getId().equals(itemId)) {
+                pollItem = item;
+            }
         }
 
         return pollItem;
@@ -156,13 +167,5 @@ public class Post extends BaseEntity {
 
     public void endPoll() {
         this.pollStatus = PollStatus.CLOSED;
-    }
-
-    public void publish(CreatePostReq dto, List<PollItem> pollItems) {
-        this.title = dto.getTitle();
-        this.content = dto.getContent();
-        this.publicStatus = dto.getPublicStatus();
-        this.pollItems = pollItems;
-        this.isPublished = dto.isPublished();
     }
 }

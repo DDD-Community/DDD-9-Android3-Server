@@ -1,5 +1,7 @@
 package com.nexters.buyornot.module.archive.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.nexters.buyornot.global.common.codes.SuccessCode;
 import com.nexters.buyornot.module.archive.api.dto.request.DeleteArchiveReq;
 import com.nexters.buyornot.module.archive.api.dto.response.ArchiveResponse;
@@ -11,6 +13,9 @@ import com.nexters.buyornot.module.post.application.PostService;
 import com.nexters.buyornot.module.post.dao.PostRepository;
 import com.nexters.buyornot.module.post.domain.model.PublicStatus;
 import com.nexters.buyornot.module.user.api.dto.JwtUser;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,10 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
@@ -73,11 +74,13 @@ class ArchiveServiceTest {
         PostResponse postResponse = postService.create(user, createPostReq);
 
         //when
-        ArchiveResponse response = archiveService.saveFromPost(user, postResponse.getPollItemResponseList().get(0).getItemId());
+        ArchiveResponse response = archiveService.saveFromPost(user,
+                postResponse.getPollItemResponses().get(0).getItemId());
 
         //then
-        assertThat(response.getItemUrl()).isEqualTo(postResponse.getPollItemResponseList().get(0).getItemUrl());
+        assertThat(response.getItemUrl()).isEqualTo(postResponse.getPollItemResponses().get(0).getItemUrl());
     }
+
     @Test
     @DisplayName("Ably & Wconcept 게시물 저장 테스트")
     @Transactional
@@ -93,10 +96,11 @@ class ArchiveServiceTest {
         PostResponse postResponse = postService.create(user, createPostReq);
 
         //when
-        ArchiveResponse response = archiveService.saveFromPost(user, postResponse.getPollItemResponseList().get(0).getItemId());
+        ArchiveResponse response = archiveService.saveFromPost(user,
+                postResponse.getPollItemResponses().get(0).getItemId());
 
         //then
-        assertThat(response.getItemUrl()).isEqualTo(postResponse.getPollItemResponseList().get(0).getItemUrl());
+        assertThat(response.getItemUrl()).isEqualTo(postResponse.getPollItemResponses().get(0).getItemUrl());
     }
 
     @Test
@@ -130,11 +134,16 @@ class ArchiveServiceTest {
         //given
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
 
-        ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
-        ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
-        ArchiveResponse archiveResponse3 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
-        ArchiveResponse archiveResponse4 = archiveService.saveFromWeb(user, "https://product.29cm.co.kr/catalog/2142915");
-        ArchiveResponse archiveResponse5 = archiveService.saveFromWeb(user, "https://www.wconcept.co.kr/Product/303147448");
+        ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user,
+                "https://www.musinsa.com/app/goods/2028329");
+        ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user,
+                "https://zigzag.kr/catalog/products/113607837");
+        ArchiveResponse archiveResponse3 = archiveService.saveFromWeb(user,
+                "https://www.musinsa.com/app/goods/3404788?loc=goods_rank");
+        ArchiveResponse archiveResponse4 = archiveService.saveFromWeb(user,
+                "https://product.29cm.co.kr/catalog/2142915");
+        ArchiveResponse archiveResponse5 = archiveService.saveFromWeb(user,
+                "https://www.wconcept.co.kr/Product/303147448");
 
         //when
         archiveService.likeArchive(user, archiveResponse1.getId());
@@ -162,8 +171,10 @@ class ArchiveServiceTest {
     void 아카이브_삭제() {
         //given
         JwtUser user = JwtUser.fromUser(UUID.randomUUID(), "mina", "mina", PROFILE);
-        ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user, "https://www.musinsa.com/app/goods/2028329");
-        ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user, "https://zigzag.kr/catalog/products/113607837");
+        ArchiveResponse archiveResponse1 = archiveService.saveFromWeb(user,
+                "https://www.musinsa.com/app/goods/2028329");
+        ArchiveResponse archiveResponse2 = archiveService.saveFromWeb(user,
+                "https://zigzag.kr/catalog/products/113607837");
         List<Long> list = new ArrayList<>();
         list.add(archiveResponse1.getId());
         list.add(archiveResponse2.getId());
